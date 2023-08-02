@@ -1,6 +1,9 @@
-Full API
-========
+Full API Reference
+==================
 
-.. doxygenindex::
-  :project: ginkgo-doxy
-  :outline:
+.. toctree::
+  :maxdepth: 3
+
+  api/linop
+  api/matrix
+  api/types
