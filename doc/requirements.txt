@@ -1,1 +1,2 @@
 breathe>=4.35.0
+sphinx-rtd-theme
