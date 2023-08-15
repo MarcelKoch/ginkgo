@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 
-cp .github/bot-pr-format-base.sh /tmp
-source /tmp/bot-pr-format-base.sh
+
+cp .github/bot-pr-base.sh /tmp
+source /tmp/bot-pr-base.sh
 
 # check for changed files, replace newlines by \n
 LIST_FILES=$(git diff --name-only | sed '$!s/$/\\n/' | tr -d '\n')
