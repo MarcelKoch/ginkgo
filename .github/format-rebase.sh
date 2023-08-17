@@ -17,9 +17,9 @@ LOCAL_BRANCH=rebase-tmp-$HEAD_BRANCH
 git checkout -b $LOCAL_BRANCH fork/$HEAD_BRANCH
 
 # save scripts from develop
-pushd dev_tools/scripts
+pushd dev_tools/scripts || exit 1
 cp add_license.sh format_header.sh update_ginkgo_header.sh /tmp
-popd
+popd || exit 1
 
 bot_delete_comments_matching "Error: Rebase failed"
 
@@ -30,7 +30,7 @@ git rebase --rebase-merges --empty=drop --no-keep-empty \
     --exec "cp /tmp/add_license.sh /tmp/format_header.sh /tmp/update_ginkgo_header.sh dev_tools/scripts/ && \
             dev_tools/scripts/add_license.sh && dev_tools/scripts/update_ginkgo_header.sh && \
             for f in \$($DIFF_COMMAND | grep -E '$FORMAT_HEADER_REGEX'); do dev_tools/scripts/format_header.sh \$f; done && \
-            for f in \$($DIFF_COMMAND | grep -E '$FORMAT_REGEX'); do $CLANG_FORMAT -i \$f; done && \
+            pipx run pre-commit run --files $TO_FORMAT && \
             git checkout dev_tools/scripts && (git diff >> /tmp/difflog; true) && (git diff --quiet || git commit -a --amend --no-edit --allow-empty)" \
     base/$BASE_BRANCH 2>&1 || bot_error "Rebase failed, see the related [Action]($JOB_URL) for details"
 
