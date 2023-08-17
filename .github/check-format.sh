@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 
-
 cp .github/bot-pr-base.sh /tmp
 source /tmp/bot-pr-base.sh
 

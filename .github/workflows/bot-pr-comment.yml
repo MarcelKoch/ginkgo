@@ -17,23 +17,8 @@ jobs:
       run: cp --preserve .github/label.sh /tmp && /tmp/label.sh
   check_format:
     name: check-format
-    runs-on: ubuntu-22.04
     if: github.event.issue.pull_request != '' && github.event.comment.body == 'check-format!' && (github.event.comment.author_association == 'COLLABORATOR' || github.event.comment.author_association == 'MEMBER' || github.event.comment.author_association == 'OWNER')
-    steps:
-    - name: Checkout the latest code (shallow clone)
-      uses: actions/checkout@v3
-      with:
-        ref: develop
-    - name: Check for formatting changes
-      env:
-        GITHUB_TOKEN: ${{ secrets.BOT_TOKEN }}
-      run: cp --preserve .github/check-format.sh /tmp && /tmp/check-format.sh
-    - name: Upload code formatting patch
-      if: failure()
-      uses: actions/upload-artifact@v3
-      with:
-          name: patch
-          path: format.patch
+    uses: ./github/workflows/check-formatting.yml
   format:
     name: format
     runs-on: ubuntu-22.04
@@ -41,13 +26,16 @@ jobs:
     steps:
     - name: Checkout the latest code (shallow clone)
       uses: actions/checkout@v3
-      with:
-        ref: develop
-        persist-credentials: false
+    - name: Run formatting
+      uses: ./.github/actions/run-pre-commit
+      continue-on-error: true
     - name: Commit formatting changes
-      env:
-        GITHUB_TOKEN: ${{ secrets.BOT_TOKEN }}
-      run: cp --preserve .github/format.sh /tmp && /tmp/format.sh
+      run: |
+        git config user.name ginkgo-bot
+        git config user.email ginkgo.library@gmail.com
+        git add . 
+        git commit -m "Format files" || true
+        git push
   rebase:
     name: rebase
     if: github.event.issue.pull_request != '' && github.event.comment.body == 'rebase!' && (github.event.comment.author_association == 'COLLABORATOR' || github.event.comment.author_association == 'MEMBER' || github.event.comment.author_association == 'OWNER')
