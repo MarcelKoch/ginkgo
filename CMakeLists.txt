@@ -95,6 +95,8 @@ option(GINKGO_FORCE_GPU_AWARE_MPI "Assert that the MPI library is GPU aware. Thi
      catastrophically in case the MPI implementation is not GPU Aware, and GPU aware functionality has been forced" OFF)
 set(GINKGO_CI_TEST_OMP_PARALLELISM "4" CACHE STRING
     "The number of OpenMP threads to use for a test binary during CTest resource file-constrained test.")
+option(GINKGO_INSTALL_GIT_HOOKS "Install Ginkgo's git hooks." ON)
+mark_as_advanced(GINKGO_INSTALL_GIT_HOOKS)
 
 # load executor-specific configuration
 if(GINKGO_BUILD_CUDA)
@@ -356,11 +358,30 @@ endif()
 if(GINKGO_DEVEL_TOOLS)
     find_program(PRE_COMMIT pre-commit)
     if(${PRE_COMMIT} STREQUAL "PRE_COMMIT-NOTFOUND")
-        message(FATAL_ERROR "The pre-commit command was not found. It is necessary if you want to commit changes to Ginkgo. "
+        message(FATAL_ERROR
+                "The pre-commit command was not found. It is necessary if you want to commit changes to Ginkgo. "
                 "If that is not the case, set GINKGO_DEVEL_TOOLS=OFF. "
                 "Otherwise install pre-commit via pipx (or pip) using:\n"
                 "    pipx install pre-commit")
     endif()
+
+    if(GINKGO_INSTALL_GIT_HOOKS)
+        execute_process(COMMAND "pre-commit install"
+                        RESULT_VARIABLE pre-commit-result
+                        ERROR_VARIABLE pre-commit-error)
+        if(${pre-commit-result})
+            message(FATAL_ERROR
+                    "Failed to install the git hooks via pre-commit. Please check the error message:\n"
+                    "${pre-commit-error}")
+        endif()
+        set(GINKGO_INSTALL_GIT_HOOKS OFF CACHE BOOL "Should Ginkgo install git hooks" FORCE)
+    endif()
+
+    add_custom_target(format
+                      COMMAND bash -c "pre-commit run"
+                      WORKING_DIRECTORY ${Ginkgo_SOURCE_DIR}
+                      VERBATIM)
+
     add_custom_target(add_license
         COMMAND ${Ginkgo_SOURCE_DIR}/dev_tools/scripts/add_license.sh
         WORKING_DIRECTORY ${Ginkgo_SOURCE_DIR})
