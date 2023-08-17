@@ -1,7 +1,8 @@
+name: OnCommentPR
+
 on:
   issue_comment:
     types: [created]
-name: OnCommentPR
 
 jobs:
   label:
