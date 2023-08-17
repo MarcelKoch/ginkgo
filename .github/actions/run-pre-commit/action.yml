@@ -8,5 +8,3 @@ runs:
       run: git fetch --depth 1 origin develop
     - uses: actions/setup-python@v3
     - uses: pre-commit/action@v3.0.0
-      with:
-        extra_args: --from-ref origin/develop --to-ref HEAD

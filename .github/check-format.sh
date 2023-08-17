@@ -1,16 +1,20 @@
 #!/usr/bin/env bash
 
-
 cp .github/bot-pr-base.sh /tmp
 source /tmp/bot-pr-base.sh
 
+echo -n "Collecting information on changed files"
+
 # check for changed files, replace newlines by \n
 LIST_FILES=$(git diff --name-only | sed '$!s/$/\\n/' | tr -d '\n')
+echo -n .
 
 git diff > /tmp/format.patch
 mv /tmp/format.patch .
+echo -n .
 
 bot_delete_comments_matching "Error: The following files need to be formatted"
+echo -n .
 
 if [[ "$LIST_FILES" != "" ]]; then
   MESSAGE="The following files need to be formatted:\n"'```'"\n$LIST_FILES\n"'```'
@@ -18,3 +22,4 @@ if [[ "$LIST_FILES" != "" ]]; then
   MESSAGE="$MESSAGE($JOB_URL) or run "'`format!` if you have write access to Ginkgo'
   bot_error "$MESSAGE"
 fi
+echo .

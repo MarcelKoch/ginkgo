@@ -1,21 +1,21 @@
-name: Pre-Commit Hooks
+name: Check formatting
 on:
-  pull_request:
-    types: [opened, synchronize]
+  workflow_call: 
 
 jobs:
-  run:
+  pre-commit:
     name: Run pre-commit hooks
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: ./.github/actions/run-pre-commit
+      - name: Run Pre-Commit Checks
+        uses: ./.github/actions/run-pre-commit
         id: pre-commit
       - name: Comment on PR
         if: ${{ failure() && steps.pre-commit.outcome == 'failure' }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # why are we using the bot for that?
         run: cp .github/check-format.sh /tmp && /tmp/check-format.sh
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Upload code formatting patch
         if: ${{ failure() && steps.pre-commit.outcome == 'failure' }}
         uses: actions/upload-artifact@v3
