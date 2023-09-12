@@ -117,9 +117,9 @@ void run_kernel_impl(std::shared_ptr<const OmpExecutor> exec, KernelFunction fn,
     constexpr int block_size = 8;
     using remainders = syn::as_list<syn::range<0, block_size, 1>>;
 
-    if (cols <= 0) {        return;
+    if (cols <= 0)
+    {        return;
     }
-
     select_run_kernel_sized(
         remainders(),
         [&](int remainder) { return remainder == cols % block_size; },
