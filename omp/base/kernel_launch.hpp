@@ -134,7 +134,8 @@ template <typename KernelFunction, typename... KernelArgs>
 void run_kernel(std::shared_ptr<const OmpExecutor> exec, KernelFunction fn,
                 size_type size, KernelArgs&&... args)
 {
-    run_kernel_impl(exec, fn, size, map_to_device(args)...);
+    run_kernel_impl(exec, fn, size,
+                    map_to_device(args)...);
 }
 
 
@@ -142,7 +143,8 @@ template <typename KernelFunction, typename... KernelArgs>
 void run_kernel(std::shared_ptr<const OmpExecutor> exec, KernelFunction fn,
                 dim<2> size, KernelArgs&&... args)
 {
-    run_kernel_impl(exec, fn, size, map_to_device(args)...);
+    run_kernel_impl(exec, fn, size,
+                    map_to_device(args)...);
 }
 
 
