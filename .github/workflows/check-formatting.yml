@@ -1,6 +1,7 @@
 name: Check formatting
 on:
-  workflow_call:
+  pull_request_target:
+    types: [opened,synchronize]
 
 jobs:
   pre-commit:
@@ -11,11 +12,18 @@ jobs:
       - name: Run pre-commit hooks
         uses: ./.github/actions/run-pre-commit
         id: pre-commit
+      - name: Get changes list
+        id: get-changes
+        if: ${{ failure() && steps.pre-commit.outcome == 'failure' }}
+        run: echo "changes=$(git ls-files -m)" >> $GITHUB_OUTPUT
       - name: Comment on PR
         if: ${{ failure() && steps.pre-commit.outcome == 'failure' }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # why are we using the bot for that?
-        run: cp .github/check-format.sh /tmp && /tmp/check-format.sh
+        run: |
+          JOB_URL="https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+          echo "The following files need to be formatted:" > body-file
+          echo "```\n${{ steps.get-changes.outputs.changes }}\n``` >> body-file
+          echo "You can find a formatting patch under **Artifacts** [here]($JOB_URL) or run `format!` if you have write access to Ginkgo" > body-file
+          gh issue comment ${{ github.event.pull_request.number }} --body-file body-file
       - name: Upload code formatting patch
         if: ${{ failure() && steps.pre-commit.outcome == 'failure' }}
         uses: actions/upload-artifact@v3
