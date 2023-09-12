@@ -119,6 +119,7 @@ void run_kernel_impl(std::shared_ptr<const OmpExecutor> exec, KernelFunction fn,
 
     if (cols <= 0) {        return;
     }
+
     select_run_kernel_sized(
         remainders(),
         [&](int remainder) { return remainder == cols % block_size; },
