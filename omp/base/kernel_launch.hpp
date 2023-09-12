@@ -97,6 +97,7 @@ void run_kernel_sized_impl(syn::value_list<int, remainder_cols>,
                     [&]() { fn(row, base_col + i, args...); }();
                 }
             }
+
 #pragma unroll
             for (int64 i = 0; i < remainder_cols; i++) {
                 [&]() { fn(row, rounded_cols + i, args...); }();
