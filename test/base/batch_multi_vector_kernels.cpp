@@ -94,7 +94,6 @@ protected:
         dc_y = gko::clone(exec,                          c_y);
         dalpha = gko::clone(exec,
                             alpha);
-
         dbeta = gko::clone(exec, beta);
 
         expected = Mtx::create(            ref, gko::batch_dim<2>(batch_size, gko::dim<2>{1, num_vecs}));
