@@ -3,6 +3,10 @@ description: 'Run Pre-Commit'
 runs:
   using: "composite"
   steps:
+    - name: Checkout the latest code (shallow clone)
+      uses: actions/checkout@v3
+      with:
+        ref: develop
     - name: Make origin/develop available
       shell: bash
       run: git fetch --depth 1 origin develop
