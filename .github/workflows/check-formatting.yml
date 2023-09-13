@@ -28,7 +28,7 @@ jobs:
         run: |
           JOB_URL="https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
           echo "The following files need to be formatted:" > body-file
-          echo "```\n${{ steps.get-changes.outputs.changes }}``` >> body-file
+          echo "```\n${{ steps.get-changes.outputs.changes }}```" >> body-file
           echo "You can find a formatting patch under **Artifacts** [here]($JOB_URL) or run `format!` if you have write access to Ginkgo" > body-file
           gh issue comment ${{ github.event.pull_request.number }} --body-file body-file
       - name: Upload code formatting patch
