@@ -92,6 +92,7 @@ protected:
         dc_x = gko::clone(exec, c_x);
         dc_y = gko::clone(exec, c_y);
         dalpha = gko::clone(exec, alpha);
+        
         dbeta = gko::clone(exec, beta);
 
         expected = Mtx::create(
