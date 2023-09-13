@@ -9,6 +9,10 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  print-ref:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "${{ github.ref_name }}"
   check-format:
     runs-on: ubuntu-latest
     if: github.event.pull_request.author_association == 'COLLABORATOR' || github.event.pull_request.author_association == 'MEMBER' || github.event.pull_request.author_association == 'OWNER'
