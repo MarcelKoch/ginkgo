@@ -81,6 +81,7 @@ protected:
         c_x = gen_mtx<ComplexMtx>(batch_size, num_rows, num_vecs);
         c_y = gen_mtx<ComplexMtx>(batch_size, num_rows, num_vecs);
         if (different_alpha) {
+
             alpha = gen_mtx<Mtx>(batch_size, 1, num_vecs);
             beta = gen_mtx<Mtx>(batch_size, 1, num_vecs);
         } else {
