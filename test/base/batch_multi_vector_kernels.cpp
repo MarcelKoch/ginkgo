@@ -88,7 +88,8 @@ protected:
             alpha = gko::batch::initialize<Mtx>(batch_size, {2.0}, ref);
             beta = gko::batch::initialize<Mtx>(batch_size, {-0.5}, ref);
         }
-        dx = gko::clone(exec, x);        dy = gko::clone(exec, y);
+        dx = gko::clone(exec,
+                        x);        dy = gko::clone(exec, y);
         dc_x = gko::clone(exec,
                           c_x);
         dc_y = gko::clone(exec, c_y);
