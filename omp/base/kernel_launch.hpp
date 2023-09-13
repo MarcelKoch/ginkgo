@@ -59,7 +59,8 @@ void run_kernel_impl(std::shared_ptr<const OmpExecutor> exec, KernelFunction fn,
 {
 #pragma omp parallel for
     for (int64 i = 0; i < static_cast<int64>(size); i++) {
-        [&]() { fn(i, args...); }();
+        [&]() { fn(i,
+                   args...); }();
     }
 }
 

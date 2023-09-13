@@ -61,10 +61,8 @@ void build_local_nonlocal(
         col_partition,
     comm_index_type local_part, array<LocalIndexType>& local_row_idxs,
     array<LocalIndexType>& local_col_idxs, array<ValueType>& local_values,
-    array<LocalIndexType>& non_local_row_idxs,
-    array<LocalIndexType>& non_local_col_idxs,
-    array<ValueType>& non_local_values,
-    array<LocalIndexType>& local_gather_idxs,
+    array<LocalIndexType>& non_local_row_idxs,    array<LocalIndexType>& non_local_col_idxs,
+    array<ValueType>& non_local_values,    array<LocalIndexType>& local_gather_idxs,
     array<comm_index_type>& recv_sizes,
     array<GlobalIndexType>& non_local_to_global)
 {
