@@ -97,8 +97,7 @@ protected:
 
         dbeta = gko::clone(exec, beta);
 
-        expected = Mtx::create(
-            ref, gko::batch_dim<2>(batch_size, gko::dim<2>{1, num_vecs}));
+        expected = Mtx::create(            ref, gko::batch_dim<2>(batch_size, gko::dim<2>{1, num_vecs}));
         dresult = Mtx::create(
             exec, gko::batch_dim<2>(batch_size, gko::dim<2>{1, num_vecs}));
     }
