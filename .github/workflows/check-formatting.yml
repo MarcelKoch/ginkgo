@@ -1,12 +1,22 @@
 name: Check formatting
 on:
-  workflow_call: 
+  workflow_call:
+    inputs:
+      ref:
+        description: 'The branch name to checkout'
+        default: ${{ github.base_ref }}
+        required: false
+        type: string
 
 jobs:
   pre-commit:
     name: Run pre-commit hooks
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout the latest code (shallow clone)
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ inputs.ref }}
       - name: Run Pre-Commit Checks
         uses: ./.github/actions/run-pre-commit
         id: pre-commit
