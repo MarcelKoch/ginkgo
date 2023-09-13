@@ -25,10 +25,8 @@ else
   USER_URL=$(jq -er ".pull_request.user.url" "$GITHUB_EVENT_PATH")
   echo -n .
 fi
-echo
 echo -n .
 PR_JSON=$(api_get $PR_URL)
-echo "$PR_JSON"
 echo -n .
 PR_MERGED=$(echo "$PR_JSON" | jq -r .merged)
 echo -n .
@@ -92,22 +90,17 @@ bot_get_all_changed_files() {
 # collect info on the user that invoked the bot
 echo -n "Collecting information on triggering user"
 USER_JSON=$(api_get $USER_URL)
-echo -n .
+echo .
 
 USER_NAME=$(echo "$USER_JSON" | jq -r ".name")
-echo -n .
 if [[ "$USER_NAME" == "null" ]]; then
 	USER_NAME=$USER_LOGIN
 fi
-echo -n .
 USER_EMAIL=$(echo "$USER_JSON" | jq -r ".email")
-echo -n .
 if [[ "$USER_EMAIL" == "null" ]]; then
 	USER_EMAIL="$USER_LOGIN@users.noreply.github.com"
 fi
-echo -n .
 USER_COMBINED="$USER_NAME <$USER_EMAIL>"
-echo .
 
 if [[ "$PR_MERGED" == "true" ]]; then
   bot_error "PR already merged!"
