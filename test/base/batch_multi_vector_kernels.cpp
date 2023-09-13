@@ -74,6 +74,7 @@ protected:
                             bool different_alpha = false)
     {
         const int num_rows = 252;
+        
         x = gen_mtx<Mtx>(batch_size,
 num_rows, num_vecs);
         y = gen_mtx<Mtx>(batch_size, num_rows, num_vecs);
