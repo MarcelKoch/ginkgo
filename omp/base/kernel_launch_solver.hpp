@@ -46,7 +46,8 @@ typename device_unpack_solver_impl<typename to_device_type_impl<T>::type>::type
 map_to_device_solver(T&& param, int64 default_stride)
 {
     return device_unpack_solver_impl<typename to_device_type_impl<T>::type>::
-        unpack(to_device_type_impl<T>::map_to_device(param),
+        unpack(
+            to_device_type_impl<T>::map_to_device(param),
                default_stride);
 }
 
