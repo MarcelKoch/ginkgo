@@ -1,7 +1,7 @@
 [
-    {
-        "size": 100,
-        "stencil": "7pt",
-        "comm_pattern": "stencil"
-    }
+  {
+    "size": 100,
+    "stencil": "7pt",
+    "comm_pattern": "stencil"
+  }
 ]

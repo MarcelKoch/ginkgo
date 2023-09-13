@@ -56,7 +56,9 @@ struct stride {
     // Some older version require [] while some require (), so I added both
     template <typename Index>
     Index operator[](const Index& i) const
-    {        return i * 2;    }
+    {
+        return i * 2;
+    }
 
     template <typename Index>
     Index operator()(const Index& i) const

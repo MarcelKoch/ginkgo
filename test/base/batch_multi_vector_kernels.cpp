@@ -75,8 +75,7 @@ protected:
     {
         const int num_rows = 252;
 
-        x = gen_mtx<Mtx>(batch_size,
-num_rows, num_vecs);
+        x = gen_mtx<Mtx>(batch_size, num_rows, num_vecs);
 
         y = gen_mtx<Mtx>(batch_size, num_rows, num_vecs);
         c_x = gen_mtx<ComplexMtx>(batch_size, num_rows, num_vecs);
@@ -94,6 +93,7 @@ num_rows, num_vecs);
         dc_y = gko::clone(exec, c_y);
         dalpha = gko::clone(exec, alpha);
         dbeta = gko::clone(exec, beta);
+
         expected = Mtx::create(
             ref, gko::batch_dim<2>(batch_size, gko::dim<2>{1, num_vecs}));
         dresult = Mtx::create(
