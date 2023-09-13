@@ -59,9 +59,7 @@ struct is_complex_or_scalar_impl<thrust::complex<T>> : std::is_scalar<T> {};
 
 
 template <typename T>
-struct truncate_type_impl<thrust::complex<T>> {
-    using type = thrust::complex<typename truncate_type_impl<T>::type>;
-};
+struct truncate_type_impl<thrust::complex<T>> {    using type = thrust::complex<typename truncate_type_impl<T>::type>; };
 
 
 }  // namespace detail
