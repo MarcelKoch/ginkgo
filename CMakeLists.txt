@@ -89,8 +89,6 @@ option(GINKGO_INSTALL_RPATH_ORIGIN "Add $ORIGIN (Linux) or @loader_path (MacOS) 
 option(GINKGO_INSTALL_RPATH_DEPENDENCIES "Add dependencies to the installation RPATH." OFF)
 option(GINKGO_FORCE_GPU_AWARE_MPI "Assert that the MPI library is GPU aware. This forces Ginkgo to assume that GPU aware functionality is available (OFF (default) or ON), but may fail
      catastrophically in case the MPI implementation is not GPU Aware, and GPU aware functionality has been forced" OFF)
-option(GINKGO_INSTALL_GIT_HOOKS "Install Ginkgo's git hooks." ON)
-mark_as_advanced(GINKGO_INSTALL_GIT_HOOKS)
 
 # load executor-specific configuration
 if(GINKGO_BUILD_CUDA)
@@ -349,16 +347,13 @@ if(GINKGO_DEVEL_TOOLS)
                 "    pipx install pre-commit")
     endif()
 
-    if(GINKGO_INSTALL_GIT_HOOKS)
-        execute_process(COMMAND "pre-commit install"
-                        RESULT_VARIABLE pre-commit-result
-                        ERROR_VARIABLE pre-commit-error)
-        if(${pre-commit-result})
-            message(FATAL_ERROR
-                    "Failed to install the git hooks via pre-commit. Please check the error message:\n"
-                    "${pre-commit-error}")
-        endif()
-        set(GINKGO_INSTALL_GIT_HOOKS OFF CACHE BOOL "Should Ginkgo install git hooks" FORCE)
+    execute_process(COMMAND "pre-commit install"
+                    RESULT_VARIABLE pre-commit-result
+                    ERROR_VARIABLE pre-commit-error)
+    if(${pre-commit-result})
+        message(FATAL_ERROR
+                "Failed to install the git hooks via pre-commit. Please check the error message:\n"
+                "${pre-commit-error}")
     endif()
 
     add_custom_target(format
