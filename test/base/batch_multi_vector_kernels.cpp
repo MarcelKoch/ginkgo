@@ -94,7 +94,8 @@ protected:
                           c_x);
         dc_y = gko::clone(exec,
                           c_y);
-        dalpha = gko::clone(exec, alpha);
+        dalpha = gko::clone(exec,
+                            alpha);
 
         dbeta = gko::clone(exec, beta);
 
