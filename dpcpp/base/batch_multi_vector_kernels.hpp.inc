@@ -58,7 +58,8 @@ __dpct_inline__ void add_scaled_kernel(
     const int max_li = x.num_rows * x.num_rhs;
     for (int li = item_ct1.get_local_id(2); li < max_li;
          li += item_ct1.get_local_range(2)) {
-        const int row = li / x.num_rhs;        const int col = li % x.num_rhs;
+        const int row = li / x.num_rhs;
+        const int col = li % x.num_rhs;
 
         y.values[row * y.stride + col] +=
             alpha.values[map(col)] * x.values[row * x.stride + col];
