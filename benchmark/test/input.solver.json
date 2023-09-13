@@ -1,9 +1,9 @@
 [
-    {
-        "size": 100,
-        "stencil": "7pt",
-        "optimal": {
-            "spmv": "csr"
-        }
+  {
+    "size": 100,
+    "stencil": "7pt",
+    "optimal": {
+      "spmv": "csr"
     }
+  }
 ]
