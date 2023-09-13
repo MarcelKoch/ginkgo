@@ -8,8 +8,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Run Pre-Commit Checks
-        uses: ./.github/actions/run-pre-commit
+      - name: Make origin/develop available
+        shell: bash
+        run: git fetch --depth 1 origin develop
+      - uses: actions/setup-python@v3
+      - uses: pre-commit/action@v3.0.0
+        with:
+          extra_args: --from-ref develop --to-ref HEAD
         id: pre-commit
       - name: Comment on PR
         if: ${{ failure() && steps.pre-commit.outcome == 'failure' }}
