@@ -80,23 +80,21 @@ protected:
         c_x = gen_mtx<ComplexMtx>(batch_size, num_rows, num_vecs);
         c_y = gen_mtx<ComplexMtx>(batch_size, num_rows, num_vecs);
         if (different_alpha) {
-
             alpha = gen_mtx<Mtx>(batch_size, 1, num_vecs);
             beta = gen_mtx<Mtx>(batch_size, 1, num_vecs);
         } else {
             alpha = gko::batch::initialize<Mtx>(batch_size, {2.0}, ref);
             beta = gko::batch::initialize<Mtx>(batch_size, {-0.5}, ref);
         }
-        dx = gko::clone(exec,
-                        x);        dy = gko::clone(exec, y);
-        dc_x = gko::clone(exec,
-                          c_x);
-        dc_y = gko::clone(exec,                         c_y);
-        dalpha = gko::clone(exec,
-                            alpha);
+        dx = gko::clone(exec, x);
+        dy = gko::clone(exec, y);
+        dc_x = gko::clone(exec, c_x);
+        dc_y = gko::clone(exec, c_y);
+        dalpha = gko::clone(exec, alpha);
         dbeta = gko::clone(exec, beta);
 
-        expected = Mtx::create(            ref, gko::batch_dim<2>(batch_size, gko::dim<2>{1, num_vecs}));
+        expected = Mtx::create(
+            ref, gko::batch_dim<2>(batch_size, gko::dim<2>{1, num_vecs}));
         dresult = Mtx::create(
             exec, gko::batch_dim<2>(batch_size, gko::dim<2>{1, num_vecs}));
     }
