@@ -57,6 +57,7 @@ void run_kernel_solver(std::shared_ptr<const OmpExecutor> exec,
 {
     run_kernel_impl(
         exec, fn,
+
         size,
         map_to_device_solver(args, static_cast<int64>(default_stride))...);
 }
