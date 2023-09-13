@@ -13,8 +13,15 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event.pull_request.author_association == 'COLLABORATOR' || github.event.pull_request.author_association == 'MEMBER' || github.event.pull_request.author_association == 'OWNER'
     steps:
-      - name: Run Pre-Commit Checks
-        uses: ./.github/actions/run-pre-commit
+      - name: Checkout the latest code (shallow clone)
+        uses: actions/checkout@v3
+      - name: Make origin/develop available
+        shell: bash
+        run: git fetch --depth 1 origin develop
+      - uses: actions/setup-python@v3
+      - uses: pre-commit/action@v3.0.0
+        with:
+          extra_args: --from-ref develop --to-ref HEAD
         id: pre-commit
       - name: Comment on PR
         if: ${{ failure() && steps.pre-commit.outcome == 'failure' }}
