@@ -46,9 +46,7 @@ typename device_unpack_solver_impl<typename to_device_type_impl<T>::type>::type
 map_to_device_solver(T&& param, int64 default_stride)
 {
     return device_unpack_solver_impl<typename to_device_type_impl<T>::type>::
-        unpack(
-            to_device_type_impl<T>::map_to_device(param),
-               default_stride);
+        unpack(to_device_type_impl<T>::map_to_device(param), default_stride);
 }
 
 
@@ -58,9 +56,7 @@ void run_kernel_solver(std::shared_ptr<const OmpExecutor> exec,
                        KernelArgs&&... args)
 {
     run_kernel_impl(
-        exec,
-        fn,
-        size,
+        exec, fn, size,
         map_to_device_solver(args, static_cast<int64>(default_stride))...);
 }
 
