@@ -356,8 +356,7 @@ endif()
 if(GINKGO_DEVEL_TOOLS)
     find_program(PRE_COMMIT pre-commit)
     if(${PRE_COMMIT} STREQUAL "PRE_COMMIT-NOTFOUND")
-        message(FATAL_ERROR
-                "The pre-commit command was not found. It is necessary if you want to commit changes to Ginkgo. "
+        message(FATAL_ERROR "The pre-commit command was not found. It is necessary if you want to commit changes to Ginkgo. "
                 "If that is not the case, set GINKGO_DEVEL_TOOLS=OFF. "
                 "Otherwise install pre-commit via pipx (or pip) using:\n"
                 "    pipx install pre-commit")
