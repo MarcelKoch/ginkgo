@@ -354,32 +354,57 @@ if(GINKGO_BUILD_BENCHMARKS)
 endif()
 
 if(GINKGO_DEVEL_TOOLS)
-    find_program(PRE_COMMIT pre-commit)
-    if(${PRE_COMMIT} STREQUAL "PRE_COMMIT-NOTFOUND")
-        message(FATAL_ERROR "The pre-commit command was not found. It is necessary if you want to commit changes to Ginkgo. "
-                "If that is not the case, set GINKGO_DEVEL_TOOLS=OFF. "
-                "Otherwise install pre-commit via pipx (or pip) using:\n"
-                "    pipx install pre-commit")
-    endif()
+    function(enable_format_check)
+        macro(message_git_warning)
+            message(WARNING "No viable Git setup found, but GINKGO_DEVEL_TOOLS=ON is set. "
+                    "It is recommended to enable this option only with the intention of "
+                    "adding changes to Ginkgo via Git.")
+        endmacro()
 
-    execute_process(COMMAND "${PRE_COMMIT}" "install"
-                    RESULT_VARIABLE pre-commit-result
-                    ERROR_VARIABLE pre-commit-error)
-    if(${pre-commit-result})
-        message(FATAL_ERROR
-                "Failed to install the git hooks via pre-commit. Please check the error message:\n"
-                "${pre-commit-error}")
-    endif()
+        find_package(Git QUIET)
+        if(NOT GIT_FOUND)
+            message_git_warning()
+            return()
+        endif()
 
-    add_custom_target(format
-                      COMMAND bash -c "pre-commit run"
-                      WORKING_DIRECTORY ${Ginkgo_SOURCE_DIR}
-                      VERBATIM)
+        execute_process(COMMAND ${GIT_EXECUTABLE} "rev-parse" "--git-dir"
+                        WORKING_DIRECTORY ${Ginkgo_SOURCE_DIR}
+                        RESULT_VARIABLE GINKGO_IS_GIT_DIR_ERROR)
+        if(${GINKGO_IS_GIT_DIR_ERROR})
+            message_git_warning()
+            return()
+        endif()
 
-    add_custom_target(add_license
-        COMMAND ${Ginkgo_SOURCE_DIR}/dev_tools/scripts/add_license.sh
-        WORKING_DIRECTORY ${Ginkgo_SOURCE_DIR})
-    add_dependencies(format add_license)
+        find_program(PRE_COMMIT pre-commit)
+        if(${PRE_COMMIT} STREQUAL "PRE_COMMIT-NOTFOUND")
+            message(FATAL_ERROR "The pre-commit command was not found. It is necessary if you want to commit changes to Ginkgo. "
+                    "If that is not the case, set GINKGO_DEVEL_TOOLS=OFF. "
+                    "Otherwise install pre-commit via pipx (or pip) using:\n"
+                    "    pipx install pre-commit")
+        endif()
+
+        execute_process(COMMAND "${PRE_COMMIT}" "install"
+                        RESULT_VARIABLE pre-commit-result
+                        OUTPUT_VARIABLE pre-commit-output
+                        ERROR_VARIABLE pre-commit-error)
+        if(${pre-commit-result})
+            message(FATAL_ERROR
+                    "Failed to install the git hooks via pre-commit. Please check the error message:\n"
+                    "${pre-commit-output}\n${pre-commit-error}")
+        endif()
+
+        add_custom_target(format
+                          COMMAND bash -c "pre-commit run"
+                          WORKING_DIRECTORY ${Ginkgo_SOURCE_DIR}
+                          VERBATIM)
+
+        add_custom_target(add_license
+                          COMMAND ${Ginkgo_SOURCE_DIR}/dev_tools/scripts/add_license.sh
+                          WORKING_DIRECTORY ${Ginkgo_SOURCE_DIR})
+        add_dependencies(format add_license)
+    endfunction()
+
+    enable_format_check()
 endif()
 
 # MacOS needs to install bash, gnu-sed, findutils and coreutils
