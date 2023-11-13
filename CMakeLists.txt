@@ -384,6 +384,7 @@ if(GINKGO_DEVEL_TOOLS)
         endif()
 
         execute_process(COMMAND "${PRE_COMMIT}" "install"
+                        WORKING_DIRECTORY ${Ginkgo_SOURCE_DIR}
                         RESULT_VARIABLE pre-commit-result
                         OUTPUT_VARIABLE pre-commit-output
                         ERROR_VARIABLE pre-commit-error)
