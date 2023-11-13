@@ -362,7 +362,7 @@ if(GINKGO_DEVEL_TOOLS)
                 "    pipx install pre-commit")
     endif()
 
-    execute_process(COMMAND "pre-commit install"
+    execute_process(COMMAND "${PRE_COMMIT}" "install"
                     RESULT_VARIABLE pre-commit-result
                     ERROR_VARIABLE pre-commit-error)
     if(${pre-commit-result})
