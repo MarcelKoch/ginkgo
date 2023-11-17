@@ -9,3 +9,8 @@ jobs:
     steps:
       - name: Echo
         run: echo "Dummy echo with some more text"
+  echo2:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Echo
+        run: echo "second job"
