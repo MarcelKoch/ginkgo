@@ -98,11 +98,7 @@ struct device_sparsity_lookup {
     GKO_ATTRIBUTES GKO_INLINE device_sparsity_lookup(
         const IndexType* local_cols, IndexType row_nnz,
         const int32* local_storage, IndexType storage_size, int64 desc)
-        : local_cols{local_cols},
-          row_nnz{row_nnz},
-          local_storage{local_storage},
-          storage_size{storage_size},
-          desc{desc}
+        : local_cols{local_cols},          row_nnz{row_nnz},          local_storage{local_storage},          storage_size{storage_size},          desc{desc}
     {}
 
     /**
