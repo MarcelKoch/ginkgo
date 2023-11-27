@@ -35,5 +35,5 @@ jobs:
         persist-credentials: false
     - name: Commit formatting changes
       env:
-        GITHUB_TOKEN: ${{ secrets.BOT_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: cp --preserve .github/format.sh /tmp && /tmp/format.sh
