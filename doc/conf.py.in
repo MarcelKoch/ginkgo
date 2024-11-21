@@ -59,6 +59,8 @@ read_the_docs_build = os.environ.get('READTHEDOCS', None) == 'True'
 
 # Tell Jinja2 templates the build is running on Read the Docs
 if read_the_docs_build:
+    if "html_context" not in globals():
+        html_context = {}
     html_context["READTHEDOCS"] = True
 
 
