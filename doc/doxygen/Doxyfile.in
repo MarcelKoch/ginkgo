@@ -58,7 +58,7 @@ PROJECT_LOGO           =
 # entered, it will be relative to the location where doxygen was started. If
 # left blank the current directory will be used.
 
-OUTPUT_DIRECTORY       = @Ginkgo_BINARY_DIR@/doc/_doxygen/
+OUTPUT_DIRECTORY       = @Ginkgo_BINARY_DIR@/doc/doxygen/
 
 # If the CREATE_SUBDIRS tag is set to YES then doxygen will create 4096 sub-
 # directories (in 2 levels) under the output directory of each output format and
@@ -869,7 +869,7 @@ INPUT                  = @Ginkgo_BINARY_DIR@/include/ginkgo/config.hpp \
                          @Ginkgo_SOURCE_DIR@/include/ \
                          @GINKGO_DOXYGEN_DIR@/mainpage.md \
                          @GINKGO_DOXYGEN_DIR@/headers/ \
-                         @Ginkgo_BINARY_DIR@/doc/_doxygen/examples/
+                         @Ginkgo_BINARY_DIR@/doc/doxygen/examples/
 
 # This tag can be used to specify the character encoding of the source files
 # that doxygen parses. Internally doxygen uses the UTF-8 encoding. Doxygen uses
