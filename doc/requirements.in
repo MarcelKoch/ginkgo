@@ -1,0 +1,11 @@
+sphinx
+sphinx_sitemap
+furo
+myst-parser
+linkify-it-py
+# Use fork until PRs fixing the parsing are merged
+# sphinxcontrib-doxylink
+git+https://github.com/MarcelKoch/doxylink.git@fix-parsing
+doxysphinx
+sphinx-book-theme
+sphinx-rtd-theme
