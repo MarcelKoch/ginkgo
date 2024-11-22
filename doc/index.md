@@ -1,7 +1,7 @@
 # User Guide
 
-This is the main page for the Ginkgo library user documentation. The repository is hosted on [github](https://github.com/ginkgo-project/ginkgo). 
-Documentation on aspects such as the build system, can be found at the [install page](user-guide/install.md). 
+This is the main page for the Ginkgo library user documentation. The repository is hosted on [github](https://github.com/ginkgo-project/ginkgo).
+Documentation on aspects such as the build system, can be found at the [install page](user-guide/install.md).
 The {doxy}`Examples` can help you get started with using Ginkgo.
 
 The Ginkgo library can be grouped into modules which form the basic building blocks of Ginkgo. The modules can be summarized as follows:
@@ -9,7 +9,7 @@ The Ginkgo library can be grouped into modules which form the basic building blo
 *   {doxy}`Executor` : Where do you want your code to be executed ?
 *   {doxy}`LinOp` : What kind of operation do you want Ginkgo to perform ?
     * {doxy}`solvers` : Solve a linear system for a given matrix.
-    * {doxy}`precond` : Precondition a linear system. 
+    * {doxy}`precond` : Precondition a linear system.
     * {doxy}`mat_formats` : Perform a sparse matrix vector multiplication with a particular matrix format.
 *   {doxy}`log` : Monitor your code execution.
 *   {doxy}`stop` : Manage your iteration stopping criteria.
@@ -23,12 +23,12 @@ The Ginkgo library can be grouped into modules which form the basic building blo
 :caption: User Guide:
 
 Tutorial <https://github.com/ginkgo-project/ginkgo/wiki/Tutorial:-Building-a-Poisson-Solver>
-Examples <_build_doxygen/html/Examples>
+Examples <_doxygen/html/Examples>
 Publications <user-guide/citing>
 user-guide/contributing
 Using Ginkgo <user-guide/install>
 user-guide/about-licensing
-API <_build_doxygen/html/index>
+API <_doxygen/html/index>
 :::
 
 :::{toctree}
