@@ -20,6 +20,7 @@ file(CREATE_LINK ${CMAKE_CURRENT_SOURCE_DIR}/user-guide ${CMAKE_CURRENT_BINARY_D
 file(CREATE_LINK ${CMAKE_CURRENT_SOURCE_DIR}/index.md ${CMAKE_CURRENT_BINARY_DIR}/index.md SYMBOLIC)
 
 # Create symlinks for top-level files referenced by documentation
+file(MAKE_DIRECTORY ${Ginkgo_BINARY_DIR}/test/test_install/)
 file(CREATE_LINK ${Ginkgo_SOURCE_DIR}/LICENSE ${Ginkgo_BINARY_DIR}/LICENSE SYMBOLIC)
 file(CREATE_LINK ${Ginkgo_SOURCE_DIR}/test/test_install/CMakeLists.txt ${Ginkgo_BINARY_DIR}/test/test_install/CMakeLists.txt SYMBOLIC)
 
