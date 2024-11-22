@@ -21,9 +21,11 @@ With this, it is possible to reference the doxygen documentation by using the sy
 ```md
 {doxy}`gko::matrix::Dense`
 ```
-Example: {doxy}`gko::matrix::Dense`.
-In the other direction, only the main page for the Sphinx documentation is available through doxygen.
-It is directly added to the `DoxygenLayout.xml` as a relative link.
+Examples:
+
+- {doxy}`gko::matrix::Dense`: referencing a type
+- {doxy}`gko::array::array`: referencing a function without specifying overload
+- {doxy}`gko::array::array(std::shared_ptr< const Executor >, size_type, value_type *)`: reference a concrete function overload
 
 The connections between Sphinx and doxygen rely on correctly set output directories for both.
 The Sphinx output dir is the main one, and the doxygen output dir is defined relative to that.
