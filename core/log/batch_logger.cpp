@@ -2,13 +2,11 @@
 //
 // SPDX-License-Identifier: BSD-3-Clause
 
-#include <ginkgo/core/log/batch_logger.hpp>
-
+#include "ginkgo/core/log/batch_logger.hpp"
 
 #include <ginkgo/core/base/array.hpp>
 #include <ginkgo/core/base/batch_multi_vector.hpp>
 #include <ginkgo/core/base/math.hpp>
-
 
 #include "core/base/workspace_aliases.hpp"
 
@@ -65,9 +63,9 @@ log_data<ValueType>::log_data(std::shared_ptr<const Executor> exec,
     }
 }
 
-#define GKO_DECLARE_LOG_DATA(_type) class log_data<_type>
+#define GKO_DECLARE_LOG_DATA(_type) struct log_data<_type>
 
-GKO_INSTANTIATE_FOR_EACH_NON_COMPLEX_VALUE_TYPE(GKO_DECLARE_LOG_DATA);
+GKO_INSTANTIATE_FOR_EACH_NON_COMPLEX_VALUE_TYPE_WITH_HALF(GKO_DECLARE_LOG_DATA);
 
 #undef GKO_DECLARE_LOG_DATA
 
@@ -94,7 +92,7 @@ void BatchConvergence<ValueType>::on_batch_solver_completed(
 
 
 #define GKO_DECLARE_BATCH_CONVERGENCE(_type) class BatchConvergence<_type>
-GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE(GKO_DECLARE_BATCH_CONVERGENCE);
+GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE_WITH_HALF(GKO_DECLARE_BATCH_CONVERGENCE);
 
 
 }  // namespace log

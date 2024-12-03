@@ -4,14 +4,12 @@
 
 #include "core/solver/common_gmres_kernels.hpp"
 
-
 #include <ginkgo/core/base/array.hpp>
 #include <ginkgo/core/base/exception_helpers.hpp>
 #include <ginkgo/core/base/math.hpp>
 #include <ginkgo/core/base/types.hpp>
 #include <ginkgo/core/solver/gmres.hpp>
 #include <ginkgo/core/stop/stopping_status.hpp>
-
 
 #include "core/solver/cb_gmres_kernels.hpp"
 
@@ -134,7 +132,8 @@ void initialize(std::shared_ptr<const ReferenceExecutor> exec,
     }
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE(GKO_DECLARE_COMMON_GMRES_INITIALIZE_KERNEL);
+GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE_WITH_HALF(
+    GKO_DECLARE_COMMON_GMRES_INITIALIZE_KERNEL);
 
 
 template <typename ValueType>
@@ -158,7 +157,7 @@ void hessenberg_qr(std::shared_ptr<const ReferenceExecutor> exec,
                                  residual_norm_collection, iter, stop_status);
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE(
+GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE_WITH_HALF(
     GKO_DECLARE_COMMON_GMRES_HESSENBERG_QR_KERNEL);
 
 
@@ -178,7 +177,7 @@ void solve_krylov(std::shared_ptr<const ReferenceExecutor> exec,
             for (size_type j = i + 1; j < final_iter_nums[k]; ++j) {
                 temp -=
                     hessenberg->at(
-                        i, j * residual_norm_collection->get_size()[1] + k) *
+                        j, i * residual_norm_collection->get_size()[1] + k) *
                     y->at(j, k);
             }
             y->at(i, k) =
@@ -188,7 +187,7 @@ void solve_krylov(std::shared_ptr<const ReferenceExecutor> exec,
     }
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE(
+GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE_WITH_HALF(
     GKO_DECLARE_COMMON_GMRES_SOLVE_KRYLOV_KERNEL);
 
 

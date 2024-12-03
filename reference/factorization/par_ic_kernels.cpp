@@ -4,11 +4,9 @@
 
 #include "core/factorization/par_ic_kernels.hpp"
 
-
 #include <ginkgo/core/base/math.hpp>
 #include <ginkgo/core/matrix/coo.hpp>
 #include <ginkgo/core/matrix/csr.hpp>
-
 
 #include "core/base/utils.hpp"
 
@@ -48,7 +46,7 @@ void init_factor(std::shared_ptr<const DefaultExecutor> exec,
     }
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(
+GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE_WITH_HALF(
     GKO_DECLARE_PAR_IC_INIT_FACTOR_KERNEL);
 
 
@@ -98,7 +96,7 @@ void compute_factor(std::shared_ptr<const DefaultExecutor> exec,
     }
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(
+GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE_WITH_HALF(
     GKO_DECLARE_PAR_IC_COMPUTE_FACTOR_KERNEL);
 
 

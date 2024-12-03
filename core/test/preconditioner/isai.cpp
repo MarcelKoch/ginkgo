@@ -2,19 +2,14 @@
 //
 // SPDX-License-Identifier: BSD-3-Clause
 
-#include <ginkgo/core/preconditioner/isai.hpp>
-
-
 #include <memory>
-
 
 #include <gtest/gtest.h>
 
-
 #include <ginkgo/core/base/exception.hpp>
 #include <ginkgo/core/matrix/csr.hpp>
+#include <ginkgo/core/preconditioner/isai.hpp>
 #include <ginkgo/core/solver/bicgstab.hpp>
-
 
 #include "core/test/utils.hpp"
 
@@ -69,7 +64,7 @@ protected:
     std::unique_ptr<typename UpperIsai::Factory> upper_isai_factory;
 };
 
-TYPED_TEST_SUITE(IsaiFactory, gko::test::ValueIndexTypes,
+TYPED_TEST_SUITE(IsaiFactory, gko::test::ValueIndexTypesWithHalf,
                  PairTypenameNameGenerator);
 
 

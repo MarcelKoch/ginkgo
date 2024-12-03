@@ -4,7 +4,6 @@
 
 #include "core/reorder/rcm_kernels.hpp"
 
-
 #include <algorithm>
 #include <iterator>
 #include <memory>
@@ -12,9 +11,7 @@
 #include <utility>
 #include <vector>
 
-
 #include <omp.h>
-
 
 #include <ginkgo/config.hpp>
 #include <ginkgo/core/base/array.hpp>
@@ -24,7 +21,6 @@
 #include <ginkgo/core/matrix/csr.hpp>
 #include <ginkgo/core/matrix/permutation.hpp>
 #include <ginkgo/core/matrix/sparsity_csr.hpp>
-
 
 #include "core/base/allocator.hpp"
 #include "core/components/prefix_sum_kernels.hpp"
@@ -746,9 +742,8 @@ IndexType handle_isolated_nodes(std::shared_ptr<const OmpExecutor> exec,
 template <typename IndexType>
 void compute_permutation(std::shared_ptr<const OmpExecutor> exec,
                          const IndexType num_vertices,
-                         const IndexType* const row_ptrs,
-                         const IndexType* const col_idxs, IndexType* const perm,
-                         IndexType* const inv_perm,
+                         const IndexType* row_ptrs, const IndexType* col_idxs,
+                         IndexType* perm, IndexType* inv_perm,
                          const gko::reorder::starting_strategy strategy)
 {
     // compute node degrees

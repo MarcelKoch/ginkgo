@@ -2,14 +2,11 @@
 //
 // SPDX-License-Identifier: BSD-3-Clause
 
-#include "core/preconditioner/jacobi_kernels.hpp"
-
-
 #include <ginkgo/config.hpp>
 #include <ginkgo/core/base/exception_helpers.hpp>
 
-
 #include "core/components/fill_array_kernels.hpp"
+#include "core/preconditioner/jacobi_kernels.hpp"
 #include "core/synthesizer/implementation_selection.hpp"
 #include "dpcpp/preconditioner/jacobi_common.hpp"
 
@@ -64,7 +61,7 @@ void generate(std::shared_ptr<const DpcppExecutor> exec,
         block_pointers.get_const_data(), num_blocks);
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(
+GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE_WITH_HALF(
     GKO_DECLARE_JACOBI_GENERATE_KERNEL);
 
 

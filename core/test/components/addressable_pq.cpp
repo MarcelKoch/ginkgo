@@ -4,16 +4,12 @@
 
 #include "core/components/addressable_pq.hpp"
 
-
 #include <algorithm>
 #include <type_traits>
 
-
 #include <gtest/gtest.h>
 
-
 #include <ginkgo/core/base/executor.hpp>
-
 
 #include "core/test/utils.hpp"
 
@@ -95,8 +91,8 @@ protected:
     std::shared_ptr<const gko::Executor> exec;
 };
 
-TYPED_TEST_SUITE(AddressablePriorityQueue, gko::test::RealValueIndexTypes,
-                 TypenameNameGenerator);
+TYPED_TEST_SUITE(AddressablePriorityQueue,
+                 gko::test::RealValueIndexTypesWithHalf, TypenameNameGenerator);
 
 
 TYPED_TEST(AddressablePriorityQueue, InitializesCorrectly)

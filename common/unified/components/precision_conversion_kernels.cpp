@@ -4,7 +4,6 @@
 
 #include "core/components/precision_conversion_kernels.hpp"
 
-
 #include "common/unified/base/kernel_launch.hpp"
 
 
@@ -24,7 +23,8 @@ void convert_precision(std::shared_ptr<const DefaultExecutor> exec,
         size, in, out);
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_CONVERSION(GKO_DECLARE_CONVERT_PRECISION_KERNEL);
+GKO_INSTANTIATE_FOR_EACH_VALUE_CONVERSION_WITH_HALF(
+    GKO_DECLARE_CONVERT_PRECISION_KERNEL);
 
 
 }  // namespace components

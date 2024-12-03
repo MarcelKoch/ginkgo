@@ -2,21 +2,14 @@
 //
 // SPDX-License-Identifier: BSD-3-Clause
 
-// force-top: on
-// oneDPL needs to be first to avoid issues with libstdc++ TBB impl
 #include <oneapi/dpl/algorithm>
-// force-top: off
-
 
 #include "core/multigrid/pgm_kernels.hpp"
 
-
 #include <memory>
-
 
 #include <ginkgo/core/base/exception_helpers.hpp>
 #include <ginkgo/core/base/math.hpp>
-
 
 #include "dpcpp/base/onedpl.hpp"
 
@@ -63,7 +56,8 @@ void sort_row_major(std::shared_ptr<const DefaultExecutor> exec, size_type nnz,
     });
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(GKO_DECLARE_PGM_SORT_ROW_MAJOR);
+GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE_WITH_HALF(
+    GKO_DECLARE_PGM_SORT_ROW_MAJOR);
 
 
 template <typename ValueType, typename IndexType>
@@ -96,7 +90,7 @@ void compute_coarse_coo(std::shared_ptr<const DefaultExecutor> exec,
         [](auto a, auto b) { return a + b; });
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(
+GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE_WITH_HALF(
     GKO_DECLARE_PGM_COMPUTE_COARSE_COO);
 
 

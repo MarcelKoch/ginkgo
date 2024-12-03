@@ -2,14 +2,11 @@
 //
 // SPDX-License-Identifier: BSD-3-Clause
 
-#include <ginkgo/core/base/combination.hpp>
-
-
 #include <vector>
-
 
 #include <gtest/gtest.h>
 
+#include <ginkgo/core/base/combination.hpp>
 
 #include "core/test/utils.hpp"
 
@@ -46,7 +43,8 @@ protected:
     std::vector<std::shared_ptr<gko::LinOp>> coefficients;
 };
 
-TYPED_TEST_SUITE(Combination, gko::test::ValueTypes, TypenameNameGenerator);
+TYPED_TEST_SUITE(Combination, gko::test::ValueTypesWithHalf,
+                 TypenameNameGenerator);
 
 
 TYPED_TEST(Combination, CanBeEmpty)

@@ -2,22 +2,19 @@
 //
 // SPDX-License-Identifier: BSD-3-Clause
 
-#include <ginkgo/core/solver/ir.hpp>
-
+#include "core/solver/ir_kernels.hpp"
 
 #include <gtest/gtest.h>
-
 
 #include <ginkgo/core/base/exception.hpp>
 #include <ginkgo/core/base/executor.hpp>
 #include <ginkgo/core/matrix/dense.hpp>
 #include <ginkgo/core/solver/gmres.hpp>
+#include <ginkgo/core/solver/ir.hpp>
 #include <ginkgo/core/stop/combined.hpp>
 #include <ginkgo/core/stop/iteration.hpp>
 #include <ginkgo/core/stop/residual_norm.hpp>
 
-
-#include "core/solver/ir_kernels.hpp"
 #include "core/test/utils.hpp"
 
 
@@ -50,7 +47,7 @@ protected:
     std::unique_ptr<typename Solver::Factory> ir_factory;
 };
 
-TYPED_TEST_SUITE(Ir, gko::test::ValueTypes, TypenameNameGenerator);
+TYPED_TEST_SUITE(Ir, gko::test::ValueTypesWithHalf, TypenameNameGenerator);
 
 
 TYPED_TEST(Ir, KernelInitialize)
@@ -85,7 +82,8 @@ TYPED_TEST(Ir, SolvesTriangularSystem)
 
 TYPED_TEST(Ir, SolvesTriangularSystemMixed)
 {
-    using value_type = gko::next_precision<typename TestFixture::value_type>;
+    using value_type =
+        gko::next_precision_with_half<typename TestFixture::value_type>;
     using Mtx = gko::matrix::Dense<value_type>;
     auto solver = this->ir_factory->generate(this->mtx);
     auto b = gko::initialize<Mtx>({3.9, 9.0, 2.2}, this->exec);
@@ -121,8 +119,8 @@ TYPED_TEST(Ir, SolvesTriangularSystemComplex)
 
 TYPED_TEST(Ir, SolvesTriangularSystemMixedComplex)
 {
-    using value_type =
-        gko::to_complex<gko::next_precision<typename TestFixture::value_type>>;
+    using value_type = gko::to_complex<
+        gko::next_precision_with_half<typename TestFixture::value_type>>;
     using Mtx = gko::matrix::Dense<value_type>;
     auto solver = this->ir_factory->generate(this->mtx);
     auto b = gko::initialize<Mtx>(
@@ -247,7 +245,7 @@ TYPED_TEST(Ir, SolvesTriangularSystemUsingAdvancedApplyComplex)
 TYPED_TEST(Ir, SolvesTriangularSystemUsingAdvancedApplyMixedComplex)
 {
     using Scalar = gko::matrix::Dense<
-        gko::next_precision<typename TestFixture::value_type>>;
+        gko::next_precision_with_half<typename TestFixture::value_type>>;
     using Mtx = gko::to_complex<typename TestFixture::Mtx>;
     using value_type = typename Mtx::value_type;
     auto solver = this->ir_factory->generate(this->mtx);

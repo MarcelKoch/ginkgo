@@ -4,18 +4,14 @@
 
 #include "core/matrix/ell_kernels.hpp"
 
-
 #include <array>
 
-
 #include <omp.h>
-
 
 #include <ginkgo/core/base/exception_helpers.hpp>
 #include <ginkgo/core/base/math.hpp>
 #include <ginkgo/core/matrix/csr.hpp>
 #include <ginkgo/core/matrix/dense.hpp>
-
 
 #include "accessor/reduced_row_major.hpp"
 #include "core/base/mixed_precision_types.hpp"
@@ -189,7 +185,7 @@ void spmv(std::shared_ptr<const OmpExecutor> exec,
     spmv_blocked<4>(exec, a, b, c, out);
 }
 
-GKO_INSTANTIATE_FOR_EACH_MIXED_VALUE_AND_INDEX_TYPE(
+GKO_INSTANTIATE_FOR_EACH_MIXED_VALUE_AND_INDEX_TYPE_WITH_HALF(
     GKO_DECLARE_ELL_SPMV_KERNEL);
 
 
@@ -232,7 +228,7 @@ void advanced_spmv(std::shared_ptr<const OmpExecutor> exec,
     spmv_blocked<4>(exec, a, b, c, out);
 }
 
-GKO_INSTANTIATE_FOR_EACH_MIXED_VALUE_AND_INDEX_TYPE(
+GKO_INSTANTIATE_FOR_EACH_MIXED_VALUE_AND_INDEX_TYPE_WITH_HALF(
     GKO_DECLARE_ELL_ADVANCED_SPMV_KERNEL);
 
 

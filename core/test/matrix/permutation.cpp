@@ -2,17 +2,13 @@
 //
 // SPDX-License-Identifier: BSD-3-Clause
 
-#include <ginkgo/core/matrix/permutation.hpp>
-
-
 #include <gtest/gtest.h>
-
 
 #include <ginkgo/core/base/executor.hpp>
 #include <ginkgo/core/base/range.hpp>
 #include <ginkgo/core/matrix/csr.hpp>
 #include <ginkgo/core/matrix/dense.hpp>
-
+#include <ginkgo/core/matrix/permutation.hpp>
 
 #include "core/test/utils.hpp"
 
@@ -56,7 +52,7 @@ protected:
     std::unique_ptr<gko::matrix::Permutation<index_type>> mtx;
 };
 
-TYPED_TEST_SUITE(Permutation, gko::test::ValueIndexTypes,
+TYPED_TEST_SUITE(Permutation, gko::test::ValueIndexTypesWithHalf,
                  PairTypenameNameGenerator);
 
 

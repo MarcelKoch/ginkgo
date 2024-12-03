@@ -4,19 +4,15 @@
 
 #include "core/matrix/sparsity_csr_kernels.hpp"
 
-
 #include <algorithm>
 #include <numeric>
 #include <utility>
 
-
 #include <omp.h>
-
 
 #include <ginkgo/core/base/exception_helpers.hpp>
 #include <ginkgo/core/base/math.hpp>
 #include <ginkgo/core/matrix/dense.hpp>
-
 
 #include "core/base/mixed_precision_types.hpp"
 #include "core/components/fill_array_kernels.hpp"
@@ -62,7 +58,7 @@ void spmv(std::shared_ptr<const OmpExecutor> exec,
     }
 }
 
-GKO_INSTANTIATE_FOR_EACH_MIXED_VALUE_AND_INDEX_TYPE(
+GKO_INSTANTIATE_FOR_EACH_MIXED_VALUE_AND_INDEX_TYPE_WITH_HALF(
     GKO_DECLARE_SPARSITY_CSR_SPMV_KERNEL);
 
 
@@ -99,7 +95,7 @@ void advanced_spmv(std::shared_ptr<const OmpExecutor> exec,
     }
 }
 
-GKO_INSTANTIATE_FOR_EACH_MIXED_VALUE_AND_INDEX_TYPE(
+GKO_INSTANTIATE_FOR_EACH_MIXED_VALUE_AND_INDEX_TYPE_WITH_HALF(
     GKO_DECLARE_SPARSITY_CSR_ADVANCED_SPMV_KERNEL);
 
 
@@ -153,7 +149,7 @@ void transpose(std::shared_ptr<const OmpExecutor> exec,
     transpose_and_transform(exec, trans, orig);
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(
+GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE_WITH_HALF(
     GKO_DECLARE_SPARSITY_CSR_TRANSPOSE_KERNEL);
 
 
@@ -172,7 +168,7 @@ void sort_by_column_index(std::shared_ptr<const OmpExecutor> exec,
     }
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(
+GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE_WITH_HALF(
     GKO_DECLARE_SPARSITY_CSR_SORT_BY_COLUMN_INDEX);
 
 
@@ -201,7 +197,7 @@ void is_sorted_by_column_index(
     *is_sorted = local_is_sorted;
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(
+GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE_WITH_HALF(
     GKO_DECLARE_SPARSITY_CSR_IS_SORTED_BY_COLUMN_INDEX);
 
 

@@ -2,11 +2,9 @@
 //
 // SPDX-License-Identifier: BSD-3-Clause
 
-#include <ginkgo/core/matrix/hybrid.hpp>
-
-
 #include <gtest/gtest.h>
 
+#include <ginkgo/core/matrix/hybrid.hpp>
 
 #include "core/test/utils.hpp"
 
@@ -98,7 +96,8 @@ protected:
     }
 };
 
-TYPED_TEST_SUITE(Hybrid, gko::test::ValueIndexTypes, PairTypenameNameGenerator);
+TYPED_TEST_SUITE(Hybrid, gko::test::ValueIndexTypesWithHalf,
+                 PairTypenameNameGenerator);
 
 
 TYPED_TEST(Hybrid, KnowsItsSize)

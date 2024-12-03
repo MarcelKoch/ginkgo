@@ -2,15 +2,11 @@
 //
 // SPDX-License-Identifier: BSD-3-Clause
 
-#include <ginkgo/core/log/convergence.hpp>
-
-
 #include <gtest/gtest.h>
 
-
 #include <ginkgo/core/base/executor.hpp>
+#include <ginkgo/core/log/convergence.hpp>
 #include <ginkgo/core/solver/ir.hpp>
-
 
 #include "core/test/utils.hpp"
 
@@ -49,7 +45,8 @@ public:
     gko::array<gko::stopping_status> status = {exec, 1};
 };
 
-TYPED_TEST_SUITE(Convergence, gko::test::ValueTypes, TypenameNameGenerator);
+TYPED_TEST_SUITE(Convergence, gko::test::ValueTypesWithHalf,
+                 TypenameNameGenerator);
 
 
 TYPED_TEST(Convergence, CanGetEmptyData)

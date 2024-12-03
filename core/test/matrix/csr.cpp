@@ -2,14 +2,10 @@
 //
 // SPDX-License-Identifier: BSD-3-Clause
 
-#include <ginkgo/core/matrix/csr.hpp>
-
-
 #include <gtest/gtest.h>
 
-
 #include <ginkgo/core/base/device_matrix_data.hpp>
-
+#include <ginkgo/core/matrix/csr.hpp>
 
 #include "core/test/utils.hpp"
 
@@ -86,7 +82,8 @@ protected:
     }
 };
 
-TYPED_TEST_SUITE(Csr, gko::test::ValueIndexTypes, PairTypenameNameGenerator);
+TYPED_TEST_SUITE(Csr, gko::test::ValueIndexTypesWithHalf,
+                 PairTypenameNameGenerator);
 
 
 TYPED_TEST(Csr, KnowsItsSize)

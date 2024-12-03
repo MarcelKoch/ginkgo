@@ -2,22 +2,18 @@
 //
 // SPDX-License-Identifier: BSD-3-Clause
 
-#include <ginkgo/core/matrix/sparsity_csr.hpp>
-
+#include "core/matrix/sparsity_csr_kernels.hpp"
 
 #include <algorithm>
 
-
 #include <gtest/gtest.h>
-
 
 #include <ginkgo/core/base/array.hpp>
 #include <ginkgo/core/base/exception.hpp>
 #include <ginkgo/core/base/executor.hpp>
 #include <ginkgo/core/matrix/dense.hpp>
+#include <ginkgo/core/matrix/sparsity_csr.hpp>
 
-
-#include "core/matrix/sparsity_csr_kernels.hpp"
 #include "core/test/utils.hpp"
 
 
@@ -129,7 +125,7 @@ protected:
     std::unique_ptr<Mtx> mtx3_unsorted;
 };
 
-TYPED_TEST_SUITE(SparsityCsr, gko::test::ValueIndexTypes,
+TYPED_TEST_SUITE(SparsityCsr, gko::test::ValueIndexTypesWithHalf,
                  PairTypenameNameGenerator);
 
 
@@ -149,7 +145,7 @@ TYPED_TEST(SparsityCsr, AppliesToDenseVector)
 
 TYPED_TEST(SparsityCsr, AppliesToMixedDenseVector)
 {
-    using T = gko::next_precision<typename TestFixture::value_type>;
+    using T = gko::next_precision_with_half<typename TestFixture::value_type>;
     using Vec = gko::matrix::Dense<T>;
     auto x = gko::initialize<Vec>({2.0, 1.0, 4.0}, this->exec);
     auto y = Vec::create(this->exec, gko::dim<2>{2, 1});
@@ -196,7 +192,7 @@ TYPED_TEST(SparsityCsr, AppliesLinearCombinationToDenseVector)
 
 TYPED_TEST(SparsityCsr, AppliesLinearCombinationToMixedDenseVector)
 {
-    using T = gko::next_precision<typename TestFixture::value_type>;
+    using T = gko::next_precision_with_half<typename TestFixture::value_type>;
     using Vec = gko::matrix::Dense<T>;
     auto alpha = gko::initialize<Vec>({-1.0}, this->exec);
     auto beta = gko::initialize<Vec>({2.0}, this->exec);
@@ -247,8 +243,8 @@ TYPED_TEST(SparsityCsr, AppliesToComplex)
 
 TYPED_TEST(SparsityCsr, AppliesToMixedComplex)
 {
-    using T =
-        gko::next_precision<gko::to_complex<typename TestFixture::value_type>>;
+    using T = gko::next_precision_with_half<
+        gko::to_complex<typename TestFixture::value_type>>;
     using Vec = gko::matrix::Dense<T>;
     auto x = gko::initialize<Vec>({T{2.0, 4.0}, T{1.0, 2.0}, T{4.0, 8.0}},
                                   this->exec);
@@ -283,7 +279,7 @@ TYPED_TEST(SparsityCsr, AppliesLinearCombinationToComplex)
 TYPED_TEST(SparsityCsr, AppliesLinearCombinationToMixedComplex)
 {
     using Vec = gko::matrix::Dense<
-        gko::next_precision<typename TestFixture::value_type>>;
+        gko::next_precision_with_half<typename TestFixture::value_type>>;
     using ComplexVec = gko::to_complex<Vec>;
     using T = typename ComplexVec::value_type;
     auto alpha = gko::initialize<Vec>({-1.0}, this->exec);

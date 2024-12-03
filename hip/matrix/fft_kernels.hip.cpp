@@ -4,11 +4,9 @@
 
 #include "core/matrix/fft_kernels.hpp"
 
-
 #include <array>
 
 
-#include <hip/hip_runtime.h>
 #if HIP_VERSION >= 50200000
 #include <hipfft/hipfft.h>
 #else
@@ -19,6 +17,8 @@
 #include <ginkgo/core/base/exception_helpers.hpp>
 #include <ginkgo/core/base/math.hpp>
 #include <ginkgo/core/matrix/dense.hpp>
+
+#include "common/cuda_hip/base/runtime.hpp"
 
 
 namespace gko {

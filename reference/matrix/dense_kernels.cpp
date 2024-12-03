@@ -4,9 +4,7 @@
 
 #include "core/matrix/dense_kernels.hpp"
 
-
 #include <algorithm>
-
 
 #include <ginkgo/core/base/array.hpp>
 #include <ginkgo/core/base/math.hpp>
@@ -19,7 +17,6 @@
 #include <ginkgo/core/matrix/hybrid.hpp>
 #include <ginkgo/core/matrix/sellp.hpp>
 #include <ginkgo/core/matrix/sparsity_csr.hpp>
-
 
 #include "accessor/block_col_major.hpp"
 #include "accessor/range.hpp"
@@ -59,7 +56,8 @@ void simple_apply(std::shared_ptr<const ReferenceExecutor> exec,
     }
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE(GKO_DECLARE_DENSE_SIMPLE_APPLY_KERNEL);
+GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE_WITH_HALF(
+    GKO_DECLARE_DENSE_SIMPLE_APPLY_KERNEL);
 
 
 template <typename ValueType>
@@ -92,7 +90,24 @@ void apply(std::shared_ptr<const ReferenceExecutor> exec,
     }
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE(GKO_DECLARE_DENSE_APPLY_KERNEL);
+GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE_WITH_HALF(GKO_DECLARE_DENSE_APPLY_KERNEL);
+
+
+template <typename InValueType, typename OutValueType>
+void copy(std::shared_ptr<const DefaultExecutor> exec,
+          const matrix::Dense<InValueType>* input,
+          matrix::Dense<OutValueType>* output)
+{
+    for (size_type row = 0; row < input->get_size()[0]; ++row) {
+        for (size_type col = 0; col < input->get_size()[1]; ++col) {
+            output->at(row, col) =
+                static_cast<OutValueType>(input->at(row, col));
+        }
+    }
+}
+
+GKO_INSTANTIATE_FOR_EACH_VALUE_CONVERSION_OR_COPY_WITH_HALF(
+    GKO_DECLARE_DENSE_COPY_KERNEL);
 
 
 template <typename InValueType, typename OutValueType>
@@ -123,7 +138,7 @@ void fill(std::shared_ptr<const DefaultExecutor> exec,
     }
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE(GKO_DECLARE_DENSE_FILL_KERNEL);
+GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE_WITH_HALF(GKO_DECLARE_DENSE_FILL_KERNEL);
 
 
 template <typename ValueType, typename ScalarType>
@@ -145,7 +160,8 @@ void scale(std::shared_ptr<const ReferenceExecutor> exec,
     }
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_AND_SCALAR_TYPE(GKO_DECLARE_DENSE_SCALE_KERNEL);
+GKO_INSTANTIATE_FOR_EACH_VALUE_AND_SCALAR_TYPE_WITH_HALF(
+    GKO_DECLARE_DENSE_SCALE_KERNEL);
 
 
 template <typename ValueType, typename ScalarType>
@@ -168,7 +184,7 @@ void inv_scale(std::shared_ptr<const ReferenceExecutor> exec,
     }
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_AND_SCALAR_TYPE(
+GKO_INSTANTIATE_FOR_EACH_VALUE_AND_SCALAR_TYPE_WITH_HALF(
     GKO_DECLARE_DENSE_INV_SCALE_KERNEL);
 
 
@@ -192,7 +208,7 @@ void add_scaled(std::shared_ptr<const ReferenceExecutor> exec,
     }
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_AND_SCALAR_TYPE(
+GKO_INSTANTIATE_FOR_EACH_VALUE_AND_SCALAR_TYPE_WITH_HALF(
     GKO_DECLARE_DENSE_ADD_SCALED_KERNEL);
 
 
@@ -216,7 +232,7 @@ void sub_scaled(std::shared_ptr<const ReferenceExecutor> exec,
     }
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_AND_SCALAR_TYPE(
+GKO_INSTANTIATE_FOR_EACH_VALUE_AND_SCALAR_TYPE_WITH_HALF(
     GKO_DECLARE_DENSE_SUB_SCALED_KERNEL);
 
 
@@ -232,7 +248,8 @@ void add_scaled_diag(std::shared_ptr<const ReferenceExecutor> exec,
     }
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE(GKO_DECLARE_DENSE_ADD_SCALED_DIAG_KERNEL);
+GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE_WITH_HALF(
+    GKO_DECLARE_DENSE_ADD_SCALED_DIAG_KERNEL);
 
 
 template <typename ValueType>
@@ -247,7 +264,8 @@ void sub_scaled_diag(std::shared_ptr<const ReferenceExecutor> exec,
     }
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE(GKO_DECLARE_DENSE_SUB_SCALED_DIAG_KERNEL);
+GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE_WITH_HALF(
+    GKO_DECLARE_DENSE_SUB_SCALED_DIAG_KERNEL);
 
 
 template <typename ValueType>
@@ -266,7 +284,8 @@ void compute_dot(std::shared_ptr<const ReferenceExecutor> exec,
     }
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE(GKO_DECLARE_DENSE_COMPUTE_DOT_KERNEL);
+GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE_WITH_HALF(
+    GKO_DECLARE_DENSE_COMPUTE_DOT_KERNEL);
 
 
 template <typename ValueType>
@@ -278,7 +297,7 @@ void compute_dot_dispatch(std::shared_ptr<const ReferenceExecutor> exec,
     compute_dot(exec, x, y, result, tmp);
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE(
+GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE_WITH_HALF(
     GKO_DECLARE_DENSE_COMPUTE_DOT_DISPATCH_KERNEL);
 
 
@@ -298,7 +317,8 @@ void compute_conj_dot(std::shared_ptr<const ReferenceExecutor> exec,
     }
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE(GKO_DECLARE_DENSE_COMPUTE_CONJ_DOT_KERNEL);
+GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE_WITH_HALF(
+    GKO_DECLARE_DENSE_COMPUTE_CONJ_DOT_KERNEL);
 
 
 template <typename ValueType>
@@ -311,7 +331,7 @@ void compute_conj_dot_dispatch(std::shared_ptr<const DefaultExecutor> exec,
     compute_conj_dot(exec, x, y, result, tmp);
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE(
+GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE_WITH_HALF(
     GKO_DECLARE_DENSE_COMPUTE_CONJ_DOT_DISPATCH_KERNEL);
 
 
@@ -334,7 +354,118 @@ void compute_norm2(std::shared_ptr<const ReferenceExecutor> exec,
     }
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE(GKO_DECLARE_DENSE_COMPUTE_NORM2_KERNEL);
+GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE_WITH_HALF(
+    GKO_DECLARE_DENSE_COMPUTE_NORM2_KERNEL);
+
+
+template <typename ValueType>
+void compute_norm2_dispatch(std::shared_ptr<const DefaultExecutor> exec,
+                            const matrix::Dense<ValueType>* x,
+                            matrix::Dense<remove_complex<ValueType>>* result,
+                            array<char>& tmp)
+{
+    compute_norm2(exec, x, result, tmp);
+}
+
+GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE_WITH_HALF(
+    GKO_DECLARE_DENSE_COMPUTE_NORM2_DISPATCH_KERNEL);
+
+
+template <typename ValueType>
+void compute_norm1(std::shared_ptr<const ReferenceExecutor> exec,
+                   const matrix::Dense<ValueType>* x,
+                   matrix::Dense<remove_complex<ValueType>>* result,
+                   array<char>&)
+{
+    for (size_type j = 0; j < x->get_size()[1]; ++j) {
+        result->at(0, j) = zero<remove_complex<ValueType>>();
+    }
+    for (size_type i = 0; i < x->get_size()[0]; ++i) {
+        for (size_type j = 0; j < x->get_size()[1]; ++j) {
+            result->at(0, j) += abs(x->at(i, j));
+        }
+    }
+    for (size_type j = 0; j < x->get_size()[1]; ++j) {
+        result->at(0, j) = sqrt(result->at(0, j));
+    }
+}
+
+GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE_WITH_HALF(
+    GKO_DECLARE_DENSE_COMPUTE_NORM1_KERNEL);
+
+
+template <typename ValueType>
+void compute_mean(std::shared_ptr<const ReferenceExecutor> exec,
+                  const matrix::Dense<ValueType>* x,
+                  matrix::Dense<ValueType>* result, array<char>&)
+{
+    using ValueType_nc = gko::remove_complex<ValueType>;
+    for (size_type j = 0; j < x->get_size()[1]; ++j) {
+        result->at(0, j) = zero<ValueType>();
+    }
+
+    if (x->get_size()[0] == 0) return;
+
+    for (size_type i = 0; i < x->get_size()[1]; ++i) {
+        for (size_type j = 0; j < x->get_size()[0]; ++j) {
+            result->at(0, i) += x->at(j, i);
+        }
+        result->at(0, i) /= static_cast<ValueType_nc>(x->get_size()[0]);
+    }
+}
+
+GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE_WITH_HALF(
+    GKO_DECLARE_DENSE_COMPUTE_MEAN_KERNEL);
+
+
+template <typename ValueType, typename IndexType>
+void fill_in_matrix_data(std::shared_ptr<const ReferenceExecutor> exec,
+                         const device_matrix_data<ValueType, IndexType>& data,
+                         matrix::Dense<ValueType>* output)
+{
+    for (size_type i = 0; i < data.get_num_stored_elements(); i++) {
+        output->at(data.get_const_row_idxs()[i], data.get_const_col_idxs()[i]) =
+            data.get_const_values()[i];
+    }
+}
+
+GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE_WITH_HALF(
+    GKO_DECLARE_DENSE_FILL_IN_MATRIX_DATA_KERNEL);
+
+
+template <typename ValueType>
+void compute_squared_norm2(std::shared_ptr<const ReferenceExecutor> exec,
+                           const matrix::Dense<ValueType>* x,
+                           matrix::Dense<remove_complex<ValueType>>* result,
+                           array<char>&)
+{
+    for (size_type j = 0; j < x->get_size()[1]; ++j) {
+        result->at(0, j) = zero<remove_complex<ValueType>>();
+    }
+    for (size_type i = 0; i < x->get_size()[0]; ++i) {
+        for (size_type j = 0; j < x->get_size()[1]; ++j) {
+            result->at(0, j) += squared_norm(x->at(i, j));
+        }
+    }
+}
+
+GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE_WITH_HALF(
+    GKO_DECLARE_DENSE_COMPUTE_SQUARED_NORM2_KERNEL);
+
+
+template <typename ValueType>
+void compute_sqrt(std::shared_ptr<const ReferenceExecutor> exec,
+                  matrix::Dense<ValueType>* data)
+{
+    for (size_type i = 0; i < data->get_size()[0]; ++i) {
+        for (size_type j = 0; j < data->get_size()[1]; ++j) {
+            data->at(i, j) = sqrt(data->at(i, j));
+        }
+    }
+}
+
+GKO_INSTANTIATE_FOR_EACH_NON_COMPLEX_VALUE_TYPE_WITH_HALF(
+    GKO_DECLARE_DENSE_COMPUTE_SQRT_KERNEL);
 
 
 template <typename ValueType>
@@ -467,7 +598,7 @@ void convert_to_coo(std::shared_ptr<const ReferenceExecutor> exec,
     }
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(
+GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE_WITH_HALF(
     GKO_DECLARE_DENSE_CONVERT_TO_COO_KERNEL);
 
 
@@ -499,7 +630,7 @@ void convert_to_csr(std::shared_ptr<const ReferenceExecutor> exec,
     }
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(
+GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE_WITH_HALF(
     GKO_DECLARE_DENSE_CONVERT_TO_CSR_KERNEL);
 
 
@@ -531,7 +662,7 @@ void convert_to_ell(std::shared_ptr<const ReferenceExecutor> exec,
     }
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(
+GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE_WITH_HALF(
     GKO_DECLARE_DENSE_CONVERT_TO_ELL_KERNEL);
 
 
@@ -578,7 +709,7 @@ void convert_to_fbcsr(std::shared_ptr<const ReferenceExecutor> exec,
     }
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(
+GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE_WITH_HALF(
     GKO_DECLARE_DENSE_CONVERT_TO_FBCSR_KERNEL);
 
 
@@ -627,7 +758,7 @@ void convert_to_hybrid(std::shared_ptr<const ReferenceExecutor> exec,
     }
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(
+GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE_WITH_HALF(
     GKO_DECLARE_DENSE_CONVERT_TO_HYBRID_KERNEL);
 
 
@@ -663,7 +794,7 @@ void convert_to_sellp(std::shared_ptr<const ReferenceExecutor> exec,
     }
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(
+GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE_WITH_HALF(
     GKO_DECLARE_DENSE_CONVERT_TO_SELLP_KERNEL);
 
 
@@ -693,7 +824,7 @@ void convert_to_sparsity_csr(std::shared_ptr<const ReferenceExecutor> exec,
     }
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(
+GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE_WITH_HALF(
     GKO_DECLARE_DENSE_CONVERT_TO_SPARSITY_CSR_KERNEL);
 
 
@@ -714,7 +845,7 @@ void compute_max_nnz_per_row(std::shared_ptr<const DefaultExecutor> exec,
     }
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE(
+GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE_WITH_HALF(
     GKO_DECLARE_DENSE_COMPUTE_MAX_NNZ_PER_ROW_KERNEL);
 
 
@@ -746,7 +877,7 @@ void compute_slice_sets(std::shared_ptr<const DefaultExecutor> exec,
     components::prefix_sum_nonnegative(exec, slice_sets, num_slices + 1);
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE(
+GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE_WITH_HALF(
     GKO_DECLARE_DENSE_COMPUTE_SLICE_SETS_KERNEL);
 
 
@@ -766,9 +897,9 @@ void count_nonzeros_per_row(std::shared_ptr<const ReferenceExecutor> exec,
     }
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(
+GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE_WITH_HALF(
     GKO_DECLARE_DENSE_COUNT_NONZEROS_PER_ROW_KERNEL);
-GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE(
+GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE_WITH_HALF(
     GKO_DECLARE_DENSE_COUNT_NONZEROS_PER_ROW_KERNEL_SIZE_T);
 
 
@@ -798,7 +929,7 @@ void count_nonzero_blocks_per_row(std::shared_ptr<const ReferenceExecutor> exec,
     }
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(
+GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE_WITH_HALF(
     GKO_DECLARE_DENSE_COUNT_NONZERO_BLOCKS_PER_ROW_KERNEL);
 
 
@@ -814,7 +945,8 @@ void transpose(std::shared_ptr<const ReferenceExecutor> exec,
     }
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE(GKO_DECLARE_DENSE_TRANSPOSE_KERNEL);
+GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE_WITH_HALF(
+    GKO_DECLARE_DENSE_TRANSPOSE_KERNEL);
 
 
 template <typename ValueType>
@@ -829,7 +961,8 @@ void conj_transpose(std::shared_ptr<const ReferenceExecutor> exec,
     }
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE(GKO_DECLARE_DENSE_CONJ_TRANSPOSE_KERNEL);
+GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE_WITH_HALF(
+    GKO_DECLARE_DENSE_CONJ_TRANSPOSE_KERNEL);
 
 
 template <typename ValueType, typename IndexType>
@@ -845,7 +978,7 @@ void symm_permute(std::shared_ptr<const ReferenceExecutor> exec,
     }
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(
+GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE_WITH_HALF(
     GKO_DECLARE_DENSE_SYMM_PERMUTE_KERNEL);
 
 
@@ -863,7 +996,7 @@ void inv_symm_permute(std::shared_ptr<const ReferenceExecutor> exec,
     }
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(
+GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE_WITH_HALF(
     GKO_DECLARE_DENSE_INV_SYMM_PERMUTE_KERNEL);
 
 
@@ -880,7 +1013,7 @@ void nonsymm_permute(std::shared_ptr<const ReferenceExecutor> exec,
     }
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(
+GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE_WITH_HALF(
     GKO_DECLARE_DENSE_NONSYMM_PERMUTE_KERNEL);
 
 
@@ -897,7 +1030,7 @@ void inv_nonsymm_permute(std::shared_ptr<const ReferenceExecutor> exec,
     }
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(
+GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE_WITH_HALF(
     GKO_DECLARE_DENSE_INV_NONSYMM_PERMUTE_KERNEL);
 
 
@@ -913,7 +1046,7 @@ void row_gather(std::shared_ptr<const ReferenceExecutor> exec,
     }
 }
 
-GKO_INSTANTIATE_FOR_EACH_MIXED_VALUE_AND_INDEX_TYPE_2(
+GKO_INSTANTIATE_FOR_EACH_MIXED_VALUE_AND_INDEX_TYPE_2_WITH_HALF(
     GKO_DECLARE_DENSE_ROW_GATHER_KERNEL);
 
 
@@ -938,7 +1071,7 @@ void advanced_row_gather(std::shared_ptr<const ReferenceExecutor> exec,
     }
 }
 
-GKO_INSTANTIATE_FOR_EACH_MIXED_VALUE_AND_INDEX_TYPE_2(
+GKO_INSTANTIATE_FOR_EACH_MIXED_VALUE_AND_INDEX_TYPE_2_WITH_HALF(
     GKO_DECLARE_DENSE_ADVANCED_ROW_GATHER_KERNEL);
 
 
@@ -954,7 +1087,7 @@ void col_permute(std::shared_ptr<const ReferenceExecutor> exec,
     }
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(
+GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE_WITH_HALF(
     GKO_DECLARE_DENSE_COL_PERMUTE_KERNEL);
 
 
@@ -971,7 +1104,7 @@ void inv_row_permute(std::shared_ptr<const ReferenceExecutor> exec,
     }
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(
+GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE_WITH_HALF(
     GKO_DECLARE_DENSE_INV_ROW_PERMUTE_KERNEL);
 
 
@@ -988,7 +1121,7 @@ void inv_col_permute(std::shared_ptr<const ReferenceExecutor> exec,
     }
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(
+GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE_WITH_HALF(
     GKO_DECLARE_DENSE_INV_COL_PERMUTE_KERNEL);
 
 
@@ -1007,7 +1140,7 @@ void symm_scale_permute(std::shared_ptr<const ReferenceExecutor> exec,
     }
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(
+GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE_WITH_HALF(
     GKO_DECLARE_DENSE_SYMM_SCALE_PERMUTE_KERNEL);
 
 
@@ -1026,7 +1159,7 @@ void inv_symm_scale_permute(std::shared_ptr<const ReferenceExecutor> exec,
     }
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(
+GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE_WITH_HALF(
     GKO_DECLARE_DENSE_INV_SYMM_SCALE_PERMUTE_KERNEL);
 
 
@@ -1049,7 +1182,7 @@ void nonsymm_scale_permute(std::shared_ptr<const ReferenceExecutor> exec,
     }
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(
+GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE_WITH_HALF(
     GKO_DECLARE_DENSE_NONSYMM_SCALE_PERMUTE_KERNEL);
 
 
@@ -1072,7 +1205,7 @@ void inv_nonsymm_scale_permute(std::shared_ptr<const ReferenceExecutor> exec,
     }
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(
+GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE_WITH_HALF(
     GKO_DECLARE_DENSE_INV_NONSYMM_SCALE_PERMUTE_KERNEL);
 
 
@@ -1090,7 +1223,7 @@ void row_scale_permute(std::shared_ptr<const ReferenceExecutor> exec,
     }
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(
+GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE_WITH_HALF(
     GKO_DECLARE_DENSE_ROW_SCALE_PERMUTE_KERNEL);
 
 
@@ -1108,7 +1241,7 @@ void inv_row_scale_permute(std::shared_ptr<const ReferenceExecutor> exec,
     }
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(
+GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE_WITH_HALF(
     GKO_DECLARE_DENSE_INV_ROW_SCALE_PERMUTE_KERNEL);
 
 
@@ -1126,7 +1259,7 @@ void col_scale_permute(std::shared_ptr<const ReferenceExecutor> exec,
     }
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(
+GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE_WITH_HALF(
     GKO_DECLARE_DENSE_COL_SCALE_PERMUTE_KERNEL);
 
 
@@ -1144,7 +1277,7 @@ void inv_col_scale_permute(std::shared_ptr<const ReferenceExecutor> exec,
     }
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(
+GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE_WITH_HALF(
     GKO_DECLARE_DENSE_INV_COL_SCALE_PERMUTE_KERNEL);
 
 
@@ -1159,7 +1292,8 @@ void extract_diagonal(std::shared_ptr<const ReferenceExecutor> exec,
     }
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE(GKO_DECLARE_DENSE_EXTRACT_DIAGONAL_KERNEL);
+GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE_WITH_HALF(
+    GKO_DECLARE_DENSE_EXTRACT_DIAGONAL_KERNEL);
 
 
 template <typename ValueType>
@@ -1174,7 +1308,8 @@ void inplace_absolute_dense(std::shared_ptr<const ReferenceExecutor> exec,
     }
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE(GKO_DECLARE_INPLACE_ABSOLUTE_DENSE_KERNEL);
+GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE_WITH_HALF(
+    GKO_DECLARE_INPLACE_ABSOLUTE_DENSE_KERNEL);
 
 
 template <typename ValueType>
@@ -1190,7 +1325,8 @@ void outplace_absolute_dense(std::shared_ptr<const ReferenceExecutor> exec,
     }
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE(GKO_DECLARE_OUTPLACE_ABSOLUTE_DENSE_KERNEL);
+GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE_WITH_HALF(
+    GKO_DECLARE_OUTPLACE_ABSOLUTE_DENSE_KERNEL);
 
 
 template <typename ValueType>
@@ -1206,7 +1342,7 @@ void make_complex(std::shared_ptr<const ReferenceExecutor> exec,
     }
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE(GKO_DECLARE_MAKE_COMPLEX_KERNEL);
+GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE_WITH_HALF(GKO_DECLARE_MAKE_COMPLEX_KERNEL);
 
 
 template <typename ValueType>
@@ -1222,7 +1358,7 @@ void get_real(std::shared_ptr<const ReferenceExecutor> exec,
     }
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE(GKO_DECLARE_GET_REAL_KERNEL);
+GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE_WITH_HALF(GKO_DECLARE_GET_REAL_KERNEL);
 
 
 template <typename ValueType>
@@ -1238,14 +1374,14 @@ void get_imag(std::shared_ptr<const ReferenceExecutor> exec,
     }
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE(GKO_DECLARE_GET_IMAG_KERNEL);
+GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE_WITH_HALF(GKO_DECLARE_GET_IMAG_KERNEL);
 
 
 template <typename ValueType, typename ScalarType>
 void add_scaled_identity(std::shared_ptr<const ReferenceExecutor> exec,
-                         const matrix::Dense<ScalarType>* const alpha,
-                         const matrix::Dense<ScalarType>* const beta,
-                         matrix::Dense<ValueType>* const mtx)
+                         const matrix::Dense<ScalarType>* alpha,
+                         const matrix::Dense<ScalarType>* beta,
+                         matrix::Dense<ValueType>* mtx)
 {
     const auto dim = mtx->get_size();
     for (size_type row = 0; row < dim[0]; row++) {
@@ -1258,7 +1394,7 @@ void add_scaled_identity(std::shared_ptr<const ReferenceExecutor> exec,
     }
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_AND_SCALAR_TYPE(
+GKO_INSTANTIATE_FOR_EACH_VALUE_AND_SCALAR_TYPE_WITH_HALF(
     GKO_DECLARE_DENSE_ADD_SCALED_IDENTITY_KERNEL);
 
 

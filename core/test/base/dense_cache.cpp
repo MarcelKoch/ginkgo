@@ -2,14 +2,10 @@
 //
 // SPDX-License-Identifier: BSD-3-Clause
 
-#include <ginkgo/core/base/dense_cache.hpp>
-
-
 #include <gtest/gtest.h>
 
-
+#include <ginkgo/core/base/dense_cache.hpp>
 #include <ginkgo/core/matrix/dense.hpp>
-
 
 #include "core/test/utils.hpp"
 
@@ -35,7 +31,8 @@ protected:
 };
 
 
-TYPED_TEST_SUITE(DenseCache, gko::test::ValueTypes, TypenameNameGenerator);
+TYPED_TEST_SUITE(DenseCache, gko::test::ValueTypesWithHalf,
+                 TypenameNameGenerator);
 
 
 TYPED_TEST(DenseCache, CanDefaultConstruct)

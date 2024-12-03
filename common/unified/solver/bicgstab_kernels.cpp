@@ -4,9 +4,7 @@
 
 #include "core/solver/bicgstab_kernels.hpp"
 
-
 #include <ginkgo/core/base/math.hpp>
-
 
 #include "common/unified/base/kernel_launch_solver.hpp"
 
@@ -71,7 +69,8 @@ void initialize(std::shared_ptr<const DefaultExecutor> exec,
     }
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE(GKO_DECLARE_BICGSTAB_INITIALIZE_KERNEL);
+GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE_WITH_HALF(
+    GKO_DECLARE_BICGSTAB_INITIALIZE_KERNEL);
 
 
 template <typename ValueType>
@@ -100,7 +99,8 @@ void step_1(std::shared_ptr<const DefaultExecutor> exec,
         row_vector(alpha), row_vector(omega), *stop_status);
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE(GKO_DECLARE_BICGSTAB_STEP_1_KERNEL);
+GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE_WITH_HALF(
+    GKO_DECLARE_BICGSTAB_STEP_1_KERNEL);
 
 
 template <typename ValueType>
@@ -129,7 +129,8 @@ void step_2(std::shared_ptr<const DefaultExecutor> exec,
         *stop_status);
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE(GKO_DECLARE_BICGSTAB_STEP_2_KERNEL);
+GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE_WITH_HALF(
+    GKO_DECLARE_BICGSTAB_STEP_2_KERNEL);
 
 
 template <typename ValueType>
@@ -161,7 +162,8 @@ void step_3(
         row_vector(omega), *stop_status);
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE(GKO_DECLARE_BICGSTAB_STEP_3_KERNEL);
+GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE_WITH_HALF(
+    GKO_DECLARE_BICGSTAB_STEP_3_KERNEL);
 
 
 template <typename ValueType>
@@ -176,14 +178,22 @@ void finalize(std::shared_ptr<const DefaultExecutor> exec,
                       auto stop) {
             if (stop[col].has_stopped() && !stop[col].is_finalized()) {
                 x(row, col) += alpha[col] * y(row, col);
-                stop[col].finalize();
             }
         },
         x->get_size(), y->get_stride(), x, default_stride(y), row_vector(alpha),
         *stop_status);
+    run_kernel(
+        exec,
+        [] GKO_KERNEL(auto col, auto stop) {
+            if (stop[col].has_stopped() && !stop[col].is_finalized()) {
+                stop[col].finalize();
+            }
+        },
+        x->get_size()[1], *stop_status);
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE(GKO_DECLARE_BICGSTAB_FINALIZE_KERNEL);
+GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE_WITH_HALF(
+    GKO_DECLARE_BICGSTAB_FINALIZE_KERNEL);
 
 
 }  // namespace bicgstab

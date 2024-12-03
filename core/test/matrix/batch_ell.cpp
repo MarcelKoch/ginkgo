@@ -2,16 +2,12 @@
 //
 // SPDX-License-Identifier: BSD-3-Clause
 
-#include <ginkgo/core/matrix/batch_ell.hpp>
-
-
 #include <gtest/gtest.h>
-
 
 #include <ginkgo/core/base/batch_multi_vector.hpp>
 #include <ginkgo/core/base/executor.hpp>
+#include <ginkgo/core/matrix/batch_ell.hpp>
 #include <ginkgo/core/matrix/ell.hpp>
-
 
 #include "core/base/batch_utilities.hpp"
 #include "core/test/utils.hpp"
@@ -96,7 +92,7 @@ protected:
     std::unique_ptr<EllMtx> sp_ell_mtx;
 };
 
-TYPED_TEST_SUITE(Ell, gko::test::ValueTypes, TypenameNameGenerator);
+TYPED_TEST_SUITE(Ell, gko::test::ValueTypesWithHalf, TypenameNameGenerator);
 
 
 TYPED_TEST(Ell, KnowsItsSizeAndValues)

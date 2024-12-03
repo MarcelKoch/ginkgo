@@ -4,14 +4,11 @@
 
 #include "core/factorization/par_ic_kernels.hpp"
 
-
 #include <CL/sycl.hpp>
-
 
 #include <ginkgo/core/base/math.hpp>
 #include <ginkgo/core/matrix/coo.hpp>
 #include <ginkgo/core/matrix/csr.hpp>
-
 
 #include "dpcpp/base/dim3.dp.hpp"
 #include "dpcpp/components/thread_ids.dp.hpp"
@@ -44,7 +41,7 @@ void ic_init(const IndexType* __restrict__ l_row_ptrs,
         return;
     }
     auto l_nz = l_row_ptrs[row + 1] - 1;
-    auto diag = std::sqrt(l_vals[l_nz]);
+    auto diag = gko::sqrt(l_vals[l_nz]);
     if (is_finite(diag)) {
         l_vals[l_nz] = diag;
     } else {
@@ -96,7 +93,7 @@ void ic_sweep(const IndexType* __restrict__ a_row_idxs,
         lh_col_begin += l_col >= lh_row;
     }
     auto to_write = row == col
-                        ? std::sqrt(a_val - sum)
+                        ? gko::sqrt(a_val - sum)
                         : (a_val - sum) / l_vals[l_row_ptrs[col + 1] - 1];
     if (is_finite(to_write)) {
         l_vals[l_nz] = to_write;
@@ -133,7 +130,7 @@ void init_factor(std::shared_ptr<const DefaultExecutor> exec,
                     l_row_ptrs, l_vals, num_rows);
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(
+GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE_WITH_HALF(
     GKO_DECLARE_PAR_IC_INIT_FACTOR_KERNEL);
 
 
@@ -155,7 +152,7 @@ void compute_factor(std::shared_ptr<const DefaultExecutor> exec,
     }
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(
+GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE_WITH_HALF(
     GKO_DECLARE_PAR_IC_COMPUTE_FACTOR_KERNEL);
 
 

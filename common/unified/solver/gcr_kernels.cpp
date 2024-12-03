@@ -4,9 +4,7 @@
 
 #include "core/solver/gcr_kernels.hpp"
 
-
 #include <ginkgo/core/base/math.hpp>
-
 
 #include "common/unified/base/kernel_launch_solver.hpp"
 
@@ -29,7 +27,7 @@ void initialize(std::shared_ptr<const DefaultExecutor> exec,
                 stopping_status* stop_status)
 {
     if (b->get_size()) {
-        run_kernel_solver(
+        run_kernel(
             exec,
             [] GKO_KERNEL(auto row, auto col, auto b, auto residual,
                           auto stop) {
@@ -38,8 +36,7 @@ void initialize(std::shared_ptr<const DefaultExecutor> exec,
                 }
                 residual(row, col) = b(row, col);
             },
-            b->get_size(), b->get_stride(), default_stride(b),
-            default_stride(residual), stop_status);
+            b->get_size(), b, residual, stop_status);
     } else {
         run_kernel(
             exec, [] GKO_KERNEL(auto col, auto stop) { stop[col].reset(); },
@@ -47,7 +44,8 @@ void initialize(std::shared_ptr<const DefaultExecutor> exec,
     }
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE(GKO_DECLARE_GCR_INITIALIZE_KERNEL);
+GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE_WITH_HALF(
+    GKO_DECLARE_GCR_INITIALIZE_KERNEL);
 
 
 template <typename ValueType>
@@ -81,7 +79,7 @@ void restart(std::shared_ptr<const DefaultExecutor> exec,
     }
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE(GKO_DECLARE_GCR_RESTART_KERNEL);
+GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE_WITH_HALF(GKO_DECLARE_GCR_RESTART_KERNEL);
 
 
 template <typename ValueType>
@@ -107,7 +105,7 @@ void step_1(std::shared_ptr<const DefaultExecutor> exec,
         stop_status);
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE(GKO_DECLARE_GCR_STEP_1_KERNEL);
+GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE_WITH_HALF(GKO_DECLARE_GCR_STEP_1_KERNEL);
 
 }  // namespace gcr
 }  // namespace GKO_DEVICE_NAMESPACE

@@ -4,11 +4,9 @@
 
 #include "core/multigrid/pgm_kernels.hpp"
 
-
 #include <algorithm>
 #include <memory>
 #include <tuple>
-
 
 #include <ginkgo/core/base/exception_helpers.hpp>
 #include <ginkgo/core/base/math.hpp>
@@ -16,7 +14,6 @@
 #include <ginkgo/core/matrix/csr.hpp>
 #include <ginkgo/core/matrix/dense.hpp>
 #include <ginkgo/core/matrix/diagonal.hpp>
-
 
 #include "core/base/allocator.hpp"
 #include "core/base/iterator_factory.hpp"
@@ -211,7 +208,7 @@ void find_strongest_neighbor(
     }
 }
 
-GKO_INSTANTIATE_FOR_EACH_NON_COMPLEX_VALUE_AND_INDEX_TYPE(
+GKO_INSTANTIATE_FOR_EACH_NON_COMPLEX_VALUE_AND_INDEX_TYPE_WITH_HALF(
     GKO_DECLARE_PGM_FIND_STRONGEST_NEIGHBOR);
 
 
@@ -263,7 +260,7 @@ void assign_to_exist_agg(std::shared_ptr<const ReferenceExecutor> exec,
     }
 }
 
-GKO_INSTANTIATE_FOR_EACH_NON_COMPLEX_VALUE_AND_INDEX_TYPE(
+GKO_INSTANTIATE_FOR_EACH_NON_COMPLEX_VALUE_AND_INDEX_TYPE_WITH_HALF(
     GKO_DECLARE_PGM_ASSIGN_TO_EXIST_AGG);
 
 
@@ -273,12 +270,12 @@ void sort_row_major(std::shared_ptr<const DefaultExecutor> exec, size_type nnz,
 {
     auto it = detail::make_zip_iterator(row_idxs, col_idxs, vals);
     std::stable_sort(it, it + nnz, [](auto a, auto b) {
-        return std::tie(std::get<0>(a), std::get<1>(a)) <
-               std::tie(std::get<0>(b), std::get<1>(b));
+        return std::tie(get<0>(a), get<1>(a)) < std::tie(get<0>(b), get<1>(b));
     });
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(GKO_DECLARE_PGM_SORT_ROW_MAJOR);
+GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE_WITH_HALF(
+    GKO_DECLARE_PGM_SORT_ROW_MAJOR);
 
 
 template <typename ValueType, typename IndexType>
@@ -315,7 +312,7 @@ void compute_coarse_coo(std::shared_ptr<const DefaultExecutor> exec,
     coarse_val[coarse_idxs] = temp_val;
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(
+GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE_WITH_HALF(
     GKO_DECLARE_PGM_COMPUTE_COARSE_COO);
 
 

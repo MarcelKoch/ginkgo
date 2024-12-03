@@ -2,12 +2,10 @@
 //
 // SPDX-License-Identifier: BSD-3-Clause
 
-#include <ginkgo/core/matrix/batch_identity.hpp>
-
+#include "ginkgo/core/matrix/batch_identity.hpp"
 
 #include <algorithm>
 #include <type_traits>
-
 
 #include <ginkgo/core/base/array.hpp>
 #include <ginkgo/core/base/batch_dim.hpp>
@@ -115,7 +113,8 @@ void Identity<ValueType>::apply_impl(const MultiVector<ValueType>* alpha,
 
 
 #define GKO_DECLARE_BATCH_IDENTITY_MATRIX(ValueType) class Identity<ValueType>
-GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE(GKO_DECLARE_BATCH_IDENTITY_MATRIX);
+GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE_WITH_HALF(
+    GKO_DECLARE_BATCH_IDENTITY_MATRIX);
 
 
 }  // namespace matrix

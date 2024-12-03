@@ -4,13 +4,10 @@
 
 #include "core/matrix/diagonal_kernels.hpp"
 
-
 #include <CL/sycl.hpp>
-
 
 #include <ginkgo/core/matrix/csr.hpp>
 #include <ginkgo/core/matrix/dense.hpp>
-
 
 #include "dpcpp/base/config.hpp"
 #include "dpcpp/base/dim3.dp.hpp"
@@ -85,7 +82,7 @@ void apply_to_csr(std::shared_ptr<const DpcppExecutor> exec,
                          inverse);
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(
+GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE_WITH_HALF(
     GKO_DECLARE_DIAGONAL_APPLY_TO_CSR_KERNEL);
 
 

@@ -4,9 +4,7 @@
 
 #include "core/matrix/diagonal_kernels.hpp"
 
-
 #include <omp.h>
-
 
 #include <ginkgo/core/matrix/csr.hpp>
 #include <ginkgo/core/matrix/dense.hpp>
@@ -45,7 +43,7 @@ void apply_to_csr(std::shared_ptr<const OmpExecutor> exec,
     }
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(
+GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE_WITH_HALF(
     GKO_DECLARE_DIAGONAL_APPLY_TO_CSR_KERNEL);
 
 

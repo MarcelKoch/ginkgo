@@ -4,9 +4,7 @@
 
 #include "core/solver/common_gmres_kernels.hpp"
 
-
 #include <ginkgo/core/base/math.hpp>
-
 
 #include "common/unified/base/kernel_launch.hpp"
 #include "core/solver/cb_gmres_kernels.hpp"
@@ -54,7 +52,8 @@ void initialize(std::shared_ptr<const DefaultExecutor> exec,
         b->get_size()[0]);
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE(GKO_DECLARE_COMMON_GMRES_INITIALIZE_KERNEL);
+GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE_WITH_HALF(
+    GKO_DECLARE_COMMON_GMRES_INITIALIZE_KERNEL);
 
 
 template <typename ValueType>
@@ -127,7 +126,7 @@ void hessenberg_qr(std::shared_ptr<const DefaultExecutor> exec,
         stop_status);
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE(
+GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE_WITH_HALF(
     GKO_DECLARE_COMMON_GMRES_HESSENBERG_QR_KERNEL);
 
 
@@ -148,7 +147,8 @@ void solve_krylov(std::shared_ptr<const DefaultExecutor> exec,
             for (int64 i = sizes[col] - 1; i >= 0; i--) {
                 auto value = rhs(i, col);
                 for (int64 j = i + 1; j < sizes[col]; j++) {
-                    value -= mtx(i, j * num_cols + col) * y(j, col);
+                    // i is the Krylov vector, j is Arnoldi iter
+                    value -= mtx(j, i * num_cols + col) * y(j, col);
                 }
                 // y(i) = (rhs(i) - U(i,i+1:) * y(i+1:)) / U(i, i)
                 y(i, col) = value / mtx(i, i * num_cols + col);
@@ -159,7 +159,7 @@ void solve_krylov(std::shared_ptr<const DefaultExecutor> exec,
         residual_norm_collection->get_size()[1]);
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE(
+GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE_WITH_HALF(
     GKO_DECLARE_COMMON_GMRES_SOLVE_KRYLOV_KERNEL);
 
 

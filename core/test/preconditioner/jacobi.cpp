@@ -2,14 +2,10 @@
 //
 // SPDX-License-Identifier: BSD-3-Clause
 
-#include <ginkgo/core/preconditioner/jacobi.hpp>
-
-
 #include <gtest/gtest.h>
 
-
 #include <ginkgo/core/matrix/csr.hpp>
-
+#include <ginkgo/core/preconditioner/jacobi.hpp>
 
 #include "core/test/utils.hpp"
 
@@ -47,7 +43,7 @@ protected:
     std::shared_ptr<gko::matrix::Csr<value_type, index_type>> mtx;
 };
 
-TYPED_TEST_SUITE(JacobiFactory, gko::test::ValueIndexTypes,
+TYPED_TEST_SUITE(JacobiFactory, gko::test::ValueIndexTypesWithHalf,
                  PairTypenameNameGenerator);
 
 

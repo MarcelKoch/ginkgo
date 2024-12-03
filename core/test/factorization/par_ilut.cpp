@@ -2,14 +2,10 @@
 //
 // SPDX-License-Identifier: BSD-3-Clause
 
-#include <ginkgo/core/factorization/par_ilut.hpp>
-
-
 #include <gtest/gtest.h>
 
-
 #include <ginkgo/core/base/executor.hpp>
-
+#include <ginkgo/core/factorization/par_ilut.hpp>
 
 #include "core/test/utils.hpp"
 
@@ -34,7 +30,7 @@ protected:
     std::shared_ptr<const gko::ReferenceExecutor> ref;
 };
 
-TYPED_TEST_SUITE(ParIlut, gko::test::ValueIndexTypes,
+TYPED_TEST_SUITE(ParIlut, gko::test::ValueIndexTypesWithHalf,
                  PairTypenameNameGenerator);
 
 

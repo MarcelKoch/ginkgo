@@ -4,12 +4,9 @@
 
 #include "core/base/device_matrix_data_kernels.hpp"
 
-
 #include <algorithm>
 
-
 #include <omp.h>
-
 
 #include "core/base/allocator.hpp"
 #include "core/components/format_conversion_kernels.hpp"
@@ -72,7 +69,7 @@ void remove_zeros(std::shared_ptr<const DefaultExecutor> exec,
     }
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(
+GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE_WITH_HALF(
     GKO_DECLARE_DEVICE_MATRIX_DATA_REMOVE_ZEROS_KERNEL);
 
 
@@ -130,7 +127,7 @@ void sum_duplicates(std::shared_ptr<const DefaultExecutor> exec,
     }
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(
+GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE_WITH_HALF(
     GKO_DECLARE_DEVICE_MATRIX_DATA_SUM_DUPLICATES_KERNEL);
 
 
@@ -145,7 +142,7 @@ void sort_row_major(std::shared_ptr<const DefaultExecutor> exec,
     aos_to_soa(exec, tmp, data);
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(
+GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE_WITH_HALF(
     GKO_DECLARE_DEVICE_MATRIX_DATA_SORT_ROW_MAJOR_KERNEL);
 
 

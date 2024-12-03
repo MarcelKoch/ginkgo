@@ -4,12 +4,9 @@
 
 #include "core/base/device_matrix_data_kernels.hpp"
 
-
 #include <algorithm>
 
-
 #include <ginkgo/core/base/math.hpp>
-
 
 #include "core/components/prefix_sum_kernels.hpp"
 
@@ -32,7 +29,7 @@ void soa_to_aos(std::shared_ptr<const DefaultExecutor> exec,
     }
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(
+GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE_WITH_HALF(
     GKO_DECLARE_DEVICE_MATRIX_DATA_SOA_TO_AOS_KERNEL);
 
 
@@ -49,7 +46,7 @@ void aos_to_soa(std::shared_ptr<const DefaultExecutor> exec,
     }
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(
+GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE_WITH_HALF(
     GKO_DECLARE_DEVICE_MATRIX_DATA_AOS_TO_SOA_KERNEL);
 
 
@@ -81,7 +78,7 @@ void remove_zeros(std::shared_ptr<const DefaultExecutor> exec,
     }
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(
+GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE_WITH_HALF(
     GKO_DECLARE_DEVICE_MATRIX_DATA_REMOVE_ZEROS_KERNEL);
 
 
@@ -130,7 +127,7 @@ void sum_duplicates(std::shared_ptr<const DefaultExecutor> exec, size_type,
     }
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(
+GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE_WITH_HALF(
     GKO_DECLARE_DEVICE_MATRIX_DATA_SUM_DUPLICATES_KERNEL);
 
 
@@ -145,7 +142,7 @@ void sort_row_major(std::shared_ptr<const DefaultExecutor> exec,
     aos_to_soa(exec, tmp, data);
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(
+GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE_WITH_HALF(
     GKO_DECLARE_DEVICE_MATRIX_DATA_SORT_ROW_MAJOR_KERNEL);
 
 

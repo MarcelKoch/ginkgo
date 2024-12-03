@@ -4,16 +4,12 @@
 
 #include "core/factorization/elimination_forest.hpp"
 
-
 #include <algorithm>
 #include <numeric>
 
-
 #include <gtest/gtest.h>
 
-
 #include <ginkgo/core/base/executor.hpp>
-
 
 #include "core/test/utils.hpp"
 #include "matrices/config.hpp"
@@ -37,7 +33,7 @@ protected:
     std::shared_ptr<const gko::ReferenceExecutor> ref;
 };
 
-TYPED_TEST_SUITE(EliminationForest, gko::test::ValueIndexTypes,
+TYPED_TEST_SUITE(EliminationForest, gko::test::ValueIndexTypesWithHalf,
                  PairTypenameNameGenerator);
 
 

@@ -2,17 +2,13 @@
 //
 // SPDX-License-Identifier: BSD-3-Clause
 
-#include <ginkgo/core/log/convergence.hpp>
-
-
 #include <gtest/gtest.h>
-
 
 #include <ginkgo/core/base/executor.hpp>
 #include <ginkgo/core/base/math.hpp>
+#include <ginkgo/core/log/convergence.hpp>
 #include <ginkgo/core/matrix/dense.hpp>
 #include <ginkgo/core/stop/iteration.hpp>
-
 
 #include "core/test/utils.hpp"
 
@@ -23,7 +19,8 @@ namespace {
 template <typename T>
 class Convergence : public ::testing::Test {};
 
-TYPED_TEST_SUITE(Convergence, gko::test::ValueTypes, TypenameNameGenerator);
+TYPED_TEST_SUITE(Convergence, gko::test::ValueTypesWithHalf,
+                 TypenameNameGenerator);
 
 
 TYPED_TEST(Convergence, CatchesCriterionCheckCompleted)

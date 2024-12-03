@@ -2,8 +2,7 @@
 //
 // SPDX-License-Identifier: BSD-3-Clause
 
-#include <ginkgo/core/solver/cgs.hpp>
-
+#include "ginkgo/core/solver/cgs.hpp"
 
 #include <ginkgo/core/base/exception.hpp>
 #include <ginkgo/core/base/exception_helpers.hpp>
@@ -12,7 +11,6 @@
 #include <ginkgo/core/base/precision_dispatch.hpp>
 #include <ginkgo/core/base/utils.hpp>
 #include <ginkgo/core/solver/solver_base.hpp>
-
 
 #include "core/config/solver_config.hpp"
 #include "core/distributed/helpers.hpp"
@@ -267,8 +265,8 @@ std::vector<int> workspace_traits<Cgs<ValueType>>::vectors(const Solver&)
 
 #define GKO_DECLARE_CGS(_type) class Cgs<_type>
 #define GKO_DECLARE_CGS_TRAITS(_type) struct workspace_traits<Cgs<_type>>
-GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE(GKO_DECLARE_CGS);
-GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE(GKO_DECLARE_CGS_TRAITS);
+GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE_WITH_HALF(GKO_DECLARE_CGS);
+GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE_WITH_HALF(GKO_DECLARE_CGS_TRAITS);
 
 
 }  // namespace solver

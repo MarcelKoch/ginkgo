@@ -4,9 +4,7 @@
 
 #include "core/preconditioner/jacobi_kernels.hpp"
 
-
 #include <ginkgo/core/base/math.hpp>
-
 
 #include "common/unified/base/kernel_launch.hpp"
 
@@ -34,7 +32,8 @@ void scalar_conj(std::shared_ptr<const DefaultExecutor> exec,
         diag.get_size(), diag, conj_diag);
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE(GKO_DECLARE_JACOBI_SCALAR_CONJ_KERNEL);
+GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE_WITH_HALF(
+    GKO_DECLARE_JACOBI_SCALAR_CONJ_KERNEL);
 
 
 template <typename ValueType>
@@ -44,12 +43,15 @@ void invert_diagonal(std::shared_ptr<const DefaultExecutor> exec,
     run_kernel(
         exec,
         [] GKO_KERNEL(auto elem, auto diag, auto inv_diag) {
-            inv_diag[elem] = safe_divide(one(diag[elem]), diag[elem]);
+            // if the diagonal is zero, we use 1 for in the inverted result.
+            inv_diag[elem] = is_zero(diag[elem]) ? one(diag[elem])
+                                                 : one(diag[elem]) / diag[elem];
         },
         diag.get_size(), diag, inv_diag);
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE(GKO_DECLARE_JACOBI_INVERT_DIAGONAL_KERNEL);
+GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE_WITH_HALF(
+    GKO_DECLARE_JACOBI_INVERT_DIAGONAL_KERNEL);
 
 
 template <typename ValueType>
@@ -83,7 +85,8 @@ void scalar_apply(std::shared_ptr<const DefaultExecutor> exec,
     }
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE(GKO_DECLARE_JACOBI_SCALAR_APPLY_KERNEL);
+GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE_WITH_HALF(
+    GKO_DECLARE_JACOBI_SCALAR_APPLY_KERNEL);
 
 
 template <typename ValueType>
@@ -100,7 +103,7 @@ void simple_scalar_apply(std::shared_ptr<const DefaultExecutor> exec,
         x->get_size(), diag, b, x);
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE(
+GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE_WITH_HALF(
     GKO_DECLARE_JACOBI_SIMPLE_SCALAR_APPLY_KERNEL);
 
 
@@ -120,7 +123,7 @@ void scalar_convert_to_dense(std::shared_ptr<const DefaultExecutor> exec,
         result->get_size(), blocks, result);
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE(
+GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE_WITH_HALF(
     GKO_DECLARE_JACOBI_SCALAR_CONVERT_TO_DENSE_KERNEL);
 
 

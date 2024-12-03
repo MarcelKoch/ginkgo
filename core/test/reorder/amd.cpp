@@ -2,19 +2,14 @@
 //
 // SPDX-License-Identifier: BSD-3-Clause
 
-#include <ginkgo/core/reorder/amd.hpp>
-
-
 #include <algorithm>
 #include <initializer_list>
 #include <memory>
 
-
 #include <gtest/gtest.h>
 
-
 #include <ginkgo/core/matrix/csr.hpp>
-
+#include <ginkgo/core/reorder/amd.hpp>
 
 #include "core/factorization/symbolic.hpp"
 #include "core/test/utils.hpp"
@@ -182,7 +177,8 @@ protected:
     std::shared_ptr<gko::experimental::reorder::Amd<index_type>> amd;
 };
 
-TYPED_TEST_SUITE(Amd, gko::test::ValueIndexTypes, PairTypenameNameGenerator);
+TYPED_TEST_SUITE(Amd, gko::test::ValueIndexTypesWithHalf,
+                 PairTypenameNameGenerator);
 
 
 TYPED_TEST(Amd, WorksAndReducesFillIn)

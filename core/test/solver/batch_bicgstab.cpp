@@ -2,16 +2,12 @@
 //
 // SPDX-License-Identifier: BSD-3-Clause
 
-#include <ginkgo/core/solver/batch_bicgstab.hpp>
-
-
 #include <gtest/gtest.h>
-
 
 #include <ginkgo/core/base/batch_multi_vector.hpp>
 #include <ginkgo/core/base/executor.hpp>
 #include <ginkgo/core/matrix/batch_dense.hpp>
-
+#include <ginkgo/core/solver/batch_bicgstab.hpp>
 
 #include "core/base/batch_utilities.hpp"
 #include "core/test/utils.hpp"
@@ -54,7 +50,8 @@ protected:
     std::unique_ptr<gko::batch::BatchLinOp> solver;
 };
 
-TYPED_TEST_SUITE(BatchBicgstab, gko::test::ValueTypes, TypenameNameGenerator);
+TYPED_TEST_SUITE(BatchBicgstab, gko::test::ValueTypesWithHalf,
+                 TypenameNameGenerator);
 
 
 TYPED_TEST(BatchBicgstab, FactoryKnowsItsExecutor)

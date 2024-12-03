@@ -13,7 +13,6 @@
 #include <ginkgo/core/matrix/dense.hpp>
 #include <ginkgo/core/solver/triangular.hpp>
 
-
 #include "core/config/config_helper.hpp"
 #include "core/config/trisolver_config.hpp"
 #include "core/solver/upper_trs_kernels.hpp"
@@ -100,6 +99,7 @@ std::unique_ptr<LinOp> UpperTrs<ValueType, IndexType>::transpose() const
 {
     return transposed_type::build()
         .with_num_rhs(this->parameters_.num_rhs)
+        .with_algorithm(this->parameters_.algorithm)
         .on(this->get_executor())
         ->generate(share(this->get_system_matrix()->transpose()));
 }
@@ -110,6 +110,7 @@ std::unique_ptr<LinOp> UpperTrs<ValueType, IndexType>::conj_transpose() const
 {
     return transposed_type::build()
         .with_num_rhs(this->parameters_.num_rhs)
+        .with_algorithm(this->parameters_.algorithm)
         .on(this->get_executor())
         ->generate(share(this->get_system_matrix()->conj_transpose()));
 }
@@ -247,8 +248,9 @@ std::vector<int> workspace_traits<UpperTrs<ValueType, IndexType>>::vectors(
 #define GKO_DECLARE_UPPER_TRS(_vtype, _itype) class UpperTrs<_vtype, _itype>
 #define GKO_DECLARE_UPPER_TRS_TRAITS(_vtype, _itype) \
     struct workspace_traits<UpperTrs<_vtype, _itype>>
-GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(GKO_DECLARE_UPPER_TRS);
-GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(GKO_DECLARE_UPPER_TRS_TRAITS);
+GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE_WITH_HALF(GKO_DECLARE_UPPER_TRS);
+GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE_WITH_HALF(
+    GKO_DECLARE_UPPER_TRS_TRAITS);
 
 
 }  // namespace solver

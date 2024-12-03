@@ -4,15 +4,12 @@
 
 #include "core/matrix/csr_kernels.hpp"
 
-
 #include <algorithm>
 #include <limits>
 #include <numeric>
 #include <utility>
 
-
 #include <omp.h>
-
 
 #include <ginkgo/core/base/array.hpp>
 #include <ginkgo/core/base/exception_helpers.hpp>
@@ -21,7 +18,6 @@
 #include <ginkgo/core/matrix/coo.hpp>
 #include <ginkgo/core/matrix/dense.hpp>
 #include <ginkgo/core/matrix/hybrid.hpp>
-
 
 #include "core/base/allocator.hpp"
 #include "core/base/index_set_kernels.hpp"
@@ -81,7 +77,7 @@ void spmv(std::shared_ptr<const OmpExecutor> exec,
     }
 }
 
-GKO_INSTANTIATE_FOR_EACH_MIXED_VALUE_AND_INDEX_TYPE(
+GKO_INSTANTIATE_FOR_EACH_MIXED_VALUE_AND_INDEX_TYPE_WITH_HALF(
     GKO_DECLARE_CSR_SPMV_KERNEL);
 
 
@@ -99,8 +95,8 @@ void advanced_spmv(std::shared_ptr<const OmpExecutor> exec,
 
     auto row_ptrs = a->get_const_row_ptrs();
     auto col_idxs = a->get_const_col_idxs();
-    arithmetic_type valpha = alpha->at(0, 0);
-    arithmetic_type vbeta = beta->at(0, 0);
+    auto valpha = static_cast<arithmetic_type>(alpha->at(0, 0));
+    auto vbeta = static_cast<arithmetic_type>(beta->at(0, 0));
 
     const auto a_vals =
         acc::helper::build_const_rrm_accessor<arithmetic_type>(a);
@@ -122,7 +118,7 @@ void advanced_spmv(std::shared_ptr<const OmpExecutor> exec,
     }
 }
 
-GKO_INSTANTIATE_FOR_EACH_MIXED_VALUE_AND_INDEX_TYPE(
+GKO_INSTANTIATE_FOR_EACH_MIXED_VALUE_AND_INDEX_TYPE_WITH_HALF(
     GKO_DECLARE_CSR_ADVANCED_SPMV_KERNEL);
 
 
@@ -378,7 +374,8 @@ void spgemm(std::shared_ptr<const OmpExecutor> exec,
     }
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(GKO_DECLARE_CSR_SPGEMM_KERNEL);
+GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE_WITH_HALF(
+    GKO_DECLARE_CSR_SPGEMM_KERNEL);
 
 
 template <typename ValueType, typename IndexType>
@@ -494,7 +491,7 @@ void advanced_spgemm(std::shared_ptr<const OmpExecutor> exec,
     }
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(
+GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE_WITH_HALF(
     GKO_DECLARE_CSR_ADVANCED_SPGEMM_KERNEL);
 
 
@@ -544,7 +541,8 @@ void spgeam(std::shared_ptr<const OmpExecutor> exec,
         [](IndexType, IndexType) {});
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(GKO_DECLARE_CSR_SPGEAM_KERNEL);
+GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE_WITH_HALF(
+    GKO_DECLARE_CSR_SPGEAM_KERNEL);
 
 
 template <typename ValueType, typename IndexType>
@@ -567,7 +565,7 @@ void fill_in_dense(std::shared_ptr<const OmpExecutor> exec,
     }
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(
+GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE_WITH_HALF(
     GKO_DECLARE_CSR_FILL_IN_DENSE_KERNEL);
 
 
@@ -637,7 +635,7 @@ void convert_to_fbcsr(std::shared_ptr<const DefaultExecutor> exec,
     std::copy(col_idx_vec.begin(), col_idx_vec.end(), col_idxs.get_data());
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(
+GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE_WITH_HALF(
     GKO_DECLARE_CSR_CONVERT_TO_FBCSR_KERNEL);
 
 
@@ -696,7 +694,8 @@ void transpose(std::shared_ptr<const OmpExecutor> exec,
                             [](const ValueType x) { return x; });
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(GKO_DECLARE_CSR_TRANSPOSE_KERNEL);
+GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE_WITH_HALF(
+    GKO_DECLARE_CSR_TRANSPOSE_KERNEL);
 
 
 template <typename ValueType, typename IndexType>
@@ -708,7 +707,7 @@ void conj_transpose(std::shared_ptr<const OmpExecutor> exec,
                             [](const ValueType x) { return conj(x); });
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(
+GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE_WITH_HALF(
     GKO_DECLARE_CSR_CONJ_TRANSPOSE_KERNEL);
 
 
@@ -732,7 +731,7 @@ void calculate_nonzeros_per_row_in_span(
     }
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(
+GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE_WITH_HALF(
     GKO_DECLARE_CSR_CALC_NNZ_PER_ROW_IN_SPAN_KERNEL);
 
 
@@ -779,7 +778,7 @@ void calculate_nonzeros_per_row_in_index_set(
     }
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(
+GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE_WITH_HALF(
     GKO_DECLARE_CSR_CALC_NNZ_PER_ROW_IN_INDEX_SET_KERNEL);
 
 
@@ -812,7 +811,7 @@ void compute_submatrix(std::shared_ptr<const DefaultExecutor> exec,
     }
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(
+GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE_WITH_HALF(
     GKO_DECLARE_CSR_COMPUTE_SUB_MATRIX_KERNEL);
 
 
@@ -872,7 +871,7 @@ void compute_submatrix_from_index_set(
     }
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(
+GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE_WITH_HALF(
     GKO_DECLARE_CSR_COMPUTE_SUB_MATRIX_FROM_INDEX_SET_KERNEL);
 
 
@@ -885,7 +884,7 @@ void inv_symm_permute(std::shared_ptr<const DefaultExecutor> exec,
     inv_nonsymm_permute(exec, perm, perm, orig, permuted);
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(
+GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE_WITH_HALF(
     GKO_DECLARE_CSR_INV_SYMM_PERMUTE_KERNEL);
 
 
@@ -925,7 +924,7 @@ void inv_nonsymm_permute(std::shared_ptr<const DefaultExecutor> exec,
     }
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(
+GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE_WITH_HALF(
     GKO_DECLARE_CSR_INV_NONSYMM_PERMUTE_KERNEL);
 
 
@@ -963,7 +962,7 @@ void row_permute(std::shared_ptr<const OmpExecutor> exec, const IndexType* perm,
     }
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(
+GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE_WITH_HALF(
     GKO_DECLARE_CSR_ROW_PERMUTE_KERNEL);
 
 
@@ -1002,7 +1001,7 @@ void inv_row_permute(std::shared_ptr<const OmpExecutor> exec,
     }
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(
+GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE_WITH_HALF(
     GKO_DECLARE_CSR_INV_ROW_PERMUTE_KERNEL);
 
 
@@ -1015,7 +1014,7 @@ void inv_symm_scale_permute(std::shared_ptr<const DefaultExecutor> exec,
     inv_nonsymm_scale_permute(exec, scale, perm, scale, perm, orig, permuted);
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(
+GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE_WITH_HALF(
     GKO_DECLARE_CSR_INV_SYMM_SCALE_PERMUTE_KERNEL);
 
 
@@ -1059,7 +1058,7 @@ void inv_nonsymm_scale_permute(std::shared_ptr<const DefaultExecutor> exec,
     }
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(
+GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE_WITH_HALF(
     GKO_DECLARE_CSR_INV_NONSYMM_SCALE_PERMUTE_KERNEL);
 
 
@@ -1100,7 +1099,7 @@ void row_scale_permute(std::shared_ptr<const OmpExecutor> exec,
     }
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(
+GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE_WITH_HALF(
     GKO_DECLARE_CSR_ROW_SCALE_PERMUTE_KERNEL);
 
 
@@ -1141,7 +1140,7 @@ void inv_row_scale_permute(std::shared_ptr<const OmpExecutor> exec,
     }
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(
+GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE_WITH_HALF(
     GKO_DECLARE_CSR_INV_ROW_SCALE_PERMUTE_KERNEL);
 
 
@@ -1159,13 +1158,12 @@ void sort_by_column_index(std::shared_ptr<const OmpExecutor> exec,
         auto row_nnz = row_ptrs[i + 1] - start_row_idx;
         auto it = detail::make_zip_iterator(col_idxs + start_row_idx,
                                             values + start_row_idx);
-        std::sort(it, it + row_nnz, [](auto t1, auto t2) {
-            return std::get<0>(t1) < std::get<0>(t2);
-        });
+        std::sort(it, it + row_nnz,
+                  [](auto t1, auto t2) { return get<0>(t1) < get<0>(t2); });
     }
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(
+GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE_WITH_HALF(
     GKO_DECLARE_CSR_SORT_BY_COLUMN_INDEX);
 
 
@@ -1193,7 +1191,7 @@ void is_sorted_by_column_index(
     *is_sorted = local_is_sorted;
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(
+GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE_WITH_HALF(
     GKO_DECLARE_CSR_IS_SORTED_BY_COLUMN_INDEX);
 
 
@@ -1219,13 +1217,14 @@ void extract_diagonal(std::shared_ptr<const OmpExecutor> exec,
     }
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(GKO_DECLARE_CSR_EXTRACT_DIAGONAL);
+GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE_WITH_HALF(
+    GKO_DECLARE_CSR_EXTRACT_DIAGONAL);
 
 
 template <typename ValueType, typename IndexType>
-void check_diagonal_entries_exist(
-    std::shared_ptr<const OmpExecutor> exec,
-    const matrix::Csr<ValueType, IndexType>* const mtx, bool& has_all_diags)
+void check_diagonal_entries_exist(std::shared_ptr<const OmpExecutor> exec,
+                                  const matrix::Csr<ValueType, IndexType>* mtx,
+                                  bool& has_all_diags)
 {
     bool l_has_all_diags = true;
     const size_type minsize = std::min(mtx->get_size()[0], mtx->get_size()[1]);
@@ -1246,15 +1245,15 @@ void check_diagonal_entries_exist(
     has_all_diags = l_has_all_diags;
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(
+GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE_WITH_HALF(
     GKO_DECLARE_CSR_CHECK_DIAGONAL_ENTRIES_EXIST);
 
 
 template <typename ValueType, typename IndexType>
 void add_scaled_identity(std::shared_ptr<const OmpExecutor> exec,
-                         const matrix::Dense<ValueType>* const alpha,
-                         const matrix::Dense<ValueType>* const beta,
-                         matrix::Csr<ValueType, IndexType>* const mtx)
+                         const matrix::Dense<ValueType>* alpha,
+                         const matrix::Dense<ValueType>* beta,
+                         matrix::Csr<ValueType, IndexType>* mtx)
 {
     const auto nrows = static_cast<IndexType>(mtx->get_size()[0]);
     const auto row_ptrs = mtx->get_const_row_ptrs();
@@ -1275,7 +1274,7 @@ void add_scaled_identity(std::shared_ptr<const OmpExecutor> exec,
     }
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(
+GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE_WITH_HALF(
     GKO_DECLARE_CSR_ADD_SCALED_IDENTITY_KERNEL);
 
 

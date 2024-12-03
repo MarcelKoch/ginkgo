@@ -4,19 +4,15 @@
 
 #include "core/factorization/par_ict_kernels.hpp"
 
-
 #include <limits>
 
-
 #include <CL/sycl.hpp>
-
 
 #include <ginkgo/core/base/array.hpp>
 #include <ginkgo/core/base/math.hpp>
 #include <ginkgo/core/matrix/coo.hpp>
 #include <ginkgo/core/matrix/csr.hpp>
 #include <ginkgo/core/matrix/dense.hpp>
-
 
 #include "core/components/prefix_sum_kernels.hpp"
 #include "core/matrix/coo_builder.hpp"
@@ -360,7 +356,7 @@ void ict_sweep(const IndexType* __restrict__ a_row_ptrs,
 
     if (subwarp.thread_rank() == 0) {
         auto to_write = row == col
-                            ? std::sqrt(a_val - sum)
+                            ? gko::sqrt(a_val - sum)
                             : (a_val - sum) / l_vals[l_row_ptrs[col + 1] - 1];
         if (is_finite(to_write)) {
             l_vals[l_nz] = to_write;
@@ -487,7 +483,7 @@ void add_candidates(std::shared_ptr<const DefaultExecutor> exec,
         syn::value_list<int>(), syn::type_list<>(), exec, llh, a, l, l_new);
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(
+GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE_WITH_HALF(
     GKO_DECLARE_PAR_ICT_ADD_CANDIDATES_KERNEL);
 
 
@@ -509,7 +505,7 @@ void compute_factor(std::shared_ptr<const DefaultExecutor> exec,
         syn::value_list<int>(), syn::type_list<>(), exec, a, l, l_coo);
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(
+GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE_WITH_HALF(
     GKO_DECLARE_PAR_ICT_COMPUTE_FACTOR_KERNEL);
 
 

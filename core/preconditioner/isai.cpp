@@ -2,13 +2,11 @@
 //
 // SPDX-License-Identifier: BSD-3-Clause
 
-#include <ginkgo/core/preconditioner/isai.hpp>
-
+#include "ginkgo/core/preconditioner/isai.hpp"
 
 #include <functional>
 #include <memory>
 #include <type_traits>
-
 
 #include <ginkgo/core/base/exception_helpers.hpp>
 #include <ginkgo/core/base/executor.hpp>
@@ -21,7 +19,6 @@
 #include <ginkgo/core/solver/triangular.hpp>
 #include <ginkgo/core/stop/iteration.hpp>
 #include <ginkgo/core/stop/residual_norm.hpp>
-
 
 #include "core/base/array_access.hpp"
 #include "core/base/utils.hpp"
@@ -361,19 +358,20 @@ std::unique_ptr<LinOp> Isai<IsaiType, ValueType, IndexType>::conj_transpose()
 
 #define GKO_DECLARE_LOWER_ISAI(ValueType, IndexType) \
     class Isai<isai_type::lower, ValueType, IndexType>
-GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(GKO_DECLARE_LOWER_ISAI);
+GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE_WITH_HALF(GKO_DECLARE_LOWER_ISAI);
 
 #define GKO_DECLARE_UPPER_ISAI(ValueType, IndexType) \
     class Isai<isai_type::upper, ValueType, IndexType>
-GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(GKO_DECLARE_UPPER_ISAI);
+GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE_WITH_HALF(GKO_DECLARE_UPPER_ISAI);
 
 #define GKO_DECLARE_GENERAL_ISAI(ValueType, IndexType) \
     class Isai<isai_type::general, ValueType, IndexType>
-GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(GKO_DECLARE_GENERAL_ISAI);
+GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE_WITH_HALF(
+    GKO_DECLARE_GENERAL_ISAI);
 
 #define GKO_DECLARE_SPD_ISAI(ValueType, IndexType) \
     class Isai<isai_type::spd, ValueType, IndexType>
-GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(GKO_DECLARE_SPD_ISAI);
+GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE_WITH_HALF(GKO_DECLARE_SPD_ISAI);
 
 
 }  // namespace preconditioner

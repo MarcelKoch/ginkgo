@@ -4,9 +4,7 @@
 
 #include "core/stop/residual_norm_kernels.hpp"
 
-
 #include <omp.h>
-
 
 #include <ginkgo/core/base/exception_helpers.hpp>
 #include <ginkgo/core/base/math.hpp>
@@ -55,7 +53,7 @@ void residual_norm(std::shared_ptr<const OmpExecutor> exec,
     *all_converged = local_all_converged;
 }
 
-GKO_INSTANTIATE_FOR_EACH_NON_COMPLEX_VALUE_TYPE(
+GKO_INSTANTIATE_FOR_EACH_NON_COMPLEX_VALUE_TYPE_WITH_HALF(
     GKO_DECLARE_RESIDUAL_NORM_KERNEL);
 
 
@@ -100,7 +98,8 @@ void implicit_residual_norm(
     *all_converged = local_all_converged;
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE(GKO_DECLARE_IMPLICIT_RESIDUAL_NORM_KERNEL);
+GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE_WITH_HALF(
+    GKO_DECLARE_IMPLICIT_RESIDUAL_NORM_KERNEL);
 
 
 }  // namespace implicit_residual_norm

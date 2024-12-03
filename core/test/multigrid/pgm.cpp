@@ -2,17 +2,12 @@
 //
 // SPDX-License-Identifier: BSD-3-Clause
 
-#include <ginkgo/core/multigrid/pgm.hpp>
-
-
 #include <memory>
-
 
 #include <gtest/gtest.h>
 
-
 #include <ginkgo/core/base/executor.hpp>
-
+#include <ginkgo/core/multigrid/pgm.hpp>
 
 #include "core/test/utils.hpp"
 
@@ -45,7 +40,7 @@ protected:
     std::unique_ptr<typename MgLevel::Factory> pgm_factory;
 };
 
-TYPED_TEST_SUITE(PgmFactory, gko::test::ValueIndexTypes,
+TYPED_TEST_SUITE(PgmFactory, gko::test::ValueIndexTypesWithHalf,
                  PairTypenameNameGenerator);
 
 

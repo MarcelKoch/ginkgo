@@ -2,13 +2,12 @@
 //
 // SPDX-License-Identifier: BSD-3-Clause
 
-#include <ginkgo/core/base/segmented_array.hpp>
-
+#include "core/base/segmented_array.hpp"
 
 #include <gtest/gtest.h>
 
+#include <ginkgo/core/base/segmented_array.hpp>
 
-#include "core/base/segmented_array.hpp"
 #include "core/test/utils.hpp"
 
 
@@ -28,7 +27,8 @@ public:
     std::shared_ptr<gko::Executor> exec = gko::ReferenceExecutor::create();
 };
 
-TYPED_TEST_SUITE(SegmentedArray, gko::test::PODTypes, TypenameNameGenerator);
+TYPED_TEST_SUITE(SegmentedArray, gko::test::PODTypesWithHalf,
+                 TypenameNameGenerator);
 
 
 TYPED_TEST(SegmentedArray, CanConstructFromExecutor)

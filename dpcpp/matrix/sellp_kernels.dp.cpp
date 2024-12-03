@@ -4,16 +4,13 @@
 
 #include "core/matrix/sellp_kernels.hpp"
 
-
 #include <CL/sycl.hpp>
-
 
 #include <ginkgo/core/base/exception_helpers.hpp>
 #include <ginkgo/core/base/math.hpp>
 #include <ginkgo/core/base/types.hpp>
 #include <ginkgo/core/matrix/csr.hpp>
 #include <ginkgo/core/matrix/dense.hpp>
-
 
 #include "core/components/prefix_sum_kernels.hpp"
 #include "dpcpp/base/config.hpp"
@@ -122,7 +119,8 @@ void spmv(std::shared_ptr<const DpcppExecutor> exec,
                 b->get_const_values(), c->get_values());
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(GKO_DECLARE_SELLP_SPMV_KERNEL);
+GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE_WITH_HALF(
+    GKO_DECLARE_SELLP_SPMV_KERNEL);
 
 
 template <typename ValueType, typename IndexType>
@@ -145,7 +143,7 @@ void advanced_spmv(std::shared_ptr<const DpcppExecutor> exec,
         beta->get_const_values(), c->get_values());
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(
+GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE_WITH_HALF(
     GKO_DECLARE_SELLP_ADVANCED_SPMV_KERNEL);
 
 

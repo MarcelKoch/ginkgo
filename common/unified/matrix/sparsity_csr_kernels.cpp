@@ -4,9 +4,7 @@
 
 #include "core/matrix/sparsity_csr_kernels.hpp"
 
-
 #include <ginkgo/core/base/math.hpp>
-
 
 #include "common/unified/base/kernel_launch.hpp"
 #include "core/components/prefix_sum_kernels.hpp"
@@ -43,7 +41,7 @@ void fill_in_dense(std::shared_ptr<const DefaultExecutor> exec,
         input->get_const_col_idxs(), input->get_const_value(), output);
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(
+GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE_WITH_HALF(
     GKO_DECLARE_SPARSITY_CSR_FILL_IN_DENSE_KERNEL);
 
 
@@ -72,7 +70,7 @@ void diagonal_element_prefix_sum(
     components::prefix_sum_nonnegative(exec, prefix_sum, num_rows + 1);
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(
+GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE_WITH_HALF(
     GKO_DECLARE_SPARSITY_CSR_DIAGONAL_ELEMENT_PREFIX_SUM_KERNEL);
 
 
@@ -108,7 +106,7 @@ void remove_diagonal_elements(std::shared_ptr<const DefaultExecutor> exec,
         matrix->get_col_idxs());
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(
+GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE_WITH_HALF(
     GKO_DECLARE_SPARSITY_CSR_REMOVE_DIAGONAL_ELEMENTS_KERNEL);
 
 

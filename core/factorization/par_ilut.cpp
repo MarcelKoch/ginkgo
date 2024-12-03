@@ -2,11 +2,9 @@
 //
 // SPDX-License-Identifier: BSD-3-Clause
 
-#include <ginkgo/core/factorization/par_ilut.hpp>
-
+#include "ginkgo/core/factorization/par_ilut.hpp"
 
 #include <memory>
-
 
 #include <ginkgo/core/base/array.hpp>
 #include <ginkgo/core/base/exception_helpers.hpp>
@@ -16,7 +14,6 @@
 #include <ginkgo/core/config/registry.hpp>
 #include <ginkgo/core/matrix/coo.hpp>
 #include <ginkgo/core/matrix/csr.hpp>
-
 
 #include "core/base/array_access.hpp"
 #include "core/base/utils.hpp"
@@ -355,7 +352,7 @@ void ParIlutState<ValueType, IndexType>::iterate()
 
 #define GKO_DECLARE_PAR_ILUT(ValueType, IndexType) \
     class ParIlut<ValueType, IndexType>
-GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(GKO_DECLARE_PAR_ILUT);
+GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE_WITH_HALF(GKO_DECLARE_PAR_ILUT);
 
 
 }  // namespace factorization

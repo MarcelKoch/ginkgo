@@ -2,11 +2,9 @@
 //
 // SPDX-License-Identifier: BSD-3-Clause
 
-#include <ginkgo/core/reorder/scaled_reordered.hpp>
-
+#include "ginkgo/core/reorder/scaled_reordered.hpp"
 
 #include <utility>
-
 
 #include <ginkgo/core/base/precision_dispatch.hpp>
 #include <ginkgo/core/matrix/permutation.hpp>
@@ -86,7 +84,8 @@ void ScaledReordered<ValueType, IndexType>::apply_impl(const LinOp* alpha,
 
 #define GKO_DECLARE_SCALED_REORDERED(ValueType, IndexType) \
     class ScaledReordered<ValueType, IndexType>
-GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(GKO_DECLARE_SCALED_REORDERED);
+GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE_WITH_HALF(
+    GKO_DECLARE_SCALED_REORDERED);
 
 
 }  // namespace reorder

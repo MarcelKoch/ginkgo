@@ -2,8 +2,7 @@
 //
 // SPDX-License-Identifier: BSD-3-Clause
 
-#include <ginkgo/core/multigrid/fixed_coarsening.hpp>
-
+#include "ginkgo/core/multigrid/fixed_coarsening.hpp"
 
 #include <ginkgo/core/base/array.hpp>
 #include <ginkgo/core/base/exception_helpers.hpp>
@@ -16,7 +15,6 @@
 #include <ginkgo/core/matrix/identity.hpp>
 #include <ginkgo/core/matrix/row_gatherer.hpp>
 #include <ginkgo/core/matrix/sparsity_csr.hpp>
-
 
 #include "core/base/utils.hpp"
 #include "core/components/fill_array_kernels.hpp"
@@ -92,7 +90,8 @@ void FixedCoarsening<ValueType, IndexType>::generate()
 
 #define GKO_DECLARE_FIXED_COARSENING(_vtype, _itype) \
     class FixedCoarsening<_vtype, _itype>
-GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(GKO_DECLARE_FIXED_COARSENING);
+GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE_WITH_HALF(
+    GKO_DECLARE_FIXED_COARSENING);
 
 
 }  // namespace multigrid

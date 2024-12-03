@@ -4,12 +4,9 @@
 
 #include "core/solver/lower_trs_kernels.hpp"
 
-
 #include <memory>
 
-
 #include <omp.h>
-
 
 #include <ginkgo/core/base/array.hpp>
 #include <ginkgo/core/base/exception_helpers.hpp>
@@ -50,7 +47,7 @@ void generate(std::shared_ptr<const OmpExecutor> exec,
     // "analysis" phase for the triangular matrix.
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(
+GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE_WITH_HALF(
     GKO_DECLARE_LOWER_TRS_GENERATE_KERNEL);
 
 
@@ -91,7 +88,7 @@ void solve(std::shared_ptr<const OmpExecutor> exec,
     }
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(
+GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE_WITH_HALF(
     GKO_DECLARE_LOWER_TRS_SOLVE_KERNEL);
 
 

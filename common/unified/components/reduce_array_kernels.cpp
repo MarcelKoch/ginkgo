@@ -4,9 +4,7 @@
 
 #include "core/components/reduce_array_kernels.hpp"
 
-
 #include <ginkgo/core/base/math.hpp>
-
 
 #include "common/unified/base/kernel_launch.hpp"
 #include "common/unified/base/kernel_launch_reduction.hpp"
@@ -36,7 +34,8 @@ void reduce_add_array(std::shared_ptr<const DefaultExecutor> exec,
         arr, result);
 }
 
-GKO_INSTANTIATE_FOR_EACH_TEMPLATE_TYPE(GKO_DECLARE_REDUCE_ADD_ARRAY_KERNEL);
+GKO_INSTANTIATE_FOR_EACH_TEMPLATE_TYPE_WITH_HALF(
+    GKO_DECLARE_REDUCE_ADD_ARRAY_KERNEL);
 
 
 }  // namespace components

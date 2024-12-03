@@ -2,18 +2,14 @@
 //
 // SPDX-License-Identifier: BSD-3-Clause
 
-#include "core/preconditioner/jacobi_kernels.hpp"
-
-
 #include <CL/sycl.hpp>
-
 
 #include <ginkgo/config.hpp>
 #include <ginkgo/core/base/exception_helpers.hpp>
 
-
 #include "core/base/extended_float.hpp"
 #include "core/components/fill_array_kernels.hpp"
+#include "core/preconditioner/jacobi_kernels.hpp"
 #include "core/preconditioner/jacobi_utils.hpp"
 #include "core/synthesizer/implementation_selection.hpp"
 #include "dpcpp/base/config.hpp"
@@ -392,7 +388,7 @@ void generate(syn::value_list<int, max_block_size>,
         remove_complex<ValueType>*, precision_reduction*, const IndexType*,  \
         size_type)
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(
+GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE_WITH_HALF(
     DECLARE_JACOBI_GENERATE_INSTANTIATION);
 
 

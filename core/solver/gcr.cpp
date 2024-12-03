@@ -2,8 +2,7 @@
 //
 // SPDX-License-Identifier: BSD-3-Clause
 
-#include <ginkgo/core/solver/gcr.hpp>
-
+#include "ginkgo/core/solver/gcr.hpp"
 
 #include <ginkgo/core/base/array.hpp>
 #include <ginkgo/core/base/exception.hpp>
@@ -14,7 +13,6 @@
 #include <ginkgo/core/base/precision_dispatch.hpp>
 #include <ginkgo/core/matrix/dense.hpp>
 #include <ginkgo/core/matrix/identity.hpp>
-
 
 #include "core/config/solver_config.hpp"
 #include "core/distributed/helpers.hpp"
@@ -373,8 +371,8 @@ std::vector<int> workspace_traits<Gcr<ValueType>>::vectors(const Solver&)
 
 #define GKO_DECLARE_GCR(_type) class Gcr<_type>
 #define GKO_DECLARE_GCR_TRAITS(_type) struct workspace_traits<Gcr<_type>>
-GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE(GKO_DECLARE_GCR);
-GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE(GKO_DECLARE_GCR_TRAITS);
+GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE_WITH_HALF(GKO_DECLARE_GCR);
+GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE_WITH_HALF(GKO_DECLARE_GCR_TRAITS);
 
 
 }  // namespace solver

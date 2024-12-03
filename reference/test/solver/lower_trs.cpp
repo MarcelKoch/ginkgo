@@ -4,15 +4,12 @@
 
 #include <memory>
 
-
 #include <gtest/gtest.h>
-
 
 #include <ginkgo/core/base/executor.hpp>
 #include <ginkgo/core/matrix/csr.hpp>
 #include <ginkgo/core/matrix/dense.hpp>
 #include <ginkgo/core/solver/triangular.hpp>
-
 
 #include "core/test/utils.hpp"
 
@@ -48,7 +45,7 @@ protected:
     std::unique_ptr<Solver> solver;
 };
 
-TYPED_TEST_SUITE(LowerTrs, gko::test::ValueIndexTypes,
+TYPED_TEST_SUITE(LowerTrs, gko::test::ValueIndexTypesWithHalf,
                  PairTypenameNameGenerator);
 
 

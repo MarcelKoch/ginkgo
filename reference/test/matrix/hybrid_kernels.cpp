@@ -2,14 +2,11 @@
 //
 // SPDX-License-Identifier: BSD-3-Clause
 
-#include <ginkgo/core/matrix/hybrid.hpp>
-
+#include "core/matrix/hybrid_kernels.hpp"
 
 #include <memory>
 
-
 #include <gtest/gtest.h>
-
 
 #include <ginkgo/core/base/exception.hpp>
 #include <ginkgo/core/base/exception_helpers.hpp>
@@ -17,9 +14,8 @@
 #include <ginkgo/core/matrix/csr.hpp>
 #include <ginkgo/core/matrix/dense.hpp>
 #include <ginkgo/core/matrix/diagonal.hpp>
+#include <ginkgo/core/matrix/hybrid.hpp>
 
-
-#include "core/matrix/hybrid_kernels.hpp"
 #include "core/test/utils.hpp"
 
 
@@ -36,7 +32,8 @@ protected:
     using Mtx = gko::matrix::Hybrid<value_type, index_type>;
     using Vec = gko::matrix::Dense<value_type>;
     using Csr = gko::matrix::Csr<value_type, index_type>;
-    using MixedVec = gko::matrix::Dense<gko::next_precision<value_type>>;
+    using MixedVec =
+        gko::matrix::Dense<gko::next_precision_with_half<value_type>>;
 
     Hybrid()
         : exec(gko::ReferenceExecutor::create()),
@@ -100,7 +97,8 @@ protected:
     std::unique_ptr<Mtx> mtx3;
 };
 
-TYPED_TEST_SUITE(Hybrid, gko::test::ValueIndexTypes, PairTypenameNameGenerator);
+TYPED_TEST_SUITE(Hybrid, gko::test::ValueIndexTypesWithHalf,
+                 PairTypenameNameGenerator);
 
 
 TYPED_TEST(Hybrid, AppliesToDenseVector)
@@ -237,7 +235,7 @@ TYPED_TEST(Hybrid, ConvertsToPrecision)
 {
     using ValueType = typename TestFixture::value_type;
     using IndexType = typename TestFixture::index_type;
-    using OtherType = typename gko::next_precision<ValueType>;
+    using OtherType = gko::next_precision_with_half<ValueType>;
     using Hybrid = typename TestFixture::Mtx;
     using OtherHybrid = gko::matrix::Hybrid<OtherType, IndexType>;
     auto tmp = OtherHybrid::create(this->exec);
@@ -245,7 +243,9 @@ TYPED_TEST(Hybrid, ConvertsToPrecision)
     // If OtherType is more precise: 0, otherwise r
     auto residual = r<OtherType>::value < r<ValueType>::value
                         ? gko::remove_complex<ValueType>{0}
-                        : gko::remove_complex<ValueType>{r<OtherType>::value};
+                        : gko::remove_complex<ValueType>{
+                              static_cast<gko::remove_complex<ValueType>>(
+                                  r<OtherType>::value)};
 
     this->mtx1->convert_to(tmp);
     tmp->convert_to(res);
@@ -258,15 +258,16 @@ TYPED_TEST(Hybrid, MovesToPrecision)
 {
     using ValueType = typename TestFixture::value_type;
     using IndexType = typename TestFixture::index_type;
-    using OtherType = typename gko::next_precision<ValueType>;
+    using OtherType = gko::next_precision_with_half<ValueType>;
     using Hybrid = typename TestFixture::Mtx;
     using OtherHybrid = gko::matrix::Hybrid<OtherType, IndexType>;
     auto tmp = OtherHybrid::create(this->exec);
     auto res = Hybrid::create(this->exec);
     // If OtherType is more precise: 0, otherwise r
-    auto residual = r<OtherType>::value < r<ValueType>::value
-                        ? gko::remove_complex<ValueType>{0}
-                        : gko::remove_complex<ValueType>{r<OtherType>::value};
+    auto residual =
+        r<OtherType>::value < r<ValueType>::value
+            ? gko::remove_complex<ValueType>{0}
+            : static_cast<gko::remove_complex<ValueType>>(r<OtherType>::value);
 
     this->mtx1->move_to(tmp);
     tmp->move_to(res);
@@ -368,7 +369,7 @@ TYPED_TEST(Hybrid, ConvertsEmptyToPrecision)
 {
     using ValueType = typename TestFixture::value_type;
     using IndexType = typename TestFixture::index_type;
-    using OtherType = typename gko::next_precision<ValueType>;
+    using OtherType = gko::next_precision_with_half<ValueType>;
     using Hybrid = typename TestFixture::Mtx;
     using OtherHybrid = gko::matrix::Hybrid<OtherType, IndexType>;
     auto other = Hybrid::create(this->exec);
@@ -385,7 +386,7 @@ TYPED_TEST(Hybrid, MovesEmptyToPrecision)
 {
     using ValueType = typename TestFixture::value_type;
     using IndexType = typename TestFixture::index_type;
-    using OtherType = typename gko::next_precision<ValueType>;
+    using OtherType = gko::next_precision_with_half<ValueType>;
     using Hybrid = typename TestFixture::Mtx;
     using OtherHybrid = gko::matrix::Hybrid<OtherType, IndexType>;
     auto other = Hybrid::create(this->exec);
@@ -700,7 +701,7 @@ TYPED_TEST(Hybrid, AppliesToComplex)
 TYPED_TEST(Hybrid, AppliesToMixedComplex)
 {
     using mixed_value_type =
-        gko::next_precision<typename TestFixture::value_type>;
+        gko::next_precision_with_half<typename TestFixture::value_type>;
     using mixed_complex_type = gko::to_complex<mixed_value_type>;
     using Vec = gko::matrix::Dense<mixed_complex_type>;
     auto exec = gko::ReferenceExecutor::create();
@@ -757,7 +758,7 @@ TYPED_TEST(Hybrid, AdvancedAppliesToComplex)
 TYPED_TEST(Hybrid, AdvancedAppliesToMixedComplex)
 {
     using mixed_value_type =
-        gko::next_precision<typename TestFixture::value_type>;
+        gko::next_precision_with_half<typename TestFixture::value_type>;
     using mixed_complex_type = gko::to_complex<mixed_value_type>;
     using MixedDense = gko::matrix::Dense<mixed_value_type>;
     using MixedDenseComplex = gko::matrix::Dense<mixed_complex_type>;
@@ -796,7 +797,7 @@ protected:
     using Mtx = gko::matrix::Hybrid<value_type, index_type>;
 };
 
-TYPED_TEST_SUITE(HybridComplex, gko::test::ComplexValueIndexTypes,
+TYPED_TEST_SUITE(HybridComplex, gko::test::ComplexValueIndexTypesWithHalf,
                  PairTypenameNameGenerator);
 
 

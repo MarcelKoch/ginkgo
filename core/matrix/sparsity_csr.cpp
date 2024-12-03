@@ -2,8 +2,7 @@
 //
 // SPDX-License-Identifier: BSD-3-Clause
 
-#include <ginkgo/core/matrix/sparsity_csr.hpp>
-
+#include "ginkgo/core/matrix/sparsity_csr.hpp"
 
 #include <ginkgo/core/base/exception_helpers.hpp>
 #include <ginkgo/core/base/executor.hpp>
@@ -12,7 +11,6 @@
 #include <ginkgo/core/base/utils.hpp>
 #include <ginkgo/core/matrix/csr.hpp>
 #include <ginkgo/core/matrix/dense.hpp>
-
 
 #include "core/base/array_access.hpp"
 #include "core/base/device_matrix_data_kernels.hpp"
@@ -348,7 +346,8 @@ bool SparsityCsr<ValueType, IndexType>::is_sorted_by_column_index() const
 
 #define GKO_DECLARE_SPARSITY_MATRIX(ValueType, IndexType) \
     class SparsityCsr<ValueType, IndexType>
-GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(GKO_DECLARE_SPARSITY_MATRIX);
+GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE_WITH_HALF(
+    GKO_DECLARE_SPARSITY_MATRIX);
 
 
 }  // namespace matrix

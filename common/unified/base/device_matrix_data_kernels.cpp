@@ -4,9 +4,7 @@
 
 #include "core/base/device_matrix_data_kernels.hpp"
 
-
 #include <ginkgo/core/base/types.hpp>
-
 
 #include "common/unified/base/kernel_launch.hpp"
 #include "core/components/fill_array_kernels.hpp"
@@ -32,7 +30,7 @@ void soa_to_aos(std::shared_ptr<const DefaultExecutor> exec,
         in.get_const_col_idxs(), in.get_const_values(), out);
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(
+GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE_WITH_HALF(
     GKO_DECLARE_DEVICE_MATRIX_DATA_SOA_TO_AOS_KERNEL);
 
 
@@ -52,7 +50,7 @@ void aos_to_soa(std::shared_ptr<const DefaultExecutor> exec,
         out.get_values());
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(
+GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE_WITH_HALF(
     GKO_DECLARE_DEVICE_MATRIX_DATA_AOS_TO_SOA_KERNEL);
 
 

@@ -4,22 +4,18 @@
 
 #include "core/solver/upper_trs_kernels.hpp"
 
-
 #include <memory>
-
 
 #include <cuda.h>
 #include <cusparse.h>
-
 
 #include <ginkgo/core/base/exception_helpers.hpp>
 #include <ginkgo/core/base/math.hpp>
 #include <ginkgo/core/solver/triangular.hpp>
 
-
-#include "cuda/base/cusparse_bindings.hpp"
-#include "cuda/base/math.hpp"
-#include "cuda/base/types.hpp"
+#include "common/cuda_hip/base/math.hpp"
+#include "common/cuda_hip/base/sparselib_bindings.hpp"
+#include "common/cuda_hip/base/types.hpp"
 #include "cuda/solver/common_trs_kernels.cuh"
 
 
@@ -54,7 +50,7 @@ void generate(std::shared_ptr<const CudaExecutor> exec,
     }
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(
+GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE_WITH_HALF(
     GKO_DECLARE_UPPER_TRS_GENERATE_KERNEL);
 
 
@@ -74,7 +70,7 @@ void solve(std::shared_ptr<const CudaExecutor> exec,
     }
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(
+GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE_WITH_HALF(
     GKO_DECLARE_UPPER_TRS_SOLVE_KERNEL);
 
 

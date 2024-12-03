@@ -2,12 +2,9 @@
 //
 // SPDX-License-Identifier: BSD-3-Clause
 
-#include "core/preconditioner/jacobi_kernels.hpp"
-
-
 #include <ginkgo/core/base/exception_helpers.hpp>
 
-
+#include "core/preconditioner/jacobi_kernels.hpp"
 #include "core/preconditioner/jacobi_utils.hpp"
 #include "core/synthesizer/implementation_selection.hpp"
 #include "dpcpp/preconditioner/jacobi_common.hpp"
@@ -64,7 +61,7 @@ void simple_apply(
     }
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(
+GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE_WITH_HALF(
     GKO_DECLARE_JACOBI_SIMPLE_APPLY_KERNEL);
 
 

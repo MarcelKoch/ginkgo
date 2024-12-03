@@ -2,17 +2,11 @@
 //
 // SPDX-License-Identifier: BSD-3-Clause
 
-// force-top: on
-// oneDPL needs to be first to avoid issues with libstdc++ TBB impl
 #include <oneapi/dpl/algorithm>
-// force-top: off
-
 
 #include "core/base/device_matrix_data_kernels.hpp"
 
-
 #include <ginkgo/core/base/exception_helpers.hpp>
-
 
 #include "dpcpp/base/onedpl.hpp"
 
@@ -55,7 +49,7 @@ void remove_zeros(std::shared_ptr<const DefaultExecutor> exec,
     }
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(
+GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE_WITH_HALF(
     GKO_DECLARE_DEVICE_MATRIX_DATA_REMOVE_ZEROS_KERNEL);
 
 
@@ -118,7 +112,7 @@ void sort_row_major(std::shared_ptr<const DefaultExecutor> exec,
               });
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(
+GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE_WITH_HALF(
     GKO_DECLARE_DEVICE_MATRIX_DATA_SORT_ROW_MAJOR_KERNEL);
 
 

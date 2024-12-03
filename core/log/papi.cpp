@@ -2,12 +2,10 @@
 //
 // SPDX-License-Identifier: BSD-3-Clause
 
-#include <ginkgo/core/log/papi.hpp>
-
+#include "ginkgo/core/log/papi.hpp"
 
 #include <ginkgo/core/base/dim.hpp>
 #include <ginkgo/core/matrix/dense.hpp>
-
 
 #include "core/distributed/helpers.hpp"
 
@@ -281,7 +279,7 @@ void Papi<ValueType>::on_iteration_complete(
 
 
 #define GKO_DECLARE_PAPI(_type) class Papi<_type>
-GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE(GKO_DECLARE_PAPI);
+GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE_WITH_HALF(GKO_DECLARE_PAPI);
 
 
 }  // namespace log

@@ -2,20 +2,16 @@
 //
 // SPDX-License-Identifier: BSD-3-Clause
 
-// force-top: on
+// clang-format off
 #include <ginkgo/core/base/types.hpp>
-// force-top: off
-
-
-#include <ginkgo/core/matrix/identity.hpp>
+// clang-format on
 
 
 #include <gtest/gtest.h>
 
-
 #include <ginkgo/core/base/exception.hpp>
 #include <ginkgo/core/matrix/dense.hpp>
-
+#include <ginkgo/core/matrix/identity.hpp>
 
 #include "core/test/utils.hpp"
 
@@ -35,7 +31,8 @@ protected:
     std::shared_ptr<const gko::Executor> exec;
 };
 
-TYPED_TEST_SUITE(Identity, gko::test::ValueTypes, TypenameNameGenerator);
+TYPED_TEST_SUITE(Identity, gko::test::ValueTypesWithHalf,
+                 TypenameNameGenerator);
 
 
 TYPED_TEST(Identity, CanBeEmpty)
@@ -85,7 +82,8 @@ protected:
     using value_type = T;
 };
 
-TYPED_TEST_SUITE(IdentityFactory, gko::test::ValueTypes, TypenameNameGenerator);
+TYPED_TEST_SUITE(IdentityFactory, gko::test::ValueTypesWithHalf,
+                 TypenameNameGenerator);
 
 
 TYPED_TEST(IdentityFactory, CanGenerateIdentityMatrix)

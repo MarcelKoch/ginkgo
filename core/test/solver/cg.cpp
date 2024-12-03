@@ -2,21 +2,16 @@
 //
 // SPDX-License-Identifier: BSD-3-Clause
 
-#include <ginkgo/core/solver/cg.hpp>
-
-
 #include <typeinfo>
-
 
 #include <gtest/gtest.h>
 
-
 #include <ginkgo/core/base/executor.hpp>
 #include <ginkgo/core/matrix/dense.hpp>
+#include <ginkgo/core/solver/cg.hpp>
 #include <ginkgo/core/stop/combined.hpp>
 #include <ginkgo/core/stop/iteration.hpp>
 #include <ginkgo/core/stop/residual_norm.hpp>
-
 
 #include "core/test/utils.hpp"
 
@@ -51,7 +46,7 @@ protected:
     std::unique_ptr<gko::LinOp> solver;
 };
 
-TYPED_TEST_SUITE(Cg, gko::test::ValueTypes, TypenameNameGenerator);
+TYPED_TEST_SUITE(Cg, gko::test::ValueTypesWithHalf, TypenameNameGenerator);
 
 
 TYPED_TEST(Cg, CgFactoryKnowsItsExecutor)

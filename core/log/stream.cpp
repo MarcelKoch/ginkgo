@@ -2,11 +2,9 @@
 //
 // SPDX-License-Identifier: BSD-3-Clause
 
-#include <ginkgo/core/log/stream.hpp>
-
+#include "ginkgo/core/log/stream.hpp"
 
 #include <iomanip>
-
 
 #include <ginkgo/core/base/array.hpp>
 #include <ginkgo/core/base/lin_op.hpp>
@@ -456,6 +454,55 @@ void Stream<ValueType>::on_iteration_complete(
         *os_ << demangle_name(right_hand_side)
              << as<gko::matrix::Dense<ValueType>>(right_hand_side) << std::endl;
     }
+    *os_ << std::endl;
+
+    if (verbose_) {
+        *os_ << demangle_name(residual)
+             << as<gko::matrix::Dense<ValueType>>(residual) << std::endl;
+        *os_ << demangle_name(solution)
+             << as<gko::matrix::Dense<ValueType>>(solution) << std::endl;
+        if (residual_norm != nullptr) {
+            *os_ << demangle_name(residual_norm)
+                 << as<gko::matrix::Dense<ValueType>>(residual_norm)
+                 << std::endl;
+        }
+        if (implicit_resnorm_sq != nullptr) {
+            *os_ << demangle_name(implicit_resnorm_sq)
+                 << as<gko::matrix::Dense<ValueType>>(implicit_resnorm_sq)
+                 << std::endl;
+        }
+        if (status != nullptr) {
+            array<stopping_status> tmp(status->get_executor()->get_master(),
+                                       *status);
+            *os_ << tmp.get_const_data();
+        }
+        *os_ << demangle_name(right_hand_side)
+             << as<gko::matrix::Dense<ValueType>>(right_hand_side) << std::endl;
+    }
+}
+
+
+template <typename ValueType>
+void Stream<ValueType>::on_iteration_complete(const LinOp* solver,
+                                              const size_type& num_iterations,
+                                              const LinOp* residual,
+                                              const LinOp* solution,
+                                              const LinOp* residual_norm) const
+{
+    on_iteration_complete(solver, nullptr, solution, num_iterations, residual,
+                          residual_norm, nullptr, nullptr, false);
+}
+
+
+template <typename ValueType>
+void Stream<ValueType>::on_iteration_complete(
+    const LinOp* solver, const size_type& num_iterations, const LinOp* residual,
+    const LinOp* solution, const LinOp* residual_norm,
+    const LinOp* implicit_sq_residual_norm) const
+{
+    on_iteration_complete(solver, nullptr, solution, num_iterations, residual,
+                          residual_norm, implicit_sq_residual_norm, nullptr,
+                          false);
 }
 
 
@@ -484,7 +531,7 @@ void Stream<ValueType>::on_iteration_complete(
 
 
 #define GKO_DECLARE_STREAM(_type) class Stream<_type>
-GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE(GKO_DECLARE_STREAM);
+GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE_WITH_HALF(GKO_DECLARE_STREAM);
 
 
 }  // namespace log

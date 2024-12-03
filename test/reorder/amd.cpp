@@ -7,18 +7,15 @@
 #include <memory>
 #include <random>
 
-
 #include <gtest/gtest.h>
-
 
 #include <ginkgo/core/matrix/csr.hpp>
 #include <ginkgo/core/reorder/amd.hpp>
 
-
 #include "core/test/utils.hpp"
 #include "core/test/utils/unsort_matrix.hpp"
 #include "matrices/config.hpp"
-#include "test/utils/executor.hpp"
+#include "test/utils/common_fixture.hpp"
 
 
 template <typename ValueIndexType>
@@ -43,7 +40,8 @@ protected:
     std::shared_ptr<matrix_type> dmtx;
 };
 
-TYPED_TEST_SUITE(Amd, gko::test::ValueIndexTypes, PairTypenameNameGenerator);
+TYPED_TEST_SUITE(Amd, gko::test::ValueIndexTypesWithHalf,
+                 PairTypenameNameGenerator);
 
 
 TYPED_TEST(Amd, IsEquivalentToRef)

@@ -4,12 +4,9 @@
 
 #include "core/matrix/coo_builder.hpp"
 
-
 #include <memory>
 
-
 #include <gtest/gtest.h>
-
 
 #include "core/test/utils.hpp"
 
@@ -35,7 +32,7 @@ protected:
     std::unique_ptr<Mtx> mtx;
 };
 
-TYPED_TEST_SUITE(CooBuilder, gko::test::ValueIndexTypes,
+TYPED_TEST_SUITE(CooBuilder, gko::test::ValueIndexTypesWithHalf,
                  PairTypenameNameGenerator);
 
 

@@ -4,7 +4,6 @@
 
 #include "core/solver/multigrid_kernels.hpp"
 
-
 #include <ginkgo/core/base/array.hpp>
 #include <ginkgo/core/base/exception_helpers.hpp>
 #include <ginkgo/core/base/math.hpp>
@@ -44,7 +43,8 @@ void kcycle_step_1(std::shared_ptr<const DefaultExecutor> exec,
     }
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE(GKO_DECLARE_MULTIGRID_KCYCLE_STEP_1_KERNEL);
+GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE_WITH_HALF(
+    GKO_DECLARE_MULTIGRID_KCYCLE_STEP_1_KERNEL);
 
 
 template <typename ValueType>
@@ -73,7 +73,8 @@ void kcycle_step_2(std::shared_ptr<const DefaultExecutor> exec,
     }
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE(GKO_DECLARE_MULTIGRID_KCYCLE_STEP_2_KERNEL);
+GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE_WITH_HALF(
+    GKO_DECLARE_MULTIGRID_KCYCLE_STEP_2_KERNEL);
 
 
 template <typename ValueType>
@@ -90,7 +91,7 @@ void kcycle_check_stop(std::shared_ptr<const DefaultExecutor> exec,
     }
 }
 
-GKO_INSTANTIATE_FOR_EACH_NON_COMPLEX_VALUE_TYPE(
+GKO_INSTANTIATE_FOR_EACH_NON_COMPLEX_VALUE_TYPE_WITH_HALF(
     GKO_DECLARE_MULTIGRID_KCYCLE_CHECK_STOP_KERNEL);
 
 

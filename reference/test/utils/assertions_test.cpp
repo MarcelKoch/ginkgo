@@ -4,13 +4,10 @@
 
 #include "core/test/utils/assertions.hpp"
 
-
 #include <gtest/gtest.h>
-
 
 #include <ginkgo/core/matrix/csr.hpp>
 #include <ginkgo/core/matrix/dense.hpp>
-
 
 #include "core/test/utils.hpp"
 
@@ -20,7 +17,8 @@ namespace {
 template <typename T>
 class MatricesNear : public ::testing::Test {};
 
-TYPED_TEST_SUITE(MatricesNear, gko::test::ValueTypes, TypenameNameGenerator);
+TYPED_TEST_SUITE(MatricesNear, gko::test::ValueTypesWithHalf,
+                 TypenameNameGenerator);
 
 
 TYPED_TEST(MatricesNear, CanPassAnyMatrixType)

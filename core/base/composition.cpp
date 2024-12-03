@@ -2,16 +2,13 @@
 //
 // SPDX-License-Identifier: BSD-3-Clause
 
-#include <ginkgo/core/base/composition.hpp>
-
+#include "ginkgo/core/base/composition.hpp"
 
 #include <algorithm>
 #include <iterator>
 
-
 #include <ginkgo/core/base/precision_dispatch.hpp>
 #include <ginkgo/core/matrix/dense.hpp>
-
 
 #include "core/components/fill_array_kernels.hpp"
 
@@ -225,7 +222,7 @@ void Composition<ValueType>::apply_impl(const LinOp* alpha, const LinOp* b,
 
 
 #define GKO_DECLARE_COMPOSITION(_type) class Composition<_type>
-GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE(GKO_DECLARE_COMPOSITION);
+GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE_WITH_HALF(GKO_DECLARE_COMPOSITION);
 
 
 }  // namespace gko

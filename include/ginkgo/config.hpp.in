@@ -41,10 +41,10 @@
 
 /* What is HIP compiled for, hcc or nvcc? */
 // clang-format off
-#define GINKGO_HIP_PLATFORM_HCC @GINKGO_HIP_PLATFORM_HCC@
+#cmakedefine01 GINKGO_HIP_PLATFORM_HCC
 
 
-#define GINKGO_HIP_PLATFORM_NVCC @GINKGO_HIP_PLATFORM_NVCC@
+#cmakedefine01 GINKGO_HIP_PLATFORM_NVCC
 // clang-format on
 
 
@@ -103,6 +103,11 @@
 /* Is HWLOC available ? */
 // clang-format off
 #define GKO_HAVE_HWLOC @GINKGO_HAVE_HWLOC@
+// clang-format on
+
+/* Is half operation available ? */
+// clang-format off
+#cmakedefine01 GINKGO_ENABLE_HALF
 // clang-format on
 
 

@@ -2,13 +2,11 @@
 //
 // SPDX-License-Identifier: BSD-3-Clause
 
-#include <ginkgo/core/solver/ir.hpp>
-
+#include "ginkgo/core/solver/ir.hpp"
 
 #include <ginkgo/core/base/precision_dispatch.hpp>
 #include <ginkgo/core/matrix/dense.hpp>
 #include <ginkgo/core/solver/solver_base.hpp>
-
 
 #include "core/config/config_helper.hpp"
 #include "core/distributed/helpers.hpp"
@@ -372,8 +370,8 @@ std::vector<int> workspace_traits<Ir<ValueType>>::vectors(const Solver&)
 
 #define GKO_DECLARE_IR(_type) class Ir<_type>
 #define GKO_DECLARE_IR_TRAITS(_type) struct workspace_traits<Ir<_type>>
-GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE(GKO_DECLARE_IR);
-GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE(GKO_DECLARE_IR_TRAITS);
+GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE_WITH_HALF(GKO_DECLARE_IR);
+GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE_WITH_HALF(GKO_DECLARE_IR_TRAITS);
 
 
 }  // namespace solver

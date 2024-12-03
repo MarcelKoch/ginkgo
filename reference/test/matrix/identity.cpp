@@ -2,14 +2,10 @@
 //
 // SPDX-License-Identifier: BSD-3-Clause
 
-#include <ginkgo/core/matrix/identity.hpp>
-
-
 #include <gtest/gtest.h>
 
-
 #include <ginkgo/core/matrix/dense.hpp>
-
+#include <ginkgo/core/matrix/identity.hpp>
 
 #include "core/test/utils.hpp"
 
@@ -23,7 +19,8 @@ protected:
     using value_type = T;
     using Id = gko::matrix::Identity<value_type>;
     using Vec = gko::matrix::Dense<value_type>;
-    using MixedVec = gko::matrix::Dense<gko::next_precision<value_type>>;
+    using MixedVec =
+        gko::matrix::Dense<gko::next_precision_with_half<value_type>>;
     using ComplexVec = gko::to_complex<Vec>;
     using MixedComplexVec = gko::to_complex<MixedVec>;
 
@@ -33,7 +30,8 @@ protected:
 };
 
 
-TYPED_TEST_SUITE(Identity, gko::test::ValueTypes, TypenameNameGenerator);
+TYPED_TEST_SUITE(Identity, gko::test::ValueTypesWithHalf,
+                 TypenameNameGenerator);
 
 
 TYPED_TEST(Identity, AppliesToVector)

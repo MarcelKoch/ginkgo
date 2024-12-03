@@ -4,18 +4,15 @@
 
 #include "core/factorization/par_ict_kernels.hpp"
 
-
 #include <algorithm>
 #include <tuple>
 #include <unordered_map>
 #include <unordered_set>
 
-
 #include <ginkgo/core/base/math.hpp>
 #include <ginkgo/core/matrix/coo.hpp>
 #include <ginkgo/core/matrix/csr.hpp>
 #include <ginkgo/core/matrix/dense.hpp>
-
 
 #include "core/base/utils.hpp"
 #include "core/components/prefix_sum_kernels.hpp"
@@ -94,7 +91,7 @@ void compute_factor(std::shared_ptr<const DefaultExecutor> exec,
     }
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(
+GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE_WITH_HALF(
     GKO_DECLARE_PAR_ICT_COMPUTE_FACTOR_KERNEL);
 
 
@@ -169,7 +166,7 @@ void add_candidates(std::shared_ptr<const DefaultExecutor> exec,
         [](IndexType, row_state) {});
 }
 
-GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(
+GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE_WITH_HALF(
     GKO_DECLARE_PAR_ICT_ADD_CANDIDATES_KERNEL);
 
 

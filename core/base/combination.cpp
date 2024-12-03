@@ -2,8 +2,7 @@
 //
 // SPDX-License-Identifier: BSD-3-Clause
 
-#include <ginkgo/core/base/combination.hpp>
-
+#include "ginkgo/core/base/combination.hpp"
 
 #include <ginkgo/core/base/precision_dispatch.hpp>
 #include <ginkgo/core/matrix/dense.hpp>
@@ -169,7 +168,7 @@ void Combination<ValueType>::apply_impl(const LinOp* alpha, const LinOp* b,
 
 
 #define GKO_DECLARE_COMBINATION(_type) class Combination<_type>
-GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE(GKO_DECLARE_COMBINATION);
+GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE_WITH_HALF(GKO_DECLARE_COMBINATION);
 
 
 }  // namespace gko
