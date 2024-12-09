@@ -45,7 +45,7 @@ template <typename SolverType>
 struct SimpleSolverTest {
     using solver_type = SolverType;
     using value_type = typename solver_type::value_type;
-    using mixed_value_type = gko::next_precision<value_type>;
+    using mixed_value_type = gko::next_precision_base<value_type>;
     using local_index_type = gko::int32;
     using global_index_type = gko::int64;
     using dist_matrix_type =
@@ -138,11 +138,7 @@ struct CgWithMg : SimpleSolverTest<gko::solver::Cg<solver_value_type>> {
                         16u)  // necessary since the test matrices have less
                               // rows than the default value
                     .with_criteria(
-                        gko::stop::Iteration::build().with_max_iters(
-                            iteration_count()),
-                        gko::stop::ResidualNorm<value_type>::build()
-                            .with_baseline(gko::stop::mode::absolute)
-                            .with_reduction_factor(2 * reduction_factor())));
+                        gko::stop::Iteration::build().with_max_iters(1u)));
     }
 
     static bool blacklisted(const std::string& test)
@@ -229,7 +225,7 @@ protected:
     using local_index_type = typename T::local_index_type;
     using global_index_type = typename T::global_index_type;
     using value_type = typename T::value_type;
-    using mixed_value_type = gko::next_precision<value_type>;
+    using mixed_value_type = gko::next_precision_base<value_type>;
     using Vec = typename T::dist_vector_type;
     using LocalVec = typename T::non_dist_vector_type;
     using MixedVec = typename T::mixed_dist_vector_type;

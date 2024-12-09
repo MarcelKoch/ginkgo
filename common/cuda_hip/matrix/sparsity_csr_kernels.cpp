@@ -72,11 +72,11 @@ __device__ void device_classical_spmv(const size_type num_rows,
     const auto subrow = thread::get_subwarp_num_flat<subwarp_size>();
     const auto subid = subwarp_tile.thread_rank();
     const IndexType column_id = blockIdx.y;
-    const arithmetic_type value = val[0];
+    const auto value = static_cast<arithmetic_type>(val[0]);
     auto row = thread::get_subwarp_id_flat<subwarp_size>();
     for (; row < num_rows; row += subrow) {
         const auto ind_end = row_ptrs[row + 1];
-        arithmetic_type temp_val = zero<arithmetic_type>();
+        auto temp_val = zero<arithmetic_type>();
         for (auto ind = row_ptrs[row] + subid; ind < ind_end;
              ind += subwarp_size) {
             temp_val += value * b(col_idxs[ind], column_id);

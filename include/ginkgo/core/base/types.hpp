@@ -17,6 +17,9 @@
 #include <string>
 #include <type_traits>
 
+#include <ginkgo/config.hpp>
+#include <ginkgo/core/base/half.hpp>
+
 
 #ifdef __HIPCC__
 #include <hip/hip_runtime.h>
@@ -136,9 +139,6 @@ using uint64 = std::uint64_t;
  * Unsigned integer type capable of holding a pointer to void
  */
 using uintptr = std::uintptr_t;
-
-
-class half;
 
 
 /**
@@ -400,6 +400,17 @@ GKO_ATTRIBUTES constexpr bool operator!=(precision_reduction x,
     _enable_macro(CudaExecutor, cuda)
 
 
+// cuda half operation is supported from arch 5.3
+#if GINKGO_ENABLE_HALF && (!defined(__CUDA_ARCH__) || __CUDA_ARCH__ >= 530)
+#define GKO_ADAPT_HF(_macro) _macro
+#else
+#define GKO_ADAPT_HF(_macro)                                                 \
+    static_assert(true,                                                      \
+                  "This assert is used to counter the false positive extra " \
+                  "semi-colon warnings")
+#endif
+
+
 /**
  * Instantiates a template for each non-complex value type compiled by Ginkgo.
  *
@@ -409,15 +420,19 @@ GKO_ATTRIBUTES constexpr bool operator!=(precision_reduction x,
  *                value type.
  */
 #if GINKGO_DPCPP_SINGLE_MODE
-#define GKO_INSTANTIATE_FOR_EACH_NON_COMPLEX_VALUE_TYPE(_macro) \
-    template _macro(float);                                     \
-    template <>                                                 \
+#define GKO_INSTANTIATE_FOR_EACH_NON_COMPLEX_VALUE_TYPE_BASE(_macro) \
+    template _macro(float);                                          \
+    template <>                                                      \
     _macro(double) GKO_NOT_IMPLEMENTED
 #else
-#define GKO_INSTANTIATE_FOR_EACH_NON_COMPLEX_VALUE_TYPE(_macro) \
-    template _macro(float);                                     \
+#define GKO_INSTANTIATE_FOR_EACH_NON_COMPLEX_VALUE_TYPE_BASE(_macro) \
+    template _macro(float);                                          \
     template _macro(double)
 #endif
+
+#define GKO_INSTANTIATE_FOR_EACH_NON_COMPLEX_VALUE_TYPE(_macro) \
+    GKO_ADAPT_HF(template _macro(half));                        \
+    GKO_INSTANTIATE_FOR_EACH_NON_COMPLEX_VALUE_TYPE_BASE(_macro)
 
 
 /**
@@ -429,17 +444,22 @@ GKO_ATTRIBUTES constexpr bool operator!=(precision_reduction x,
  *                value type.
  */
 #if GINKGO_DPCPP_SINGLE_MODE
-#define GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE(_macro)          \
-    GKO_INSTANTIATE_FOR_EACH_NON_COMPLEX_VALUE_TYPE(_macro); \
-    template _macro(std::complex<float>);                    \
-    template <>                                              \
+#define GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE_BASE(_macro)          \
+    GKO_INSTANTIATE_FOR_EACH_NON_COMPLEX_VALUE_TYPE_BASE(_macro); \
+    template _macro(std::complex<float>);                         \
+    template <>                                                   \
     _macro(std::complex<double>) GKO_NOT_IMPLEMENTED
 #else
-#define GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE(_macro)          \
-    GKO_INSTANTIATE_FOR_EACH_NON_COMPLEX_VALUE_TYPE(_macro); \
-    template _macro(std::complex<float>);                    \
+#define GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE_BASE(_macro)          \
+    GKO_INSTANTIATE_FOR_EACH_NON_COMPLEX_VALUE_TYPE_BASE(_macro); \
+    template _macro(std::complex<float>);                         \
     template _macro(std::complex<double>)
 #endif
+
+#define GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE(_macro)    \
+    GKO_ADAPT_HF(template _macro(half));               \
+    GKO_ADAPT_HF(template _macro(std::complex<half>)); \
+    GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE_BASE(_macro)
 
 
 // Helper macro to make Windows builds work
@@ -459,16 +479,23 @@ GKO_ATTRIBUTES constexpr bool operator!=(precision_reduction x,
  * @note This won't be necessary after upgrading to C++20
  */
 #if GINKGO_DPCPP_SINGLE_MODE
-#define GKO_INSTANTIATE_FOR_EACH_NON_COMPLEX_VALUE_TYPE_VARGS(_macro, ...) \
+#define GKO_INSTANTIATE_FOR_EACH_NON_COMPLEX_VALUE_TYPE_VARGS_BASE(_macro, \
+                                                                   ...)    \
     template GKO_INDIRECT(_macro(float, __VA_ARGS__));                     \
     template <>                                                            \
     GKO_INDIRECT(_macro(double, __VA_ARGS__))                              \
     GKO_NOT_IMPLEMENTED
 #else
-#define GKO_INSTANTIATE_FOR_EACH_NON_COMPLEX_VALUE_TYPE_VARGS(_macro, ...) \
+#define GKO_INSTANTIATE_FOR_EACH_NON_COMPLEX_VALUE_TYPE_VARGS_BASE(_macro, \
+                                                                   ...)    \
     template GKO_INDIRECT(_macro(float, __VA_ARGS__));                     \
     template GKO_INDIRECT(_macro(double, __VA_ARGS__))
 #endif
+
+#define GKO_INSTANTIATE_FOR_EACH_NON_COMPLEX_VALUE_TYPE_VARGS(_macro, ...) \
+    GKO_INDIRECT(GKO_ADAPT_HF(template _macro(half, __VA_ARGS__)));        \
+    GKO_INSTANTIATE_FOR_EACH_NON_COMPLEX_VALUE_TYPE_VARGS_BASE(_macro,     \
+                                                               __VA_ARGS__)
 
 
 /**
@@ -482,20 +509,26 @@ GKO_ATTRIBUTES constexpr bool operator!=(precision_reduction x,
  * @note This won't be necessary after upgrading to C++20
  */
 #if GINKGO_DPCPP_SINGLE_MODE
-#define GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE_VARGS(_macro, ...)          \
-    GKO_INSTANTIATE_FOR_EACH_NON_COMPLEX_VALUE_TYPE_VARGS(_macro,       \
-                                                          __VA_ARGS__); \
-    template GKO_INDIRECT(_macro(std::complex<float>, __VA_ARGS__));    \
-    template <>                                                         \
-    GKO_INDIRECT(_macro(std::complex<double>, __VA_ARGS__))             \
+#define GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE_VARGS_BASE(_macro, ...)          \
+    GKO_INSTANTIATE_FOR_EACH_NON_COMPLEX_VALUE_TYPE_VARGS_BASE(_macro,       \
+                                                               __VA_ARGS__); \
+    template GKO_INDIRECT(_macro(std::complex<float>, __VA_ARGS__));         \
+    template <>                                                              \
+    GKO_INDIRECT(_macro(std::complex<double>, __VA_ARGS__))                  \
     GKO_NOT_IMPLEMENTED
 #else
-#define GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE_VARGS(_macro, ...)          \
-    GKO_INSTANTIATE_FOR_EACH_NON_COMPLEX_VALUE_TYPE_VARGS(_macro,       \
-                                                          __VA_ARGS__); \
-    template GKO_INDIRECT(_macro(std::complex<float>, __VA_ARGS__));    \
+#define GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE_VARGS_BASE(_macro, ...)          \
+    GKO_INSTANTIATE_FOR_EACH_NON_COMPLEX_VALUE_TYPE_VARGS_BASE(_macro,       \
+                                                               __VA_ARGS__); \
+    template GKO_INDIRECT(_macro(std::complex<float>, __VA_ARGS__));         \
     template GKO_INDIRECT(_macro(std::complex<double>, __VA_ARGS__))
 #endif
+
+#define GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE_VARGS(_macro, ...)           \
+    GKO_INDIRECT(GKO_ADAPT_HF(template _macro(half, __VA_ARGS__)));      \
+    GKO_INDIRECT(                                                        \
+        GKO_ADAPT_HF(template _macro(std::complex<half>, __VA_ARGS__))); \
+    GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE_VARGS_BASE(_macro, __VA_ARGS__)
 
 
 /**
@@ -509,7 +542,7 @@ GKO_ATTRIBUTES constexpr bool operator!=(precision_reduction x,
  *                value and scalar type, respectively.
  */
 #if GINKGO_DPCPP_SINGLE_MODE
-#define GKO_INSTANTIATE_FOR_EACH_VALUE_AND_SCALAR_TYPE(_macro)              \
+#define GKO_INSTANTIATE_FOR_EACH_VALUE_AND_SCALAR_TYPE_BASE(_macro)         \
     template _macro(float, float);                                          \
     template <>                                                             \
     _macro(double, double) GKO_NOT_IMPLEMENTED;                             \
@@ -520,14 +553,20 @@ GKO_ATTRIBUTES constexpr bool operator!=(precision_reduction x,
     template <>                                                             \
     _macro(std::complex<double>, double) GKO_NOT_IMPLEMENTED;
 #else
-#define GKO_INSTANTIATE_FOR_EACH_VALUE_AND_SCALAR_TYPE(_macro)   \
-    template _macro(float, float);                               \
-    template _macro(double, double);                             \
-    template _macro(std::complex<float>, std::complex<float>);   \
-    template _macro(std::complex<double>, std::complex<double>); \
-    template _macro(std::complex<float>, float);                 \
+#define GKO_INSTANTIATE_FOR_EACH_VALUE_AND_SCALAR_TYPE_BASE(_macro) \
+    template _macro(float, float);                                  \
+    template _macro(double, double);                                \
+    template _macro(std::complex<float>, std::complex<float>);      \
+    template _macro(std::complex<double>, std::complex<double>);    \
+    template _macro(std::complex<float>, float);                    \
     template _macro(std::complex<double>, double)
 #endif
+
+#define GKO_INSTANTIATE_FOR_EACH_VALUE_AND_SCALAR_TYPE(_macro)             \
+    GKO_INSTANTIATE_FOR_EACH_VALUE_AND_SCALAR_TYPE_BASE(_macro);           \
+    GKO_ADAPT_HF(template _macro(half, half));                             \
+    GKO_ADAPT_HF(template _macro(std::complex<half>, std::complex<half>)); \
+    GKO_ADAPT_HF(template _macro(std::complex<half>, half))
 
 
 /**
@@ -553,36 +592,45 @@ GKO_ATTRIBUTES constexpr bool operator!=(precision_reduction x,
  *                value and index types.
  */
 #if GINKGO_DPCPP_SINGLE_MODE
-#define GKO_INSTANTIATE_FOR_EACH_NON_COMPLEX_VALUE_AND_INDEX_TYPE(_macro) \
-    template _macro(float, int32);                                        \
-    template <>                                                           \
-    _macro(double, int32) GKO_NOT_IMPLEMENTED;                            \
-    template _macro(float, int64);                                        \
-    template <>                                                           \
+#define GKO_INSTANTIATE_FOR_EACH_NON_COMPLEX_VALUE_AND_INDEX_TYPE_BASE(_macro) \
+    template _macro(float, int32);                                             \
+    template <>                                                                \
+    _macro(double, int32) GKO_NOT_IMPLEMENTED;                                 \
+    template _macro(float, int64);                                             \
+    template <>                                                                \
     _macro(double, int64) GKO_NOT_IMPLEMENTED
 #else
-#define GKO_INSTANTIATE_FOR_EACH_NON_COMPLEX_VALUE_AND_INDEX_TYPE(_macro) \
-    template _macro(float, int32);                                        \
-    template _macro(double, int32);                                       \
-    template _macro(float, int64);                                        \
+#define GKO_INSTANTIATE_FOR_EACH_NON_COMPLEX_VALUE_AND_INDEX_TYPE_BASE(_macro) \
+    template _macro(float, int32);                                             \
+    template _macro(double, int32);                                            \
+    template _macro(float, int64);                                             \
     template _macro(double, int64)
 #endif
+#define GKO_INSTANTIATE_FOR_EACH_NON_COMPLEX_VALUE_AND_INDEX_TYPE(_macro) \
+    GKO_ADAPT_HF(template _macro(half, int32));                           \
+    GKO_ADAPT_HF(template _macro(half, int64));                           \
+    GKO_INSTANTIATE_FOR_EACH_NON_COMPLEX_VALUE_AND_INDEX_TYPE_BASE(_macro)
 
 #if GINKGO_DPCPP_SINGLE_MODE
-#define GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INT32_TYPE(_macro) \
-    template _macro(float, int32);                            \
-    template <>                                               \
-    _macro(double, int32) GKO_NOT_IMPLEMENTED;                \
-    template _macro(std::complex<float>, int32);              \
-    template <>                                               \
+#define GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INT32_TYPE_BASE(_macro) \
+    template _macro(float, int32);                                 \
+    template <>                                                    \
+    _macro(double, int32) GKO_NOT_IMPLEMENTED;                     \
+    template _macro(std::complex<float>, int32);                   \
+    template <>                                                    \
     _macro(std::complex<double>, int32) GKO_NOT_IMPLEMENTED
 #else
-#define GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INT32_TYPE(_macro) \
-    template _macro(float, int32);                            \
-    template _macro(double, int32);                           \
-    template _macro(std::complex<float>, int32);              \
+#define GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INT32_TYPE_BASE(_macro) \
+    template _macro(float, int32);                                 \
+    template _macro(double, int32);                                \
+    template _macro(std::complex<float>, int32);                   \
     template _macro(std::complex<double>, int32)
 #endif
+
+#define GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INT32_TYPE(_macro) \
+    GKO_ADAPT_HF(template _macro(half, int32));               \
+    GKO_ADAPT_HF(template _macro(std::complex<half>, int32)); \
+    GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INT32_TYPE_BASE(_macro)
 
 
 /**
@@ -594,22 +642,29 @@ GKO_ATTRIBUTES constexpr bool operator!=(precision_reduction x,
  *                value and index types.
  */
 #if GINKGO_DPCPP_SINGLE_MODE
-#define GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(_macro)          \
-    GKO_INSTANTIATE_FOR_EACH_NON_COMPLEX_VALUE_AND_INDEX_TYPE(_macro); \
-    template _macro(std::complex<float>, int32);                       \
-    template <>                                                        \
-    _macro(std::complex<double>, int32) GKO_NOT_IMPLEMENTED;           \
-    template _macro(std::complex<float>, int64);                       \
-    template <>                                                        \
+#define GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE_BASE(_macro)          \
+    GKO_INSTANTIATE_FOR_EACH_NON_COMPLEX_VALUE_AND_INDEX_TYPE_BASE(_macro); \
+    template _macro(std::complex<float>, int32);                            \
+    template <>                                                             \
+    _macro(std::complex<double>, int32) GKO_NOT_IMPLEMENTED;                \
+    template _macro(std::complex<float>, int64);                            \
+    template <>                                                             \
     _macro(std::complex<double>, int64) GKO_NOT_IMPLEMENTED
 #else
-#define GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(_macro)          \
-    GKO_INSTANTIATE_FOR_EACH_NON_COMPLEX_VALUE_AND_INDEX_TYPE(_macro); \
-    template _macro(std::complex<float>, int32);                       \
-    template _macro(std::complex<double>, int32);                      \
-    template _macro(std::complex<float>, int64);                       \
+#define GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE_BASE(_macro)          \
+    GKO_INSTANTIATE_FOR_EACH_NON_COMPLEX_VALUE_AND_INDEX_TYPE_BASE(_macro); \
+    template _macro(std::complex<float>, int32);                            \
+    template _macro(std::complex<double>, int32);                           \
+    template _macro(std::complex<float>, int64);                            \
     template _macro(std::complex<double>, int64)
 #endif
+
+#define GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(_macro) \
+    GKO_ADAPT_HF(template _macro(half, int32));               \
+    GKO_ADAPT_HF(template _macro(half, int64));               \
+    GKO_ADAPT_HF(template _macro(std::complex<half>, int32)); \
+    GKO_ADAPT_HF(template _macro(std::complex<half>, int64)); \
+    GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE_BASE(_macro)
 
 
 /**
@@ -622,27 +677,35 @@ GKO_ATTRIBUTES constexpr bool operator!=(precision_reduction x,
  *                value, the local and the global index types.
  */
 #if GINKGO_DPCPP_SINGLE_MODE
-#define GKO_INSTANTIATE_FOR_EACH_NON_COMPLEX_VALUE_AND_LOCAL_GLOBAL_INDEX_TYPE( \
-    _macro)                                                                     \
-    template _macro(float, int32, int32);                                       \
-    template _macro(float, int32, int64);                                       \
-    template _macro(float, int64, int64);                                       \
-    template <>                                                                 \
-    _macro(double, int32, int32) GKO_NOT_IMPLEMENTED;                           \
-    template <>                                                                 \
-    _macro(double, int32, int64) GKO_NOT_IMPLEMENTED;                           \
-    template <>                                                                 \
+#define GKO_INSTANTIATE_FOR_EACH_NON_COMPLEX_VALUE_AND_LOCAL_GLOBAL_INDEX_TYPE_BASE( \
+    _macro)                                                                          \
+    template _macro(float, int32, int32);                                            \
+    template _macro(float, int32, int64);                                            \
+    template _macro(float, int64, int64);                                            \
+    template <>                                                                      \
+    _macro(double, int32, int32) GKO_NOT_IMPLEMENTED;                                \
+    template <>                                                                      \
+    _macro(double, int32, int64) GKO_NOT_IMPLEMENTED;                                \
+    template <>                                                                      \
     _macro(double, int64, int64) GKO_NOT_IMPLEMENTED
 #else
-#define GKO_INSTANTIATE_FOR_EACH_NON_COMPLEX_VALUE_AND_LOCAL_GLOBAL_INDEX_TYPE( \
-    _macro)                                                                     \
-    template _macro(float, int32, int32);                                       \
-    template _macro(float, int32, int64);                                       \
-    template _macro(float, int64, int64);                                       \
-    template _macro(double, int32, int32);                                      \
-    template _macro(double, int32, int64);                                      \
+#define GKO_INSTANTIATE_FOR_EACH_NON_COMPLEX_VALUE_AND_LOCAL_GLOBAL_INDEX_TYPE_BASE( \
+    _macro)                                                                          \
+    template _macro(float, int32, int32);                                            \
+    template _macro(float, int32, int64);                                            \
+    template _macro(float, int64, int64);                                            \
+    template _macro(double, int32, int32);                                           \
+    template _macro(double, int32, int64);                                           \
     template _macro(double, int64, int64)
 #endif
+
+#define GKO_INSTANTIATE_FOR_EACH_NON_COMPLEX_VALUE_AND_LOCAL_GLOBAL_INDEX_TYPE(  \
+    _macro)                                                                      \
+    GKO_ADAPT_HF(template _macro(half, int32, int32));                           \
+    GKO_ADAPT_HF(template _macro(half, int32, int64));                           \
+    GKO_ADAPT_HF(template _macro(half, int64, int64));                           \
+    GKO_INSTANTIATE_FOR_EACH_NON_COMPLEX_VALUE_AND_LOCAL_GLOBAL_INDEX_TYPE_BASE( \
+        _macro)
 
 
 /**
@@ -654,33 +717,44 @@ GKO_ATTRIBUTES constexpr bool operator!=(precision_reduction x,
  *                value and index types.
  */
 #if GINKGO_DPCPP_SINGLE_MODE
-#define GKO_INSTANTIATE_FOR_EACH_VALUE_AND_LOCAL_GLOBAL_INDEX_TYPE(_macro)  \
-    GKO_INSTANTIATE_FOR_EACH_NON_COMPLEX_VALUE_AND_LOCAL_GLOBAL_INDEX_TYPE( \
-        _macro);                                                            \
-    template _macro(std::complex<float>, int32, int32);                     \
-    template _macro(std::complex<float>, int32, int64);                     \
-    template _macro(std::complex<float>, int64, int64);                     \
-    template <>                                                             \
-    _macro(std::complex<double>, int32, int32) GKO_NOT_IMPLEMENTED;         \
-    template <>                                                             \
-    _macro(std::complex<double>, int32, int64) GKO_NOT_IMPLEMENTED;         \
-    template <>                                                             \
+#define GKO_INSTANTIATE_FOR_EACH_VALUE_AND_LOCAL_GLOBAL_INDEX_TYPE_BASE(         \
+    _macro)                                                                      \
+    GKO_INSTANTIATE_FOR_EACH_NON_COMPLEX_VALUE_AND_LOCAL_GLOBAL_INDEX_TYPE_BASE( \
+        _macro);                                                                 \
+    template _macro(std::complex<float>, int32, int32);                          \
+    template _macro(std::complex<float>, int32, int64);                          \
+    template _macro(std::complex<float>, int64, int64);                          \
+    template <>                                                                  \
+    _macro(std::complex<double>, int32, int32) GKO_NOT_IMPLEMENTED;              \
+    template <>                                                                  \
+    _macro(std::complex<double>, int32, int64) GKO_NOT_IMPLEMENTED;              \
+    template <>                                                                  \
     _macro(std::complex<double>, int64, int64) GKO_NOT_IMPLEMENTED
 #else
-#define GKO_INSTANTIATE_FOR_EACH_VALUE_AND_LOCAL_GLOBAL_INDEX_TYPE(_macro)  \
-    GKO_INSTANTIATE_FOR_EACH_NON_COMPLEX_VALUE_AND_LOCAL_GLOBAL_INDEX_TYPE( \
-        _macro);                                                            \
-    template _macro(std::complex<float>, int32, int32);                     \
-    template _macro(std::complex<float>, int32, int64);                     \
-    template _macro(std::complex<float>, int64, int64);                     \
-    template _macro(std::complex<double>, int32, int32);                    \
-    template _macro(std::complex<double>, int32, int64);                    \
+#define GKO_INSTANTIATE_FOR_EACH_VALUE_AND_LOCAL_GLOBAL_INDEX_TYPE_BASE(         \
+    _macro)                                                                      \
+    GKO_INSTANTIATE_FOR_EACH_NON_COMPLEX_VALUE_AND_LOCAL_GLOBAL_INDEX_TYPE_BASE( \
+        _macro);                                                                 \
+    template _macro(std::complex<float>, int32, int32);                          \
+    template _macro(std::complex<float>, int32, int64);                          \
+    template _macro(std::complex<float>, int64, int64);                          \
+    template _macro(std::complex<double>, int32, int32);                         \
+    template _macro(std::complex<double>, int32, int64);                         \
     template _macro(std::complex<double>, int64, int64)
 #endif
 
+#define GKO_INSTANTIATE_FOR_EACH_VALUE_AND_LOCAL_GLOBAL_INDEX_TYPE(_macro)   \
+    GKO_INSTANTIATE_FOR_EACH_VALUE_AND_LOCAL_GLOBAL_INDEX_TYPE_BASE(_macro); \
+    GKO_ADAPT_HF(template _macro(half, int32, int32));                       \
+    GKO_ADAPT_HF(template _macro(half, int32, int64));                       \
+    GKO_ADAPT_HF(template _macro(half, int64, int64));                       \
+    GKO_ADAPT_HF(template _macro(std::complex<half>, int32, int32));         \
+    GKO_ADAPT_HF(template _macro(std::complex<half>, int32, int64));         \
+    GKO_ADAPT_HF(template _macro(std::complex<half>, int64, int64))
+
 
 #if GINKGO_DPCPP_SINGLE_MODE
-#define GKO_INSTANTIATE_FOR_EACH_VALUE_CONVERSION(_macro)                  \
+#define GKO_INSTANTIATE_FOR_EACH_VALUE_CONVERSION_BASE(_macro)             \
     template <>                                                            \
     _macro(float, double) GKO_NOT_IMPLEMENTED;                             \
     template <>                                                            \
@@ -691,13 +765,13 @@ GKO_ATTRIBUTES constexpr bool operator!=(precision_reduction x,
     _macro(std::complex<double>, std::complex<float>) GKO_NOT_IMPLEMENTED
 
 
-#define GKO_INSTANTIATE_FOR_EACH_VALUE_CONVERSION_OR_COPY(_macro) \
-    GKO_INSTANTIATE_FOR_EACH_VALUE_CONVERSION(_macro);            \
-    template _macro(float, float);                                \
-    template <>                                                   \
-    _macro(double, double) GKO_NOT_IMPLEMENTED;                   \
-    template _macro(std::complex<float>, std::complex<float>);    \
-    template <>                                                   \
+#define GKO_INSTANTIATE_FOR_EACH_VALUE_CONVERSION_OR_COPY_BASE(_macro) \
+    GKO_INSTANTIATE_FOR_EACH_VALUE_CONVERSION_BASE(_macro);            \
+    template _macro(float, float);                                     \
+    template <>                                                        \
+    _macro(double, double) GKO_NOT_IMPLEMENTED;                        \
+    template _macro(std::complex<float>, std::complex<float>);         \
+    template <>                                                        \
     _macro(std::complex<double>, std::complex<double>) GKO_NOT_IMPLEMENTED
 #else
 /**
@@ -709,7 +783,7 @@ GKO_ATTRIBUTES constexpr bool operator!=(precision_reduction x,
  *                Should take two arguments `src` and `dst`, which
  *                are replaced by the source and destination value type.
  */
-#define GKO_INSTANTIATE_FOR_EACH_VALUE_CONVERSION(_macro)       \
+#define GKO_INSTANTIATE_FOR_EACH_VALUE_CONVERSION_BASE(_macro)  \
     template _macro(float, double);                             \
     template _macro(double, float);                             \
     template _macro(std::complex<float>, std::complex<double>); \
@@ -725,14 +799,48 @@ GKO_ATTRIBUTES constexpr bool operator!=(precision_reduction x,
  *                Should take two arguments `src` and `dst`, which
  *                are replaced by the source and destination value type.
  */
-#define GKO_INSTANTIATE_FOR_EACH_VALUE_CONVERSION_OR_COPY(_macro) \
-    GKO_INSTANTIATE_FOR_EACH_VALUE_CONVERSION(_macro);            \
-    template _macro(float, float);                                \
-    template _macro(double, double);                              \
-    template _macro(std::complex<float>, std::complex<float>);    \
+#define GKO_INSTANTIATE_FOR_EACH_VALUE_CONVERSION_OR_COPY_BASE(_macro) \
+    GKO_INSTANTIATE_FOR_EACH_VALUE_CONVERSION_BASE(_macro);            \
+    template _macro(float, float);                                     \
+    template _macro(double, double);                                   \
+    template _macro(std::complex<float>, std::complex<float>);         \
     template _macro(std::complex<double>, std::complex<double>)
 #endif
 
+#if GINKGO_DPCPP_SINGLE_MODE
+#define GKO_INSTANTIATE_FOR_EACH_VALUE_CONVERSION(_macro)                     \
+    GKO_ADAPT_HF(template <> _macro(half, double) GKO_NOT_IMPLEMENTED);       \
+    GKO_ADAPT_HF(template <> _macro(double, half) GKO_NOT_IMPLEMENTED);       \
+    GKO_ADAPT_HF(template _macro(float, half));                               \
+    GKO_ADAPT_HF(template _macro(half, float));                               \
+    GKO_ADAPT_HF(template _macro(std::complex<half>, std::complex<float>));   \
+    GKO_ADAPT_HF(template <> _macro(std::complex<half>, std::complex<double>) \
+                     GKO_NOT_IMPLEMENTED);                                    \
+    GKO_ADAPT_HF(template _macro(std::complex<float>, std::complex<half>));   \
+    GKO_ADAPT_HF(template <> _macro(std::complex<double>, std::complex<half>) \
+                     GKO_NOT_IMPLEMENTED);                                    \
+    GKO_INSTANTIATE_FOR_EACH_VALUE_CONVERSION_BASE(_macro)
+#else
+#define GKO_INSTANTIATE_FOR_EACH_VALUE_CONVERSION(_macro)                    \
+    GKO_ADAPT_HF(template _macro(half, double));                             \
+    GKO_ADAPT_HF(template _macro(double, half));                             \
+    GKO_ADAPT_HF(template _macro(float, half));                              \
+    GKO_ADAPT_HF(template _macro(half, float));                              \
+    GKO_ADAPT_HF(template _macro(std::complex<half>, std::complex<float>));  \
+    GKO_ADAPT_HF(template _macro(std::complex<half>, std::complex<double>)); \
+    GKO_ADAPT_HF(template _macro(std::complex<float>, std::complex<half>));  \
+    GKO_ADAPT_HF(template _macro(std::complex<double>, std::complex<half>)); \
+    GKO_INSTANTIATE_FOR_EACH_VALUE_CONVERSION_BASE(_macro)
+#endif
+
+#define GKO_INSTANTIATE_FOR_EACH_VALUE_CONVERSION_OR_COPY(_macro)          \
+    GKO_INSTANTIATE_FOR_EACH_VALUE_CONVERSION(_macro);                     \
+    GKO_ADAPT_HF(template _macro(half, half));                             \
+    GKO_ADAPT_HF(template _macro(std::complex<half>, std::complex<half>)); \
+    template _macro(float, float);                                         \
+    template _macro(double, double);                                       \
+    template _macro(std::complex<float>, std::complex<float>);             \
+    template _macro(std::complex<double>, std::complex<double>)
 
 /**
  * Instantiates a template for each value type pair compiled by Ginkgo.
@@ -742,7 +850,7 @@ GKO_ATTRIBUTES constexpr bool operator!=(precision_reduction x,
  *                Should take two arguments, which are replaced by the
  *                value and index types.
  */
-#define GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE_PAIR(_macro)       \
+#define GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE_PAIR_BASE(_macro)  \
     template _macro(float, float);                             \
     template _macro(double, double);                           \
     template _macro(std::complex<float>, float);               \
@@ -750,6 +858,11 @@ GKO_ATTRIBUTES constexpr bool operator!=(precision_reduction x,
     template _macro(std::complex<float>, std::complex<float>); \
     template _macro(std::complex<double>, std::complex<double>)
 
+#define GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE_PAIR(_macro)                   \
+    GKO_ADAPT_HF(template _macro(half, half));                             \
+    GKO_ADAPT_HF(template _macro(std::complex<half>, half));               \
+    GKO_ADAPT_HF(template _macro(std::complex<half>, std::complex<half>)); \
+    GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE_PAIR_BASE(_macro)
 
 /**
  * Instantiates a template for each combined value and index type compiled by
@@ -760,17 +873,22 @@ GKO_ATTRIBUTES constexpr bool operator!=(precision_reduction x,
  *                Should take two arguments, which are replaced by the
  *                value and index types.
  */
-#define GKO_INSTANTIATE_FOR_EACH_COMBINED_VALUE_AND_INDEX_TYPE(_macro) \
-    template _macro(char, char);                                       \
-    template _macro(int32, int32);                                     \
-    template _macro(int64, int64);                                     \
-    template _macro(unsigned int, unsigned int);                       \
-    template _macro(unsigned long, unsigned long);                     \
-    template _macro(float, float);                                     \
-    template _macro(double, double);                                   \
-    template _macro(long double, long double);                         \
-    template _macro(std::complex<float>, std::complex<float>);         \
+#define GKO_INSTANTIATE_FOR_EACH_COMBINED_VALUE_AND_INDEX_TYPE_BASE(_macro) \
+    template _macro(char, char);                                            \
+    template _macro(int32, int32);                                          \
+    template _macro(int64, int64);                                          \
+    template _macro(unsigned int, unsigned int);                            \
+    template _macro(unsigned long, unsigned long);                          \
+    template _macro(float, float);                                          \
+    template _macro(double, double);                                        \
+    template _macro(long double, long double);                              \
+    template _macro(std::complex<float>, std::complex<float>);              \
     template _macro(std::complex<double>, std::complex<double>)
+
+#define GKO_INSTANTIATE_FOR_EACH_COMBINED_VALUE_AND_INDEX_TYPE(_macro)     \
+    GKO_ADAPT_HF(template _macro(half, half));                             \
+    GKO_ADAPT_HF(template _macro(std::complex<half>, std::complex<half>)); \
+    GKO_INSTANTIATE_FOR_EACH_COMBINED_VALUE_AND_INDEX_TYPE_BASE(_macro)
 
 /**
  * Instantiates a template for each value and index type compiled by Ginkgo.
@@ -780,16 +898,20 @@ GKO_ATTRIBUTES constexpr bool operator!=(precision_reduction x,
  *                Should take two arguments, which are replaced by the
  *                value and index types.
  */
-#define GKO_INSTANTIATE_FOR_EACH_POD_TYPE(_macro) \
-    template _macro(float);                       \
-    template _macro(double);                      \
-    template _macro(std::complex<float>);         \
-    template _macro(std::complex<double>);        \
-    template _macro(size_type);                   \
-    template _macro(bool);                        \
-    template _macro(int32);                       \
+#define GKO_INSTANTIATE_FOR_EACH_POD_TYPE_BASE(_macro) \
+    template _macro(float);                            \
+    template _macro(double);                           \
+    template _macro(std::complex<float>);              \
+    template _macro(std::complex<double>);             \
+    template _macro(size_type);                        \
+    template _macro(bool);                             \
+    template _macro(int32);                            \
     template _macro(int64)
 
+#define GKO_INSTANTIATE_FOR_EACH_POD_TYPE(_macro)      \
+    GKO_ADAPT_HF(template _macro(half));               \
+    GKO_ADAPT_HF(template _macro(std::complex<half>)); \
+    GKO_INSTANTIATE_FOR_EACH_POD_TYPE_BASE(_macro)
 
 /**
  * Instantiates a template for each normal type
@@ -799,6 +921,11 @@ GKO_ATTRIBUTES constexpr bool operator!=(precision_reduction x,
  *                Should take one argument, which is replaced by the
  *                value type.
  */
+#define GKO_INSTANTIATE_FOR_EACH_TEMPLATE_TYPE_BASE(_macro) \
+    GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE_BASE(_macro);       \
+    GKO_INSTANTIATE_FOR_EACH_INDEX_TYPE(_macro);            \
+    template _macro(gko::size_type)
+
 #define GKO_INSTANTIATE_FOR_EACH_TEMPLATE_TYPE(_macro) \
     GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE(_macro);       \
     GKO_INSTANTIATE_FOR_EACH_INDEX_TYPE(_macro);       \

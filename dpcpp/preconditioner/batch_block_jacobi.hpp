@@ -8,7 +8,7 @@
 
 #include <memory>
 
-#include <CL/sycl.hpp>
+#include <sycl/sycl.hpp>
 
 #include "core/base/batch_struct.hpp"
 #include "core/matrix/batch_struct.hpp"
@@ -129,8 +129,15 @@ public:
                 sum += block_val * r[dense_block_col + idx_start];
             }
 
-            // reduction
-            sum = sycl::reduce_over_group(sg, sum, sycl::plus<>());
+            // reduction (it does not support complex<half>)
+            if constexpr (std::is_same_v<value_type,
+                                         gko::complex<sycl::half>>) {
+                for (int i = sg_size / 2; i > 0; i /= 2) {
+                    sum += sycl::shift_group_left(sg, sum, i);
+                }
+            } else {
+                sum = sycl::reduce_over_group(sg, sum, sycl::plus<>());
+            }
 
             if (sg_tid == 0) {
                 z[row_idx] = sum;

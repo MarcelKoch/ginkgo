@@ -79,15 +79,16 @@ TYPED_TEST(Coo, ConvertsToPrecision)
 {
     using ValueType = typename TestFixture::value_type;
     using IndexType = typename TestFixture::index_type;
-    using OtherType = typename gko::next_precision<ValueType>;
+    using OtherType = gko::next_precision<ValueType>;
     using Coo = typename TestFixture::Mtx;
     using OtherCoo = gko::matrix::Coo<OtherType, IndexType>;
     auto tmp = OtherCoo::create(this->exec);
     auto res = Coo::create(this->exec);
     // If OtherType is more precise: 0, otherwise r
-    auto residual = r<OtherType>::value < r<ValueType>::value
-                        ? gko::remove_complex<ValueType>{0}
-                        : gko::remove_complex<ValueType>{r<OtherType>::value};
+    auto residual =
+        r<OtherType>::value < r<ValueType>::value
+            ? gko::remove_complex<ValueType>{0}
+            : static_cast<gko::remove_complex<ValueType>>(r<OtherType>::value);
 
     this->mtx->convert_to(tmp);
     tmp->convert_to(res);
@@ -100,15 +101,16 @@ TYPED_TEST(Coo, MovesToPrecision)
 {
     using ValueType = typename TestFixture::value_type;
     using IndexType = typename TestFixture::index_type;
-    using OtherType = typename gko::next_precision<ValueType>;
+    using OtherType = gko::next_precision<ValueType>;
     using Coo = typename TestFixture::Mtx;
     using OtherCoo = gko::matrix::Coo<OtherType, IndexType>;
     auto tmp = OtherCoo::create(this->exec);
     auto res = Coo::create(this->exec);
     // If OtherType is more precise: 0, otherwise r
-    auto residual = r<OtherType>::value < r<ValueType>::value
-                        ? gko::remove_complex<ValueType>{0}
-                        : gko::remove_complex<ValueType>{r<OtherType>::value};
+    auto residual =
+        r<OtherType>::value < r<ValueType>::value
+            ? gko::remove_complex<ValueType>{0}
+            : static_cast<gko::remove_complex<ValueType>>(r<OtherType>::value);
 
     this->mtx->move_to(tmp);
     tmp->move_to(res);
@@ -212,7 +214,7 @@ TYPED_TEST(Coo, ConvertsEmptyToPrecision)
 {
     using ValueType = typename TestFixture::value_type;
     using IndexType = typename TestFixture::index_type;
-    using OtherType = typename gko::next_precision<ValueType>;
+    using OtherType = gko::next_precision<ValueType>;
     using Coo = typename TestFixture::Mtx;
     using OtherCoo = gko::matrix::Coo<OtherType, IndexType>;
     auto empty = OtherCoo::create(this->exec);
@@ -229,7 +231,7 @@ TYPED_TEST(Coo, MovesEmptyToPrecision)
 {
     using ValueType = typename TestFixture::value_type;
     using IndexType = typename TestFixture::index_type;
-    using OtherType = typename gko::next_precision<ValueType>;
+    using OtherType = gko::next_precision<ValueType>;
     using Coo = typename TestFixture::Mtx;
     using OtherCoo = gko::matrix::Coo<OtherType, IndexType>;
     auto empty = OtherCoo::create(this->exec);

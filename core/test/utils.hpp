@@ -15,6 +15,7 @@
 
 #include <gtest/gtest.h>
 
+#include <ginkgo/core/base/half.hpp>
 #include <ginkgo/core/base/math.hpp>
 #include <ginkgo/core/base/name_demangling.hpp>
 #include <ginkgo/core/base/types.hpp>
@@ -320,14 +321,29 @@ using add_inner_wrapper_t =
     typename detail::add_inner_wrapper<NewInnerWrapper, ListType>::type;
 
 
-using RealValueTypes =
+using RealValueTypesBase =
 #if GINKGO_DPCPP_SINGLE_MODE
     ::testing::Types<float>;
 #else
     ::testing::Types<float, double>;
 #endif
 
+using RealValueTypes = ::testing::Types<
+#if GINKGO_ENABLE_HALF
+    gko::half,
+#endif
+#if !GINKGO_DPCPP_SINGLE_MODE
+    double,
+#endif
+    float>;
+
+using ComplexValueTypesBase =
+    add_inner_wrapper_t<std::complex, RealValueTypesBase>;
+
 using ComplexValueTypes = add_inner_wrapper_t<std::complex, RealValueTypes>;
+
+using ValueTypesBase =
+    merge_type_list_t<RealValueTypesBase, ComplexValueTypesBase>;
 
 using ValueTypes = merge_type_list_t<RealValueTypes, ComplexValueTypes>;
 
@@ -339,41 +355,61 @@ using LocalGlobalIndexTypes =
     ::testing::Types<std::tuple<int32, int32>, std::tuple<int32, int64>,
                      std::tuple<int64, int64>>;
 
+using PODTypesBase = merge_type_list_t<RealValueTypesBase, IntegerTypes>;
+
 using PODTypes = merge_type_list_t<RealValueTypes, IntegerTypes>;
 
-using ComplexAndPODTypes = merge_type_list_t<ComplexValueTypes, PODTypes>;
+using ComplexAndPODTypesBase =
+    merge_type_list_t<ComplexValueTypesBase, PODTypesBase>;
+
+using ComplexAndPODTypes = merge_type_list_t<ComplexValueTypes, PODTypesBase>;
+
+using ValueIndexTypesBase =
+    cartesian_type_product_t<ValueTypesBase, IndexTypes>;
 
 using ValueIndexTypes = cartesian_type_product_t<ValueTypes, IndexTypes>;
+
+using RealValueIndexTypesBase =
+    cartesian_type_product_t<RealValueTypesBase, IndexTypes>;
 
 using RealValueIndexTypes =
     cartesian_type_product_t<RealValueTypes, IndexTypes>;
 
+using ComplexValueIndexTypesBase =
+    cartesian_type_product_t<ComplexValueTypesBase, IndexTypes>;
+
 using ComplexValueIndexTypes =
     cartesian_type_product_t<ComplexValueTypes, IndexTypes>;
 
-using TwoValueIndexType = add_to_cartesian_type_product_t<
+using TwoValueIndexTypesBase = add_to_cartesian_type_product_t<
+    merge_type_list_t<
+        cartesian_type_product_t<RealValueTypesBase, RealValueTypesBase>,
+        cartesian_type_product_t<ComplexValueTypesBase, ComplexValueTypesBase>>,
+    IndexTypes>;
+
+using TwoValueIndexTypes = add_to_cartesian_type_product_t<
     merge_type_list_t<
         cartesian_type_product_t<RealValueTypes, RealValueTypes>,
         cartesian_type_product_t<ComplexValueTypes, ComplexValueTypes>>,
     IndexTypes>;
 
-using ValueLocalGlobalIndexTypes =
-    add_to_cartesian_type_product_left_t<ValueTypes, LocalGlobalIndexTypes>;
+using ValueLocalGlobalIndexTypesBase =
+    add_to_cartesian_type_product_left_t<ValueTypesBase, LocalGlobalIndexTypes>;
 
 
 template <typename Precision, typename OutputType>
 struct reduction_factor {
     using nc_output = remove_complex<OutputType>;
     using nc_precision = remove_complex<Precision>;
-    static constexpr nc_output value{
-        std::numeric_limits<nc_precision>::epsilon() * nc_output{10} *
-        (gko::is_complex<Precision>() ? nc_output{1.4142} : one<nc_output>())};
+    static const nc_output value;
 };
 
 
 template <typename Precision, typename OutputType>
-constexpr remove_complex<OutputType>
-    reduction_factor<Precision, OutputType>::value;
+const remove_complex<OutputType>
+    reduction_factor<Precision, OutputType>::value =
+        std::numeric_limits<nc_precision>::epsilon() * nc_output{10} *
+        (gko::is_complex<Precision>() ? nc_output{1.4142} : one<nc_output>());
 
 
 }  // namespace test
@@ -453,6 +489,15 @@ struct TupleTypenameNameGenerator {
                ">";
     }
 };
+
+
+#define SKIP_IF_HALF(type)                                                   \
+    if (std::is_same<gko::remove_complex<type>, gko::half>::value) {         \
+        GTEST_SKIP() << "Skip due to half mode";                             \
+    }                                                                        \
+    static_assert(true,                                                      \
+                  "This assert is used to counter the false positive extra " \
+                  "semi-colon warnings")
 
 
 #endif  // GKO_CORE_TEST_UTILS_HPP_

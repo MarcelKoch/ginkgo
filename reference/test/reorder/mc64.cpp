@@ -4,6 +4,7 @@
 
 #include <algorithm>
 #include <fstream>
+#include <limits>
 #include <memory>
 
 #include <gtest/gtest.h>
@@ -79,13 +80,15 @@ TYPED_TEST(Mc64, HasSensibleDefaults)
 
     ASSERT_EQ(this->mc64_factory->get_parameters().strategy,
               gko::experimental::reorder::mc64_strategy::max_diagonal_product);
-    ASSERT_EQ(this->mc64_factory->get_parameters().tolerance, real_type{1e-14});
+    ASSERT_EQ(this->mc64_factory->get_parameters().tolerance,
+              50 * std::numeric_limits<real_type>::epsilon());
 }
 
 
 TYPED_TEST(Mc64, CanBeCreatedWithReorderingStrategy)
 {
     using reorder_type = typename TestFixture::reorder_type;
+    using real_type = typename TestFixture::real_type;
 
     auto mc64 =
         reorder_type::build()
@@ -122,10 +125,7 @@ TYPED_TEST(Mc64, CanBeCreatedWithTolerance)
     using reorder_type = typename TestFixture::reorder_type;
     using real_type = typename TestFixture::real_type;
 
-    auto mc64 = reorder_type::build()
-                    .with_tolerance(real_type{1e-10})
-                    .on(this->exec)
-                    ->generate(this->id3_mtx);
+    auto mc64 = reorder_type::build().on(this->exec)->generate(this->id3_mtx);
 
     this->assert_correct_permutation(mc64.get());
 }

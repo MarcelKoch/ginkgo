@@ -51,6 +51,7 @@
 /* What is the major version of dpcpp compiler */
 // clang-format off
 #define GINKGO_DPCPP_MAJOR_VERSION @GINKGO_DPCPP_MAJOR_VERSION@
+#define GINKGO_DPCPP_MINOR_VERSION @GINKGO_DPCPP_MINOR_VERSION@
 // clang-format on
 
 
@@ -103,6 +104,11 @@
 /* Is HWLOC available ? */
 // clang-format off
 #define GKO_HAVE_HWLOC @GINKGO_HAVE_HWLOC@
+// clang-format on
+
+/* Is half operation available ? */
+// clang-format off
+#cmakedefine01 GINKGO_ENABLE_HALF
 // clang-format on
 
 

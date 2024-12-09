@@ -7,6 +7,7 @@
 
 #include <gtest/gtest.h>
 
+#include <ginkgo/config.hpp>
 #include <ginkgo/core/base/exception.hpp>
 #include <ginkgo/core/base/lin_op.hpp>
 #include <ginkgo/core/base/mtx_io.hpp>
@@ -570,6 +571,12 @@ TEST(MtxReader, ReadsBinary)
     test_read(gko::matrix_data<double, gko::int64>{});
     test_read(gko::matrix_data<std::complex<float>, gko::int64>{});
     test_read(gko::matrix_data<std::complex<double>, gko::int64>{});
+#if GINKGO_ENABLE_HALF
+    test_read(gko::matrix_data<gko::half, gko::int32>{});
+    test_read(gko::matrix_data<std::complex<gko::half>, gko::int32>{});
+    test_read(gko::matrix_data<gko::half, gko::int64>{});
+    test_read(gko::matrix_data<std::complex<gko::half>, gko::int64>{});
+#endif
 }
 
 
@@ -625,6 +632,12 @@ TEST(MtxReader, ReadsComplexBinary)
     test_read_fail(gko::matrix_data<double, gko::int64>{});
     test_read(gko::matrix_data<std::complex<float>, gko::int64>{});
     test_read(gko::matrix_data<std::complex<double>, gko::int64>{});
+#if GINKGO_ENABLE_HALF
+    test_read_fail(gko::matrix_data<gko::half, gko::int32>{});
+    test_read(gko::matrix_data<std::complex<gko::half>, gko::int32>{});
+    test_read_fail(gko::matrix_data<gko::half, gko::int64>{});
+    test_read(gko::matrix_data<std::complex<gko::half>, gko::int64>{});
+#endif
 }
 
 

@@ -79,20 +79,31 @@
 
 #define GKO_STUB(_macro) _macro GKO_NOT_COMPILED(GKO_HOOK_MODULE)
 
-#define GKO_STUB_VALUE_CONVERSION(_macro)                             \
-    template <typename SourceType, typename TargetType>               \
-    _macro(SourceType, TargetType) GKO_NOT_COMPILED(GKO_HOOK_MODULE); \
-    GKO_INSTANTIATE_FOR_EACH_VALUE_CONVERSION(_macro)
+
+#define GKO_STUB_NON_COMPLEX_VALUE_TYPE_BASE(_macro)     \
+    template <typename ValueType>                        \
+    _macro(ValueType) GKO_NOT_COMPILED(GKO_HOOK_MODULE); \
+    GKO_INSTANTIATE_FOR_EACH_NON_COMPLEX_VALUE_TYPE_BASE(_macro)
 
 #define GKO_STUB_NON_COMPLEX_VALUE_TYPE(_macro)          \
     template <typename ValueType>                        \
     _macro(ValueType) GKO_NOT_COMPILED(GKO_HOOK_MODULE); \
     GKO_INSTANTIATE_FOR_EACH_NON_COMPLEX_VALUE_TYPE(_macro)
 
+#define GKO_STUB_VALUE_TYPE_BASE(_macro)                 \
+    template <typename ValueType>                        \
+    _macro(ValueType) GKO_NOT_COMPILED(GKO_HOOK_MODULE); \
+    GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE_BASE(_macro)
+
 #define GKO_STUB_VALUE_TYPE(_macro)                      \
     template <typename ValueType>                        \
     _macro(ValueType) GKO_NOT_COMPILED(GKO_HOOK_MODULE); \
     GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE(_macro)
+
+#define GKO_STUB_VALUE_AND_SCALAR_TYPE_BASE(_macro)                  \
+    template <typename ValueType, typename ScalarType>               \
+    _macro(ValueType, ScalarType) GKO_NOT_COMPILED(GKO_HOOK_MODULE); \
+    GKO_INSTANTIATE_FOR_EACH_VALUE_AND_SCALAR_TYPE_BASE(_macro)
 
 #define GKO_STUB_VALUE_AND_SCALAR_TYPE(_macro)                       \
     template <typename ValueType, typename ScalarType>               \
@@ -109,20 +120,42 @@
     _macro(LocalIndexType, GlobalIndexType) GKO_NOT_COMPILED(GKO_HOOK_MODULE); \
     GKO_INSTANTIATE_FOR_EACH_LOCAL_GLOBAL_INDEX_TYPE(_macro)
 
+#define GKO_STUB_NON_COMPLEX_VALUE_AND_INDEX_TYPE_BASE(_macro)      \
+    template <typename ValueType, typename IndexType>               \
+    _macro(ValueType, IndexType) GKO_NOT_COMPILED(GKO_HOOK_MODULE); \
+    GKO_INSTANTIATE_FOR_EACH_NON_COMPLEX_VALUE_AND_INDEX_TYPE_BASE(_macro)
+
 #define GKO_STUB_NON_COMPLEX_VALUE_AND_INDEX_TYPE(_macro)           \
     template <typename ValueType, typename IndexType>               \
     _macro(ValueType, IndexType) GKO_NOT_COMPILED(GKO_HOOK_MODULE); \
     GKO_INSTANTIATE_FOR_EACH_NON_COMPLEX_VALUE_AND_INDEX_TYPE(_macro)
+
+#define GKO_STUB_VALUE_AND_INDEX_TYPE_BASE(_macro)                  \
+    template <typename ValueType, typename IndexType>               \
+    _macro(ValueType, IndexType) GKO_NOT_COMPILED(GKO_HOOK_MODULE); \
+    GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE_BASE(_macro)
 
 #define GKO_STUB_VALUE_AND_INDEX_TYPE(_macro)                       \
     template <typename ValueType, typename IndexType>               \
     _macro(ValueType, IndexType) GKO_NOT_COMPILED(GKO_HOOK_MODULE); \
     GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(_macro)
 
+#define GKO_STUB_VALUE_AND_INT32_TYPE_BASE(_macro)                  \
+    template <typename ValueType, typename IndexType>               \
+    _macro(ValueType, IndexType) GKO_NOT_COMPILED(GKO_HOOK_MODULE); \
+    GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INT32_TYPE_BASE(_macro)
+
 #define GKO_STUB_VALUE_AND_INT32_TYPE(_macro)                       \
     template <typename ValueType, typename IndexType>               \
     _macro(ValueType, IndexType) GKO_NOT_COMPILED(GKO_HOOK_MODULE); \
     GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INT32_TYPE(_macro)
+
+#define GKO_STUB_MIXED_VALUE_AND_INDEX_TYPE_BASE(_macro)                \
+    template <typename InputValueType, typename MatrixValueType,        \
+              typename OutputValueType, typename IndexType>             \
+    _macro(InputValueType, MatrixValueType, OutputValueType, IndexType) \
+        GKO_NOT_COMPILED(GKO_HOOK_MODULE);                              \
+    GKO_INSTANTIATE_FOR_EACH_MIXED_VALUE_AND_INDEX_TYPE_BASE(_macro)
 
 #define GKO_STUB_MIXED_VALUE_AND_INDEX_TYPE(_macro)                     \
     template <typename InputValueType, typename MatrixValueType,        \
@@ -131,6 +164,13 @@
         GKO_NOT_COMPILED(GKO_HOOK_MODULE);                              \
     GKO_INSTANTIATE_FOR_EACH_MIXED_VALUE_AND_INDEX_TYPE(_macro)
 
+#define GKO_STUB_MIXED_VALUE_AND_INDEX_TYPE_2_BASE(_macro)       \
+    template <typename InputValueType, typename OutputValueType, \
+              typename IndexType>                                \
+    _macro(InputValueType, OutputValueType, IndexType)           \
+        GKO_NOT_COMPILED(GKO_HOOK_MODULE);                       \
+    GKO_INSTANTIATE_FOR_EACH_MIXED_VALUE_AND_INDEX_TYPE_2_BASE(_macro)
+
 #define GKO_STUB_MIXED_VALUE_AND_INDEX_TYPE_2(_macro)            \
     template <typename InputValueType, typename OutputValueType, \
               typename IndexType>                                \
@@ -138,22 +178,37 @@
         GKO_NOT_COMPILED(GKO_HOOK_MODULE);                       \
     GKO_INSTANTIATE_FOR_EACH_MIXED_VALUE_AND_INDEX_TYPE_2(_macro)
 
-#define GKO_STUB_VALUE_AND_LOCAL_GLOBAL_INDEX_TYPE(_macro) \
-    template <typename ValueType, typename LocalIndexType, \
-              typename GlobalIndexType>                    \
-    _macro(ValueType, LocalIndexType, GlobalIndexType)     \
-        GKO_NOT_COMPILED(GKO_HOOK_MODULE);                 \
-    GKO_INSTANTIATE_FOR_EACH_VALUE_AND_LOCAL_GLOBAL_INDEX_TYPE(_macro)
+#define GKO_STUB_VALUE_AND_LOCAL_GLOBAL_INDEX_TYPE_BASE(_macro) \
+    template <typename ValueType, typename LocalIndexType,      \
+              typename GlobalIndexType>                         \
+    _macro(ValueType, LocalIndexType, GlobalIndexType)          \
+        GKO_NOT_COMPILED(GKO_HOOK_MODULE);                      \
+    GKO_INSTANTIATE_FOR_EACH_VALUE_AND_LOCAL_GLOBAL_INDEX_TYPE_BASE(_macro)
+
+#define GKO_STUB_TEMPLATE_TYPE_BASE(_macro)              \
+    template <typename IndexType>                        \
+    _macro(IndexType) GKO_NOT_COMPILED(GKO_HOOK_MODULE); \
+    GKO_INSTANTIATE_FOR_EACH_TEMPLATE_TYPE_BASE(_macro)
 
 #define GKO_STUB_TEMPLATE_TYPE(_macro)                   \
     template <typename IndexType>                        \
     _macro(IndexType) GKO_NOT_COMPILED(GKO_HOOK_MODULE); \
     GKO_INSTANTIATE_FOR_EACH_TEMPLATE_TYPE(_macro)
 
+#define GKO_STUB_VALUE_CONVERSION_BASE(_macro)                        \
+    template <typename SourceType, typename TargetType>               \
+    _macro(SourceType, TargetType) GKO_NOT_COMPILED(GKO_HOOK_MODULE); \
+    GKO_INSTANTIATE_FOR_EACH_VALUE_CONVERSION_BASE(_macro)
+
 #define GKO_STUB_VALUE_CONVERSION(_macro)                             \
     template <typename SourceType, typename TargetType>               \
     _macro(SourceType, TargetType) GKO_NOT_COMPILED(GKO_HOOK_MODULE); \
     GKO_INSTANTIATE_FOR_EACH_VALUE_CONVERSION(_macro)
+
+#define GKO_STUB_VALUE_CONVERSION_OR_COPY_BASE(_macro)                \
+    template <typename SourceType, typename TargetType>               \
+    _macro(SourceType, TargetType) GKO_NOT_COMPILED(GKO_HOOK_MODULE); \
+    GKO_INSTANTIATE_FOR_EACH_VALUE_CONVERSION_OR_COPY_BASE(_macro)
 
 #define GKO_STUB_VALUE_CONVERSION_OR_COPY(_macro)                     \
     template <typename SourceType, typename TargetType>               \
@@ -170,11 +225,11 @@
     _macro(ValueType, ValueTypeKrylovBases) GKO_NOT_COMPILED(GKO_HOOK_MODULE); \
     GKO_INSTANTIATE_FOR_EACH_CB_GMRES_CONST_TYPE(_macro)
 
-#define GKO_STUB_BATCH_VALUE_MATRIX_PRECONDITIONER(_declare, _wrapper)         \
+#define GKO_STUB_BATCH_VALUE_MATRIX_PRECONDITIONER_BASE(_declare, _wrapper)    \
     template <typename ValueType, typename BatchMatrixType, typename PrecType> \
     _declare(ValueType, BatchMatrixType, PrecType)                             \
         GKO_NOT_COMPILED(GKO_HOOK_MODULE);                                     \
-    GKO_INSTANTIATE_FOR_BATCH_VALUE_MATRIX_PRECONDITIONER(_wrapper)
+    GKO_INSTANTIATE_FOR_BATCH_VALUE_MATRIX_PRECONDITIONER_BASE(_wrapper)
 
 
 namespace gko {
@@ -275,7 +330,7 @@ GKO_STUB_LOCAL_GLOBAL_TYPE(GKO_DECLARE_INDEX_MAP_MAP_TO_LOCAL);
 namespace distributed_vector {
 
 
-GKO_STUB_VALUE_AND_LOCAL_GLOBAL_INDEX_TYPE(
+GKO_STUB_VALUE_AND_LOCAL_GLOBAL_INDEX_TYPE_BASE(
     GKO_DECLARE_DISTRIBUTED_VECTOR_BUILD_LOCAL);
 
 
@@ -285,9 +340,9 @@ GKO_STUB_VALUE_AND_LOCAL_GLOBAL_INDEX_TYPE(
 namespace assembly {
 
 
-GKO_STUB_VALUE_AND_LOCAL_GLOBAL_INDEX_TYPE(
+GKO_STUB_VALUE_AND_LOCAL_GLOBAL_INDEX_TYPE_BASE(
     GKO_DECLARE_COUNT_NON_OWNING_ENTRIES);
-GKO_STUB_VALUE_AND_LOCAL_GLOBAL_INDEX_TYPE(GKO_DECLARE_FILL_SEND_BUFFERS);
+GKO_STUB_VALUE_AND_LOCAL_GLOBAL_INDEX_TYPE_BASE(GKO_DECLARE_FILL_SEND_BUFFERS);
 
 
 }  // namespace assembly
@@ -296,7 +351,8 @@ GKO_STUB_VALUE_AND_LOCAL_GLOBAL_INDEX_TYPE(GKO_DECLARE_FILL_SEND_BUFFERS);
 namespace distributed_matrix {
 
 
-GKO_STUB_VALUE_AND_LOCAL_GLOBAL_INDEX_TYPE(GKO_DECLARE_SEPARATE_LOCAL_NONLOCAL);
+GKO_STUB_VALUE_AND_LOCAL_GLOBAL_INDEX_TYPE_BASE(
+    GKO_DECLARE_SEPARATE_LOCAL_NONLOCAL);
 
 
 }  // namespace distributed_matrix
@@ -442,7 +498,7 @@ GKO_STUB_VALUE_AND_INDEX_TYPE(GKO_DECLARE_DIAGONAL_FILL_IN_MATRIX_DATA_KERNEL);
 namespace batch_bicgstab {
 
 
-GKO_STUB_BATCH_VALUE_MATRIX_PRECONDITIONER(
+GKO_STUB_BATCH_VALUE_MATRIX_PRECONDITIONER_BASE(
     GKO_DECLARE_BATCH_BICGSTAB_APPLY_KERNEL,
     GKO_DECLARE_BATCH_BICGSTAB_APPLY_KERNEL_WRAPPER);
 
@@ -453,7 +509,7 @@ GKO_STUB_BATCH_VALUE_MATRIX_PRECONDITIONER(
 namespace batch_cg {
 
 
-GKO_STUB_BATCH_VALUE_MATRIX_PRECONDITIONER(
+GKO_STUB_BATCH_VALUE_MATRIX_PRECONDITIONER_BASE(
     GKO_DECLARE_BATCH_CG_APPLY_KERNEL,
     GKO_DECLARE_BATCH_CG_APPLY_KERNEL_WRAPPER);
 
@@ -588,7 +644,7 @@ GKO_STUB_VALUE_TYPE(GKO_DECLARE_GMRES_MULTI_DOT_KERNEL);
 namespace cb_gmres {
 
 
-GKO_STUB_VALUE_TYPE(GKO_DECLARE_CB_GMRES_INITIALIZE_KERNEL);
+GKO_STUB_VALUE_TYPE_BASE(GKO_DECLARE_CB_GMRES_INITIALIZE_KERNEL);
 GKO_STUB_CB_GMRES(GKO_DECLARE_CB_GMRES_RESTART_KERNEL);
 GKO_STUB_CB_GMRES(GKO_DECLARE_CB_GMRES_ARNOLDI_KERNEL);
 GKO_STUB_CB_GMRES_CONST(GKO_DECLARE_CB_GMRES_SOLVE_KRYLOV_KERNEL);
@@ -746,17 +802,17 @@ namespace fft {
 template <typename ValueType>
 GKO_DECLARE_FFT_KERNEL(ValueType)
 GKO_NOT_COMPILED(GKO_HOOK_MODULE);
-GKO_INSTANTIATE_FOR_EACH_NON_COMPLEX_VALUE_TYPE(GKO_DECLARE_FFT_KERNEL);
+GKO_INSTANTIATE_FOR_EACH_NON_COMPLEX_VALUE_TYPE_BASE(GKO_DECLARE_FFT_KERNEL);
 
 template <typename ValueType>
 GKO_DECLARE_FFT2_KERNEL(ValueType)
 GKO_NOT_COMPILED(GKO_HOOK_MODULE);
-GKO_INSTANTIATE_FOR_EACH_NON_COMPLEX_VALUE_TYPE(GKO_DECLARE_FFT2_KERNEL);
+GKO_INSTANTIATE_FOR_EACH_NON_COMPLEX_VALUE_TYPE_BASE(GKO_DECLARE_FFT2_KERNEL);
 
 template <typename ValueType>
 GKO_DECLARE_FFT3_KERNEL(ValueType)
 GKO_NOT_COMPILED(GKO_HOOK_MODULE);
-GKO_INSTANTIATE_FOR_EACH_NON_COMPLEX_VALUE_TYPE(GKO_DECLARE_FFT3_KERNEL);
+GKO_INSTANTIATE_FOR_EACH_NON_COMPLEX_VALUE_TYPE_BASE(GKO_DECLARE_FFT3_KERNEL);
 
 
 }  // namespace fft

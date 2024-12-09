@@ -137,7 +137,7 @@ using Types = gko::test::cartesian_type_product_t<gko::test::ValueTypes,
                                                   ::testing::Types<gko::int32>>;
 #else
 // HIP only supports real types and int32
-using Types = gko::test::cartesian_type_product_t<gko::test::RealValueTypes,
+using Types = gko::test::cartesian_type_product_t<gko::test::RealValueTypesBase,
                                                   ::testing::Types<gko::int32>>;
 #endif
 
