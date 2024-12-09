@@ -2,8 +2,7 @@
 //
 // SPDX-License-Identifier: BSD-3-Clause
 
-#include <ginkgo/core/base/mtx_io.hpp>
-
+#include "ginkgo/core/base/mtx_io.hpp"
 
 #include <algorithm>
 #include <cctype>
@@ -13,7 +12,6 @@
 #include <regex>
 #include <string>
 #include <type_traits>
-
 
 #include <ginkgo/core/base/exception_helpers.hpp>
 #include <ginkgo/core/base/math.hpp>
@@ -35,6 +33,9 @@ namespace {
     if (!_result) {                        \
         throw GKO_STREAM_ERROR(_message);  \
     }
+
+
+constexpr auto max_streamsize = std::numeric_limits<std::streamsize>::max();
 
 
 /**
@@ -516,6 +517,8 @@ private:
                 GKO_CHECK_STREAM(content, "error when reading matrix entry " +
                                               std::to_string(i));
                 modifier->insert_entry(row - 1, col - 1, entry, data);
+                // discards rest of the line
+                content.ignore(max_streamsize, '\n');
             }
             return data;
         }
@@ -571,7 +574,7 @@ private:
             size_type num_cols{};
             GKO_CHECK_STREAM(
                 header >> num_rows >> num_cols,
-                "error when determining matrix size, expected: rows cols nnz");
+                "error when determining matrix size, expected: rows cols");
             matrix_data<ValueType, IndexType> data(dim<2>{num_rows, num_cols});
             data.nonzeros.reserve(modifier->get_reservation_size(
                 num_rows, num_cols, num_rows * num_cols));
@@ -584,6 +587,8 @@ private:
                                          std::to_string(row) + " ," +
                                          std::to_string(col));
                     modifier->insert_entry(row, col, entry, data);
+                    // discards rest of the line
+                    content.ignore(max_streamsize, '\n');
                 }
             }
             return data;

@@ -4,10 +4,8 @@
 
 #include "core/matrix/dense_kernels.hpp"
 
-
 #include <ginkgo/core/base/device_matrix_data.hpp>
 #include <ginkgo/core/base/math.hpp>
-
 
 #include "common/unified/base/kernel_launch.hpp"
 #include "common/unified/base/kernel_launch_reduction.hpp"
@@ -263,7 +261,7 @@ void compute_mean(std::shared_ptr<const DefaultExecutor> exec,
             return x(i, j) * inv_total_size;
         },
         GKO_KERNEL_REDUCE_SUM(ValueType), result->get_values(), x->get_size(),
-        tmp, x, ValueType_nc{1.} / x->get_size()[0]);
+        tmp, x, ValueType_nc{1.} / std::max<size_type>(1, x->get_size()[0]));
 }
 
 
@@ -732,9 +730,9 @@ void get_imag(std::shared_ptr<const DefaultExecutor> exec,
 
 template <typename ValueType, typename ScalarType>
 void add_scaled_identity(std::shared_ptr<const DefaultExecutor> exec,
-                         const matrix::Dense<ScalarType>* const alpha,
-                         const matrix::Dense<ScalarType>* const beta,
-                         matrix::Dense<ValueType>* const mtx)
+                         const matrix::Dense<ScalarType>* alpha,
+                         const matrix::Dense<ScalarType>* beta,
+                         matrix::Dense<ValueType>* mtx)
 {
     run_kernel(
         exec,

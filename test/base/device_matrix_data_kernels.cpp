@@ -2,25 +2,21 @@
 //
 // SPDX-License-Identifier: BSD-3-Clause
 
-#include <ginkgo/core/base/device_matrix_data.hpp>
-
+#include "core/base/device_matrix_data_kernels.hpp"
 
 #include <memory>
 #include <random>
 
-
 #include <gtest/gtest.h>
 
-
 #include <ginkgo/core/base/array.hpp>
+#include <ginkgo/core/base/device_matrix_data.hpp>
 #include <ginkgo/core/base/executor.hpp>
 #include <ginkgo/core/base/matrix_data.hpp>
 
-
-#include "core/base/device_matrix_data_kernels.hpp"
 #include "core/test/utils.hpp"
 #include "core/test/utils/assertions.hpp"
-#include "test/utils/executor.hpp"
+#include "test/utils/common_fixture.hpp"
 
 
 template <typename ValueIndexType>
@@ -242,6 +238,28 @@ TYPED_TEST(DeviceMatrixData, CopiesToHost)
 
     ASSERT_EQ(local_data.size, this->host_data.size);
     ASSERT_EQ(local_data.nonzeros, this->host_data.nonzeros);
+}
+
+
+TYPED_TEST(DeviceMatrixData, CanFillEntriesWithZeros)
+{
+    using value_type = typename TestFixture::value_type;
+    using index_type = typename TestFixture::index_type;
+    using device_matrix_data = gko::device_matrix_data<value_type, index_type>;
+    auto device_data = device_matrix_data{this->exec, gko::dim<2>{4, 3}, 10};
+
+    device_data.fill_zero();
+
+    auto arrays = device_data.empty_out();
+    auto expected_row_idxs = gko::array<index_type>(this->exec, 10);
+    auto expected_col_idxs = gko::array<index_type>(this->exec, 10);
+    auto expected_values = gko::array<value_type>(this->exec, 10);
+    expected_row_idxs.fill(0);
+    expected_col_idxs.fill(0);
+    expected_values.fill(0.0);
+    GKO_ASSERT_ARRAY_EQ(arrays.row_idxs, expected_row_idxs);
+    GKO_ASSERT_ARRAY_EQ(arrays.col_idxs, expected_col_idxs);
+    GKO_ASSERT_ARRAY_EQ(arrays.values, expected_values);
 }
 
 

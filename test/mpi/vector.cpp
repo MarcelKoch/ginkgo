@@ -5,12 +5,9 @@
 #include <memory>
 #include <random>
 
-
 #include <mpi.h>
 
-
 #include <gtest/gtest.h>
-
 
 #include <ginkgo/config.hpp>
 #include <ginkgo/core/base/array.hpp>
@@ -19,9 +16,8 @@
 #include <ginkgo/core/distributed/vector.hpp>
 #include <ginkgo/core/log/logger.hpp>
 
-
 #include "core/test/utils.hpp"
-#include "test/utils/mpi/executor.hpp"
+#include "test/utils/mpi/common_fixture.hpp"
 
 
 bool needs_transfers(std::shared_ptr<const gko::Executor> exec)

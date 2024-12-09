@@ -5,7 +5,7 @@
 #include <ginkgo/core/base/exception_helpers.hpp>
 #include <ginkgo/core/base/types.hpp>
 
-
+#include "core/base/batch_instantiation.hpp"
 #include "core/base/batch_multi_vector_kernels.hpp"
 #include "core/base/device_matrix_data_kernels.hpp"
 #include "core/base/index_set_kernels.hpp"
@@ -16,6 +16,7 @@
 #include "core/components/precision_conversion_kernels.hpp"
 #include "core/components/prefix_sum_kernels.hpp"
 #include "core/components/reduce_array_kernels.hpp"
+#include "core/distributed/assembly_kernels.hpp"
 #include "core/distributed/index_map_kernels.hpp"
 #include "core/distributed/matrix_kernels.hpp"
 #include "core/distributed/partition_helpers_kernels.hpp"
@@ -49,6 +50,7 @@
 #include "core/preconditioner/batch_jacobi_kernels.hpp"
 #include "core/preconditioner/isai_kernels.hpp"
 #include "core/preconditioner/jacobi_kernels.hpp"
+#include "core/preconditioner/sor_kernels.hpp"
 #include "core/reorder/rcm_kernels.hpp"
 #include "core/solver/batch_bicgstab_kernels.hpp"
 #include "core/solver/batch_cg_kernels.hpp"
@@ -168,6 +170,13 @@
     _macro(ValueType, ValueTypeKrylovBases) GKO_NOT_COMPILED(GKO_HOOK_MODULE); \
     GKO_INSTANTIATE_FOR_EACH_CB_GMRES_CONST_TYPE(_macro)
 
+#define GKO_STUB_BATCH_VALUE_MATRIX_PRECONDITIONER(_declare, _wrapper)         \
+    template <typename ValueType, typename BatchMatrixType, typename PrecType> \
+    _declare(ValueType, BatchMatrixType, PrecType)                             \
+        GKO_NOT_COMPILED(GKO_HOOK_MODULE);                                     \
+    GKO_INSTANTIATE_FOR_BATCH_VALUE_MATRIX_PRECONDITIONER(_wrapper)
+
+
 namespace gko {
 namespace kernels {
 namespace GKO_HOOK_MODULE {
@@ -271,6 +280,18 @@ GKO_STUB_VALUE_AND_LOCAL_GLOBAL_INDEX_TYPE(
 
 
 }
+
+
+namespace assembly {
+
+
+GKO_STUB_VALUE_AND_LOCAL_GLOBAL_INDEX_TYPE(
+    GKO_DECLARE_COUNT_NON_OWNING_ENTRIES);
+GKO_STUB_VALUE_AND_LOCAL_GLOBAL_INDEX_TYPE(GKO_DECLARE_FILL_SEND_BUFFERS);
+
+
+}  // namespace assembly
+
 
 namespace distributed_matrix {
 
@@ -421,7 +442,9 @@ GKO_STUB_VALUE_AND_INDEX_TYPE(GKO_DECLARE_DIAGONAL_FILL_IN_MATRIX_DATA_KERNEL);
 namespace batch_bicgstab {
 
 
-GKO_STUB_VALUE_TYPE(GKO_DECLARE_BATCH_BICGSTAB_APPLY_KERNEL);
+GKO_STUB_BATCH_VALUE_MATRIX_PRECONDITIONER(
+    GKO_DECLARE_BATCH_BICGSTAB_APPLY_KERNEL,
+    GKO_DECLARE_BATCH_BICGSTAB_APPLY_KERNEL_WRAPPER);
 
 
 }  // namespace batch_bicgstab
@@ -430,7 +453,9 @@ GKO_STUB_VALUE_TYPE(GKO_DECLARE_BATCH_BICGSTAB_APPLY_KERNEL);
 namespace batch_cg {
 
 
-GKO_STUB_VALUE_TYPE(GKO_DECLARE_BATCH_CG_APPLY_KERNEL);
+GKO_STUB_BATCH_VALUE_MATRIX_PRECONDITIONER(
+    GKO_DECLARE_BATCH_CG_APPLY_KERNEL,
+    GKO_DECLARE_BATCH_CG_APPLY_KERNEL_WRAPPER);
 
 
 }  // namespace batch_cg
@@ -554,6 +579,7 @@ namespace gmres {
 
 GKO_STUB_VALUE_TYPE(GKO_DECLARE_GMRES_RESTART_KERNEL);
 GKO_STUB_VALUE_TYPE(GKO_DECLARE_GMRES_MULTI_AXPY_KERNEL);
+GKO_STUB_VALUE_TYPE(GKO_DECLARE_GMRES_MULTI_DOT_KERNEL);
 
 
 }  // namespace gmres
@@ -819,6 +845,16 @@ GKO_STUB(GKO_DECLARE_JACOBI_INITIALIZE_PRECISIONS_KERNEL);
 }  // namespace jacobi
 
 
+namespace sor {
+
+
+GKO_STUB_VALUE_AND_INDEX_TYPE(GKO_DECLARE_SOR_INITIALIZE_WEIGHTED_L);
+GKO_STUB_VALUE_AND_INDEX_TYPE(GKO_DECLARE_SOR_INITIALIZE_WEIGHTED_L_U);
+
+
+}  // namespace sor
+
+
 namespace isai {
 
 
@@ -864,7 +900,7 @@ GKO_STUB_VALUE_AND_INDEX_TYPE(GKO_DECLARE_FACTORIZATION_INITIALIZE_L_KERNEL);
 namespace ic_factorization {
 
 
-GKO_STUB_VALUE_AND_INDEX_TYPE(GKO_DECLARE_IC_COMPUTE_KERNEL);
+GKO_STUB_VALUE_AND_INDEX_TYPE(GKO_DECLARE_IC_SPARSELIB_IC_KERNEL);
 
 
 }  // namespace ic_factorization
@@ -873,7 +909,7 @@ GKO_STUB_VALUE_AND_INDEX_TYPE(GKO_DECLARE_IC_COMPUTE_KERNEL);
 namespace ilu_factorization {
 
 
-GKO_STUB_VALUE_AND_INDEX_TYPE(GKO_DECLARE_ILU_COMPUTE_LU_KERNEL);
+GKO_STUB_VALUE_AND_INDEX_TYPE(GKO_DECLARE_ILU_SPARSELIB_ILU_KERNEL);
 
 
 }  // namespace ilu_factorization

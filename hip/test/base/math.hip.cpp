@@ -2,33 +2,30 @@
 //
 // SPDX-License-Identifier: BSD-3-Clause
 
-// force-top: on
+// clang-format off
 // prevent compilation failure related to disappearing assert(...) statements
 #include <hip/hip_runtime.h>
-// force-top: off
+// clang-format on
 
 
-#include <ginkgo/core/base/math.hpp>
-
+#include "common/cuda_hip/base/math.hpp"
 
 #include <cmath>
 #include <complex>
 #include <memory>
 
-
 #include <gtest/gtest.h>
-
 
 #include <ginkgo/core/base/array.hpp>
 #include <ginkgo/core/base/executor.hpp>
+#include <ginkgo/core/base/math.hpp>
 
-
-#include "hip/base/math.hip.hpp"
-#include "hip/base/types.hip.hpp"
+#include "common/cuda_hip/base/types.hpp"
 #include "hip/test/utils.hip.hpp"
 
 
-namespace {
+// put the test in gko namespace to easily adapt the thrust/cub in gko or not
+namespace gko {
 namespace kernel {
 
 
@@ -130,4 +127,4 @@ TEST_F(IsFinite, DoubleComplex)
 }
 
 
-}  // namespace
+}  // namespace gko

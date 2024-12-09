@@ -2,27 +2,24 @@
 //
 // SPDX-License-Identifier: BSD-3-Clause
 
-#include <ginkgo/core/base/math.hpp>
-
+#include "common/cuda_hip/base/math.hpp"
 
 #include <cmath>
 #include <complex>
 #include <memory>
 
-
 #include <gtest/gtest.h>
-
 
 #include <ginkgo/core/base/array.hpp>
 #include <ginkgo/core/base/executor.hpp>
+#include <ginkgo/core/base/math.hpp>
 
-
-#include "cuda/base/math.hpp"
-#include "cuda/base/types.hpp"
+#include "common/cuda_hip/base/types.hpp"
 #include "cuda/test/utils.hpp"
 
 
-namespace {
+// put the test in gko namespace to easily adapt the thrust/cub in gko or not
+namespace gko {
 namespace kernel {
 
 
@@ -124,4 +121,4 @@ TEST_F(IsFinite, DoubleComplex)
 }
 
 
-}  // namespace
+}  // namespace gko

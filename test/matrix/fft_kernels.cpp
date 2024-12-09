@@ -4,9 +4,7 @@
 
 #include <random>
 
-
 #include <gtest/gtest.h>
-
 
 #include <ginkgo/core/base/exception.hpp>
 #include <ginkgo/core/base/exception_helpers.hpp>
@@ -14,9 +12,8 @@
 #include <ginkgo/core/matrix/dense.hpp>
 #include <ginkgo/core/matrix/fft.hpp>
 
-
 #include "core/test/utils.hpp"
-#include "test/utils/executor.hpp"
+#include "test/utils/common_fixture.hpp"
 
 
 template <typename ValueType>

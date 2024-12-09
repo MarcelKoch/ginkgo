@@ -5,16 +5,13 @@
 #include <algorithm>
 #include <memory>
 
-
 #include <gtest/gtest.h>
-
 
 #include <ginkgo/core/base/exception.hpp>
 #include <ginkgo/core/factorization/lu.hpp>
 #include <ginkgo/core/matrix/csr.hpp>
 #include <ginkgo/core/matrix/sparsity_csr.hpp>
 #include <ginkgo/core/solver/direct.hpp>
-
 
 #include "core/components/fill_array_kernels.hpp"
 #include "core/components/prefix_sum_kernels.hpp"
@@ -26,7 +23,7 @@
 #include "core/test/utils.hpp"
 #include "core/test/utils/assertions.hpp"
 #include "matrices/config.hpp"
-#include "test/utils/executor.hpp"
+#include "test/utils/common_fixture.hpp"
 
 
 namespace {
@@ -109,14 +106,12 @@ using Types = gko::test::ValueIndexTypes;
 #elif defined(GKO_COMPILING_CUDA)
 // CUDA don't support long indices for sorting, and the triangular solvers
 // seem broken
-using Types = ::testing::Types<std::tuple<float, gko::int32>,
-                               std::tuple<double, gko::int32>,
-                               std::tuple<std::complex<float>, gko::int32>,
-                               std::tuple<std::complex<double>, gko::int32>>;
+using Types = gko::test::cartesian_type_product_t<gko::test::ValueTypes,
+                                                  ::testing::Types<gko::int32>>;
 #else
 // HIP only supports real types and int32
-using Types = ::testing::Types<std::tuple<float, gko::int32>,
-                               std::tuple<double, gko::int32>>;
+using Types = gko::test::cartesian_type_product_t<gko::test::RealValueTypes,
+                                                  ::testing::Types<gko::int32>>;
 #endif
 
 TYPED_TEST_SUITE(Direct, Types, PairTypenameNameGenerator);

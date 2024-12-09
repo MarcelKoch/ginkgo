@@ -9,11 +9,9 @@
 #include <cstring>
 #include <type_traits>
 
-
 #include <ginkgo/core/base/math.hpp>
 
-
-#include "hip/base/types.hip.hpp"
+#include "common/cuda_hip/base/types.hpp"
 
 
 namespace gko {

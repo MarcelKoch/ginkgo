@@ -8,9 +8,8 @@
 
 #include <type_traits>
 
-
-#include "hip/base/config.hip.hpp"
-#include "hip/base/types.hip.hpp"
+#include "common/cuda_hip/base/config.hpp"
+#include "common/cuda_hip/base/types.hpp"
 
 
 namespace gko {
@@ -102,7 +101,7 @@ struct is_synchronizable_group_impl : std::false_type {};
 
 
 template <typename T>
-struct is_communicator_group_impl : std::true_type {};
+struct is_communicator_group_impl : std::false_type {};
 
 }  // namespace detail
 
@@ -371,12 +370,13 @@ namespace detail {
 
 
 template <unsigned Size>
-struct is_group_impl<thread_block_tile<Size>> : std::true_type {};
+struct is_group_impl<group::thread_block_tile<Size>> : std::true_type {};
 template <unsigned Size>
-struct is_synchronizable_group_impl<thread_block_tile<Size>> : std::true_type {
-};
+struct is_synchronizable_group_impl<group::thread_block_tile<Size>>
+    : std::true_type {};
 template <unsigned Size>
-struct is_communicator_group_impl<thread_block_tile<Size>> : std::true_type {};
+struct is_communicator_group_impl<group::thread_block_tile<Size>>
+    : std::true_type {};
 
 
 }  // namespace detail

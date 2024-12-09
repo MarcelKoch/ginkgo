@@ -6,20 +6,16 @@
 #define GKO_CUDA_BASE_TYPES_HPP_
 
 
-#include <ginkgo/core/base/types.hpp>
-
-
 #include <type_traits>
 
-
-#include <cublas_v2.h>
 #include <cuda.h>
+#include <cublas_v2.h>
 #include <cuda_fp16.h>
 #include <cusparse.h>
 #include <thrust/complex.h>
 
-
 #include <ginkgo/core/base/matrix_data.hpp>
+#include <ginkgo/core/base/types.hpp>
 
 
 namespace gko {
@@ -210,11 +206,6 @@ GKO_CUDA_DATA_TYPE(int8, CUDA_R_8I);
 #undef GKO_CUDA_DATA_TYPE
 
 
-#if defined(CUDA_VERSION) &&  \
-    (CUDA_VERSION >= 11000 || \
-     ((CUDA_VERSION >= 10020) && !(defined(_WIN32) || defined(__CYGWIN__))))
-
-
 template <typename T>
 struct cusparse_index_type_impl {};
 
@@ -229,10 +220,6 @@ GKO_CUDA_INDEX_TYPE(int32, CUSPARSE_INDEX_32I);
 GKO_CUDA_INDEX_TYPE(int64, CUSPARSE_INDEX_64I);
 
 #undef GKO_CUDA_INDEX_TYPE
-
-
-#endif  // defined(CUDA_VERSION) && (CUDA_VERSION >= 11000 || ((CUDA_VERSION >=
-        // 10020) && !(defined(_WIN32) || defined(__CYGWIN__))))
 
 
 }  // namespace detail
@@ -253,11 +240,6 @@ constexpr cudaDataType_t cuda_data_type()
 }
 
 
-#if defined(CUDA_VERSION) &&  \
-    (CUDA_VERSION >= 11000 || \
-     ((CUDA_VERSION >= 10020) && !(defined(_WIN32) || defined(__CYGWIN__))))
-
-
 /**
  * This is an alias for the `cudaIndexType_t` equivalent of `T`. By default,
  * CUSPARSE_INDEX_16U is returned.
@@ -271,10 +253,6 @@ constexpr cusparseIndexType_t cusparse_index_type()
 {
     return detail::cusparse_index_type_impl<T>::value;
 }
-
-
-#endif  // defined(CUDA_VERSION) && (CUDA_VERSION >= 11000 || ((CUDA_VERSION >=
-        // 10020) && !(defined(_WIN32) || defined(__CYGWIN__))))
 
 
 /**
@@ -392,6 +370,10 @@ GKO_INLINE GKO_ATTRIBUTES constexpr
 {
     return detail::fake_complex_unpack_impl<T>::unpack(v);
 }
+
+
+using deviceComplex = cuComplex;
+using deviceDoubleComplex = cuDoubleComplex;
 
 
 }  // namespace cuda

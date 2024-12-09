@@ -8,12 +8,10 @@
 
 #include <curand.h>
 
-
 #include <ginkgo/core/base/exception_helpers.hpp>
 
-
-#include "cuda/base/math.hpp"
-#include "cuda/base/types.hpp"
+#include "common/cuda_hip/base/math.hpp"
+#include "common/cuda_hip/base/types.hpp"
 
 
 namespace gko {
@@ -85,6 +83,18 @@ GKO_BIND_CURAND_RANDOM_VECTOR(std::complex<double>, curandGenerateNormalDouble);
 
 
 }  // namespace curand
+
+
+namespace randlib {
+
+
+using namespace curand;
+
+
+#define RANDLIB_RNG_PSEUDO_DEFAULT CURAND_RNG_PSEUDO_DEFAULT
+
+
+}  // namespace randlib
 }  // namespace cuda
 }  // namespace kernels
 }  // namespace gko

@@ -9,7 +9,6 @@
 #include <initializer_list>
 #include <type_traits>
 
-
 #include <ginkgo/core/base/array.hpp>
 #include <ginkgo/core/base/exception_helpers.hpp>
 #include <ginkgo/core/base/executor.hpp>
@@ -30,7 +29,15 @@ template <typename ValueType>
 class Vector;
 
 
-}
+namespace detail {
+
+
+template <typename ValueType>
+class VectorCache;
+
+
+}  // namespace detail
+}  // namespace distributed
 }  // namespace experimental
 
 
@@ -123,6 +130,7 @@ class Dense
     friend class SparsityCsr<ValueType, int64>;
     friend class Dense<to_complex<ValueType>>;
     friend class experimental::distributed::Vector<ValueType>;
+    friend class experimental::distributed::detail::VectorCache<ValueType>;
 
 public:
     using EnableLinOp<Dense>::convert_to;

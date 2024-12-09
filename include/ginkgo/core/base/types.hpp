@@ -51,29 +51,7 @@
 #endif
 
 
-#if (defined(__CUDA_ARCH__) && defined(__APPLE__)) || \
-    defined(__HIP_DEVICE_COMPILE__)
-
-#ifdef NDEBUG
-#define GKO_ASSERT(condition) ((void)0)
-#else  // NDEBUG
-// Poor man's assertions on GPUs for MACs. They won't terminate the program
-// but will at least print something on the screen
-#define GKO_ASSERT(condition)                                               \
-    ((condition)                                                            \
-         ? ((void)0)                                                        \
-         : ((void)printf("%s: %d: %s: Assertion `" #condition "' failed\n", \
-                         __FILE__, __LINE__, __func__)))
-#endif  // NDEBUG
-
-#else  // (defined(__CUDA_ARCH__) && defined(__APPLE__)) ||
-       // defined(__HIP_DEVICE_COMPILE__)
-
-// Handle assertions normally on other systems
 #define GKO_ASSERT(condition) assert(condition)
-
-#endif  // (defined(__CUDA_ARCH__) && defined(__APPLE__)) ||
-        // defined(__HIP_DEVICE_COMPILE__)
 
 
 // Handle deprecated notices correctly on different systems
@@ -461,6 +439,62 @@ GKO_ATTRIBUTES constexpr bool operator!=(precision_reduction x,
     GKO_INSTANTIATE_FOR_EACH_NON_COMPLEX_VALUE_TYPE(_macro); \
     template _macro(std::complex<float>);                    \
     template _macro(std::complex<double>)
+#endif
+
+
+// Helper macro to make Windows builds work
+// In MSVC, __VA_ARGS__ behave like one argument by default.
+// with this, we can expand the __VA_ARGS__ properly
+#define GKO_INDIRECT(...) __VA_ARGS__
+
+
+/**
+ * Instantiates a template for each non-complex value type compiled by Ginkgo.
+ *
+ * @param _macro  A macro which expands the template instantiation
+ *                (not including the leading `template` specifier).
+ *                Should take at least two arguments, of which the first one
+ *                is the value type.
+ *
+ * @note This won't be necessary after upgrading to C++20
+ */
+#if GINKGO_DPCPP_SINGLE_MODE
+#define GKO_INSTANTIATE_FOR_EACH_NON_COMPLEX_VALUE_TYPE_VARGS(_macro, ...) \
+    template GKO_INDIRECT(_macro(float, __VA_ARGS__));                     \
+    template <>                                                            \
+    GKO_INDIRECT(_macro(double, __VA_ARGS__))                              \
+    GKO_NOT_IMPLEMENTED
+#else
+#define GKO_INSTANTIATE_FOR_EACH_NON_COMPLEX_VALUE_TYPE_VARGS(_macro, ...) \
+    template GKO_INDIRECT(_macro(float, __VA_ARGS__));                     \
+    template GKO_INDIRECT(_macro(double, __VA_ARGS__))
+#endif
+
+
+/**
+ * Instantiates a template for each non-complex value type compiled by Ginkgo.
+ *
+ * @param _macro  A macro which expands the template instantiation
+ *                (not including the leading `template` specifier).
+ *                Should take at least two arguments, of which the first one
+ *                is the value type.
+ *
+ * @note This won't be necessary after upgrading to C++20
+ */
+#if GINKGO_DPCPP_SINGLE_MODE
+#define GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE_VARGS(_macro, ...)          \
+    GKO_INSTANTIATE_FOR_EACH_NON_COMPLEX_VALUE_TYPE_VARGS(_macro,       \
+                                                          __VA_ARGS__); \
+    template GKO_INDIRECT(_macro(std::complex<float>, __VA_ARGS__));    \
+    template <>                                                         \
+    GKO_INDIRECT(_macro(std::complex<double>, __VA_ARGS__))             \
+    GKO_NOT_IMPLEMENTED
+#else
+#define GKO_INSTANTIATE_FOR_EACH_VALUE_TYPE_VARGS(_macro, ...)          \
+    GKO_INSTANTIATE_FOR_EACH_NON_COMPLEX_VALUE_TYPE_VARGS(_macro,       \
+                                                          __VA_ARGS__); \
+    template GKO_INDIRECT(_macro(std::complex<float>, __VA_ARGS__));    \
+    template GKO_INDIRECT(_macro(std::complex<double>, __VA_ARGS__))
 #endif
 
 

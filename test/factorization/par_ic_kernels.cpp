@@ -4,16 +4,13 @@
 
 #include "core/factorization/par_ic_kernels.hpp"
 
-
 #include <algorithm>
 #include <fstream>
 #include <memory>
 #include <random>
 #include <string>
 
-
 #include <gtest/gtest.h>
-
 
 #include <ginkgo/core/base/array.hpp>
 #include <ginkgo/core/base/executor.hpp>
@@ -21,13 +18,12 @@
 #include <ginkgo/core/matrix/csr.hpp>
 #include <ginkgo/core/matrix/dense.hpp>
 
-
 #include "core/factorization/factorization_kernels.hpp"
 #include "core/matrix/csr_builder.hpp"
 #include "core/matrix/csr_kernels.hpp"
 #include "core/test/utils.hpp"
 #include "matrices/config.hpp"
-#include "test/utils/executor.hpp"
+#include "test/utils/common_fixture.hpp"
 
 
 template <typename ValueIndexType>
@@ -100,7 +96,7 @@ TYPED_TEST(ParIc, KernelInitFactorIsEquivalentToRef)
 
     gko::kernels::reference::par_ic_factorization::init_factor(
         this->ref, this->mtx_l.get());
-    gko::kernels::EXEC_NAMESPACE::par_ic_factorization::init_factor(
+    gko::kernels::GKO_DEVICE_NAMESPACE::par_ic_factorization::init_factor(
         this->exec, this->dmtx_l.get());
 
     GKO_ASSERT_MTX_NEAR(this->mtx_l, this->dmtx_l, r<value_type>::value);
@@ -118,7 +114,7 @@ TYPED_TEST(ParIc, KernelComputeFactorIsEquivalentToRef)
 
     gko::kernels::reference::par_ic_factorization::compute_factor(
         this->ref, 1, mtx_l_coo.get(), this->mtx_l_ani_init.get());
-    gko::kernels::EXEC_NAMESPACE::par_ic_factorization::compute_factor(
+    gko::kernels::GKO_DEVICE_NAMESPACE::par_ic_factorization::compute_factor(
         this->exec, 100, dmtx_l_coo.get(), this->dmtx_l_ani_init.get());
 
     GKO_ASSERT_MTX_NEAR(this->mtx_l_ani_init, this->dmtx_l_ani_init, 1e-4);

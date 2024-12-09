@@ -6,31 +6,29 @@
 #define GKO_CUDA_SOLVER_COMMON_TRS_KERNELS_CUH_
 
 
+#include <cstring>
 #include <functional>
 #include <iostream>
 #include <memory>
 
-
 #include <cuda.h>
 #include <cusparse.h>
-
 
 #include <ginkgo/core/base/exception.hpp>
 #include <ginkgo/core/base/exception_helpers.hpp>
 #include <ginkgo/core/base/math.hpp>
 
-
+#include "common/cuda_hip/base/math.hpp"
+#include "common/cuda_hip/base/pointer_mode_guard.hpp"
+#include "common/cuda_hip/base/sparselib_bindings.hpp"
+#include "common/cuda_hip/base/types.hpp"
+#include "common/cuda_hip/components/atomic.hpp"
+#include "common/cuda_hip/components/memory.hpp"
+#include "common/cuda_hip/components/thread_ids.hpp"
+#include "common/cuda_hip/components/uninitialized_array.hpp"
 #include "core/base/array_access.hpp"
 #include "core/matrix/dense_kernels.hpp"
 #include "core/synthesizer/implementation_selection.hpp"
-#include "cuda/base/cusparse_bindings.hpp"
-#include "cuda/base/math.hpp"
-#include "cuda/base/pointer_mode_guard.hpp"
-#include "cuda/base/types.hpp"
-#include "cuda/components/atomic.cuh"
-#include "cuda/components/memory.cuh"
-#include "cuda/components/thread_ids.cuh"
-#include "cuda/components/uninitialized_array.hpp"
 
 
 namespace gko {
@@ -66,7 +64,7 @@ struct CudaSolveStruct : gko::solver::SolveStruct {
     CudaSolveStruct(std::shared_ptr<const gko::CudaExecutor> exec,
                     const matrix::Csr<ValueType, IndexType>* matrix,
                     size_type num_rhs, bool is_upper, bool unit_diag)
-        : handle{exec->get_cusparse_handle()},
+        : handle{exec->get_sparselib_handle()},
           spsm_descr{},
           descr_a{},
           num_rhs{num_rhs},
@@ -75,18 +73,18 @@ struct CudaSolveStruct : gko::solver::SolveStruct {
         if (num_rhs == 0) {
             return;
         }
-        cusparse::pointer_mode_guard pm_guard(handle);
-        spsm_descr = cusparse::create_spsm_descr();
-        descr_a = cusparse::create_csr(
+        sparselib::pointer_mode_guard pm_guard(handle);
+        spsm_descr = sparselib::create_spsm_descr();
+        descr_a = sparselib::create_csr(
             matrix->get_size()[0], matrix->get_size()[1],
             matrix->get_num_stored_elements(),
             const_cast<IndexType*>(matrix->get_const_row_ptrs()),
             const_cast<IndexType*>(matrix->get_const_col_idxs()),
             const_cast<ValueType*>(matrix->get_const_values()));
-        cusparse::set_attribute<cusparseFillMode_t>(
+        sparselib::set_attribute<cusparseFillMode_t>(
             descr_a, CUSPARSE_SPMAT_FILL_MODE,
             is_upper ? CUSPARSE_FILL_MODE_UPPER : CUSPARSE_FILL_MODE_LOWER);
-        cusparse::set_attribute<cusparseDiagType_t>(
+        sparselib::set_attribute<cusparseDiagType_t>(
             descr_a, CUSPARSE_SPMAT_DIAG_TYPE,
             unit_diag ? CUSPARSE_DIAG_TYPE_UNIT : CUSPARSE_DIAG_TYPE_NON_UNIT);
 
@@ -94,28 +92,28 @@ struct CudaSolveStruct : gko::solver::SolveStruct {
         // workaround suggested by NVIDIA engineers: for some reason
         // cusparse needs non-nullptr input vectors even for analysis
         // also make sure they are aligned by 16 bytes
-        auto descr_b = cusparse::create_dnmat(
+        auto descr_b = sparselib::create_dnmat(
             dim<2>{matrix->get_size()[0], num_rhs}, matrix->get_size()[1],
             reinterpret_cast<ValueType*>(0xDEAD0));
-        auto descr_c = cusparse::create_dnmat(
+        auto descr_c = sparselib::create_dnmat(
             dim<2>{matrix->get_size()[0], num_rhs}, matrix->get_size()[1],
             reinterpret_cast<ValueType*>(0xDEAF0));
 
-        auto work_size = cusparse::spsm_buffer_size(
-            handle, CUSPARSE_OPERATION_NON_TRANSPOSE,
-            CUSPARSE_OPERATION_NON_TRANSPOSE, one<ValueType>(), descr_a,
+        auto work_size = sparselib::spsm_buffer_size(
+            handle, SPARSELIB_OPERATION_NON_TRANSPOSE,
+            SPARSELIB_OPERATION_NON_TRANSPOSE, one<ValueType>(), descr_a,
             descr_b, descr_c, CUSPARSE_SPSM_ALG_DEFAULT, spsm_descr);
 
         work.resize_and_reset(work_size);
 
-        cusparse::spsm_analysis(handle, CUSPARSE_OPERATION_NON_TRANSPOSE,
-                                CUSPARSE_OPERATION_NON_TRANSPOSE,
-                                one<ValueType>(), descr_a, descr_b, descr_c,
-                                CUSPARSE_SPSM_ALG_DEFAULT, spsm_descr,
-                                work.get_data());
+        sparselib::spsm_analysis(handle, SPARSELIB_OPERATION_NON_TRANSPOSE,
+                                 SPARSELIB_OPERATION_NON_TRANSPOSE,
+                                 one<ValueType>(), descr_a, descr_b, descr_c,
+                                 CUSPARSE_SPSM_ALG_DEFAULT, spsm_descr,
+                                 work.get_data());
 
-        cusparse::destroy(descr_b);
-        cusparse::destroy(descr_c);
+        sparselib::destroy(descr_b);
+        sparselib::destroy(descr_c);
     }
 
     void solve(const matrix::Csr<ValueType, IndexType>*,
@@ -134,30 +132,30 @@ struct CudaSolveStruct : gko::solver::SolveStruct {
                 "provided at generation time. Check the value specified in "
                 ".with_num_rhs(...)."};
         }
-        cusparse::pointer_mode_guard pm_guard(handle);
-        auto descr_b = cusparse::create_dnmat(
+        sparselib::pointer_mode_guard pm_guard(handle);
+        auto descr_b = sparselib::create_dnmat(
             input->get_size(), input->get_stride(),
             const_cast<ValueType*>(input->get_const_values()));
-        auto descr_c = cusparse::create_dnmat(
+        auto descr_c = sparselib::create_dnmat(
             output->get_size(), output->get_stride(), output->get_values());
 
-        cusparse::spsm_solve(handle, CUSPARSE_OPERATION_NON_TRANSPOSE,
-                             CUSPARSE_OPERATION_NON_TRANSPOSE, one<ValueType>(),
-                             descr_a, descr_b, descr_c,
-                             CUSPARSE_SPSM_ALG_DEFAULT, spsm_descr);
+        sparselib::spsm_solve(handle, SPARSELIB_OPERATION_NON_TRANSPOSE,
+                              SPARSELIB_OPERATION_NON_TRANSPOSE,
+                              one<ValueType>(), descr_a, descr_b, descr_c,
+                              CUSPARSE_SPSM_ALG_DEFAULT, spsm_descr);
 
-        cusparse::destroy(descr_b);
-        cusparse::destroy(descr_c);
+        sparselib::destroy(descr_b);
+        sparselib::destroy(descr_c);
     }
 
     ~CudaSolveStruct()
     {
         if (descr_a) {
-            cusparse::destroy(descr_a);
+            sparselib::destroy(descr_a);
             descr_a = nullptr;
         }
         if (spsm_descr) {
-            cusparse::destroy(spsm_descr);
+            sparselib::destroy(spsm_descr);
             spsm_descr = nullptr;
         }
     }
@@ -189,7 +187,7 @@ struct CudaSolveStruct : gko::solver::SolveStruct {
                     const matrix::Csr<ValueType, IndexType>* matrix,
                     size_type num_rhs, bool is_upper, bool unit_diag)
         : exec{exec},
-          handle{exec->get_cusparse_handle()},
+          handle{exec->get_sparselib_handle()},
           algorithm{},
           solve_info{},
           policy{},
@@ -200,23 +198,23 @@ struct CudaSolveStruct : gko::solver::SolveStruct {
         if (num_rhs == 0) {
             return;
         }
-        cusparse::pointer_mode_guard pm_guard(handle);
-        factor_descr = cusparse::create_mat_descr();
-        solve_info = cusparse::create_solve_info();
-        cusparse::set_mat_fill_mode(
+        sparselib::pointer_mode_guard pm_guard(handle);
+        factor_descr = sparselib::create_mat_descr();
+        solve_info = sparselib::create_solve_info();
+        sparselib::set_mat_fill_mode(
             factor_descr,
             is_upper ? CUSPARSE_FILL_MODE_UPPER : CUSPARSE_FILL_MODE_LOWER);
-        cusparse::set_mat_diag_type(
+        sparselib::set_mat_diag_type(
             factor_descr,
             unit_diag ? CUSPARSE_DIAG_TYPE_UNIT : CUSPARSE_DIAG_TYPE_NON_UNIT);
         algorithm = 0;
-        policy = CUSPARSE_SOLVE_POLICY_USE_LEVEL;
+        policy = SPARSELIB_SOLVE_POLICY_USE_LEVEL;
 
         size_type work_size{};
 
-        cusparse::buffer_size_ext(
-            handle, algorithm, CUSPARSE_OPERATION_NON_TRANSPOSE,
-            CUSPARSE_OPERATION_TRANSPOSE, matrix->get_size()[0], num_rhs,
+        sparselib::buffer_size_ext(
+            handle, algorithm, SPARSELIB_OPERATION_NON_TRANSPOSE,
+            SPARSELIB_OPERATION_TRANSPOSE, matrix->get_size()[0], num_rhs,
             matrix->get_num_stored_elements(), one<ValueType>(), factor_descr,
             matrix->get_const_values(), matrix->get_const_row_ptrs(),
             matrix->get_const_col_idxs(), nullptr, num_rhs, solve_info, policy,
@@ -225,9 +223,9 @@ struct CudaSolveStruct : gko::solver::SolveStruct {
         // allocate workspace
         work.resize_and_reset(work_size);
 
-        cusparse::csrsm2_analysis(
-            handle, algorithm, CUSPARSE_OPERATION_NON_TRANSPOSE,
-            CUSPARSE_OPERATION_TRANSPOSE, matrix->get_size()[0], num_rhs,
+        sparselib::csrsm2_analysis(
+            handle, algorithm, SPARSELIB_OPERATION_NON_TRANSPOSE,
+            SPARSELIB_OPERATION_TRANSPOSE, matrix->get_size()[0], num_rhs,
             matrix->get_num_stored_elements(), one<ValueType>(), factor_descr,
             matrix->get_const_values(), matrix->get_const_row_ptrs(),
             matrix->get_const_col_idxs(), nullptr, num_rhs, solve_info, policy,
@@ -250,11 +248,11 @@ struct CudaSolveStruct : gko::solver::SolveStruct {
                 "provided at generation time. Check the value specified in "
                 ".with_num_rhs(...)."};
         }
-        cusparse::pointer_mode_guard pm_guard(handle);
+        sparselib::pointer_mode_guard pm_guard(handle);
         dense::copy(exec, input, output);
-        cusparse::csrsm2_solve(
-            handle, algorithm, CUSPARSE_OPERATION_NON_TRANSPOSE,
-            CUSPARSE_OPERATION_TRANSPOSE, matrix->get_size()[0],
+        sparselib::csrsm2_solve(
+            handle, algorithm, SPARSELIB_OPERATION_NON_TRANSPOSE,
+            SPARSELIB_OPERATION_TRANSPOSE, matrix->get_size()[0],
             output->get_stride(), matrix->get_num_stored_elements(),
             one<ValueType>(), factor_descr, matrix->get_const_values(),
             matrix->get_const_row_ptrs(), matrix->get_const_col_idxs(),
@@ -265,11 +263,11 @@ struct CudaSolveStruct : gko::solver::SolveStruct {
     ~CudaSolveStruct()
     {
         if (factor_descr) {
-            cusparse::destroy(factor_descr);
+            sparselib::destroy(factor_descr);
             factor_descr = nullptr;
         }
         if (solve_info) {
-            cusparse::destroy(solve_info);
+            sparselib::destroy(solve_info);
             solve_info = nullptr;
         }
     }
@@ -304,7 +302,7 @@ void generate_kernel(std::shared_ptr<const CudaExecutor> exec,
     if (matrix->get_size()[0] == 0) {
         return;
     }
-    if (cusparse::is_supported<ValueType, IndexType>::value) {
+    if (sparselib::is_supported<ValueType, IndexType>::value) {
         solve_struct = std::make_shared<CudaSolveStruct<ValueType, IndexType>>(
             exec, matrix, num_rhs, is_upper, unit_diag);
     } else {
@@ -327,7 +325,7 @@ void solve_kernel(std::shared_ptr<const CudaExecutor> exec,
     }
     using vec = matrix::Dense<ValueType>;
 
-    if (cusparse::is_supported<ValueType, IndexType>::value) {
+    if (sparselib::is_supported<ValueType, IndexType>::value) {
         if (auto cuda_solve_struct =
                 dynamic_cast<const CudaSolveStruct<ValueType, IndexType>*>(
                     solve_struct)) {
@@ -343,6 +341,52 @@ void solve_kernel(std::shared_ptr<const CudaExecutor> exec,
 
 constexpr int default_block_size = 512;
 constexpr int fallback_block_size = 32;
+
+
+/** Returns an unsigned type matching the size of the given float type. */
+template <typename T>
+struct float_to_unsigned_impl {};
+
+template <>
+struct float_to_unsigned_impl<double> {
+    using type = uint64;
+};
+
+template <>
+struct float_to_unsigned_impl<float> {
+    using type = uint32;
+};
+
+
+/**
+ * Checks if a floating point number representation matches the representation
+ * of the quiet NaN with value gko::nan() exactly.
+ */
+template <typename T>
+GKO_INLINE GKO_ATTRIBUTES std::enable_if_t<!is_complex_s<T>::value, bool>
+is_nan_exact(const T& value)
+{
+    using type = typename float_to_unsigned_impl<T>::type;
+    type value_bytes{};
+    type nan_bytes{};
+    auto nan_value = nan<T>();
+    using std::memcpy;
+    memcpy(&value_bytes, &value, sizeof(value));
+    memcpy(&nan_bytes, &nan_value, sizeof(value));
+    return value_bytes == nan_bytes;
+}
+
+
+/**
+ * Checks if any component of the complex value matches the quiet NaN with
+ * value gko::nan() exactly.
+ */
+template <typename T>
+GKO_INLINE GKO_ATTRIBUTES std::enable_if_t<is_complex_s<T>::value, bool>
+is_nan_exact(const T& value)
+{
+    return is_nan_exact(value.real()) || is_nan_exact(value.imag());
+}
 
 
 template <bool is_upper, typename ValueType, typename IndexType>
@@ -402,11 +446,12 @@ __global__ void sptrsv_naive_caching_kernel(
         ValueType val{};
         if (shmem_possible) {
             const auto dependency_shid = dependency_gid % default_block_size;
-            while (is_nan(val = load_relaxed_shared(x_s + dependency_shid))) {
+            while (is_nan_exact(
+                val = load_relaxed_shared(x_s + dependency_shid))) {
             }
         } else {
-            while (
-                is_nan(val = load_relaxed(x + dependency * x_stride + rhs))) {
+            while (is_nan_exact(
+                val = load_relaxed(x + dependency * x_stride + rhs))) {
             }
         }
 
@@ -421,7 +466,7 @@ __global__ void sptrsv_naive_caching_kernel(
     store_relaxed(x + row * x_stride + rhs, r);
 
     // This check to ensure no infinite loops happen.
-    if (is_nan(r)) {
+    if (is_nan_exact(r)) {
         store_relaxed_shared(x_s + self_shid, zero<ValueType>());
         store_relaxed(x + row * x_stride + rhs, zero<ValueType>());
         *nan_produced = true;
@@ -463,7 +508,7 @@ __global__ void sptrsv_naive_legacy_kernel(
     auto col = colidxs[j];
     while (j != row_end) {
         auto x_val = load_relaxed(x + col * x_stride + rhs);
-        while (!is_nan(x_val)) {
+        while (!is_nan_exact(x_val)) {
             sum += vals[j] * x_val;
             j += row_step;
             col = colidxs[j];
@@ -481,7 +526,7 @@ __global__ void sptrsv_naive_legacy_kernel(
             // after we encountered the diagonal, we are done
             // this also skips entries outside the triangle
             j = row_end;
-            if (is_nan(r)) {
+            if (is_nan_exact(r)) {
                 store_relaxed(x + row * x_stride + rhs, zero<ValueType>());
                 *nan_produced = true;
             }

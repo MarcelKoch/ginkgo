@@ -7,7 +7,6 @@ set(PROJECT_VERSION_TAG ${Ginkgo_VERSION_TAG})
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 
 # Determine which modules can be compiled
-include(cmake/hip_path.cmake)
 include(cmake/autodetect_executors.cmake)
 
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake/Modules/")
@@ -73,9 +72,25 @@ gko_rename_cache(GINKGO_CUDA_COMPILER_FLAGS CMAKE_CUDA_FLAGS BOOL "Flags used by
 # load executor-specific configuration
 if(GINKGO_BUILD_CUDA)
     include(cmake/cuda.cmake)
+    if(CUDAToolkit_VERSION VERSION_LESS 11.6)
+        message(STATUS "Disable custom thrust namespace for cuda before 11.6 because it has no effect in the thrust shipped by cuda before 11.6")
+        set(GINKGO_CUDA_CUSTOM_THRUST_NAMESPACE OFF)
+    else()
+        message(STATUS "Enable custom thrust namespace for cuda")
+        set(GINKGO_CUDA_CUSTOM_THRUST_NAMESPACE ON)
+    endif()
 endif()
 if(GINKGO_BUILD_HIP)
     include(cmake/hip.cmake)
+    if(GINKGO_HIP_PLATFORM_AMD AND GINKGO_HIP_VERSION VERSION_LESS 5.7)
+        # Hip allow custom namespace but does not fully make everything in the custom namespace before rocm-5.7
+        # more specific pr: https://github.com/ROCm/rocThrust/pull/286
+        message(STATUS "Disable custom thrust namespace for hip before 5.7 because hip does not fully support it before 5.7")
+        set(GINKGO_HIP_CUSTOM_THRUST_NAMESPACE OFF)
+    else()
+        message(STATUS "Enable custom thrust namespace for hip")
+        set(GINKGO_HIP_CUSTOM_THRUST_NAMESPACE ON)
+    endif()
 endif()
 if(GINKGO_BUILD_SYCL)
     include(cmake/sycl.cmake)
@@ -95,7 +110,13 @@ if(MSVC)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj")
 endif()
 if(MINGW OR CYGWIN)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wa,-mbig-obj")
+    if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+        # Otherwise, dynamic_cast to the class marked by final will be failed.
+        # https://reviews.llvm.org/D154658 should be relevant
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-assume-unique-vtables")
+    else()
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wa,-mbig-obj")
+    endif()
 endif()
 
 # For now, PGI/NVHPC nvc++ compiler doesn't seem to support
@@ -241,7 +262,7 @@ endif()
 if(GINKGO_BUILD_BENCHMARKS)
     find_package(gflags 2.2.2 QUIET)
 endif()
-if(GINKGO_BUILD_TESTS OR GINKGO_BUILD_BENCHMARKS)
+if(GINKGO_BUILD_TESTS OR GINKGO_BUILD_BENCHMARKS OR GINKGO_BUILD_EXAMPLES)
     find_package(nlohmann_json 3.9.1 QUIET)
 endif()
 
@@ -367,26 +388,6 @@ if(NOT "${BASH}" STREQUAL "BASH-NOTFOUND" AND GINKGO_DEVEL_TOOLS)
     add_custom_target(generate_ginkgo_header ALL
         COMMAND ${Ginkgo_SOURCE_DIR}/dev_tools/scripts/update_ginkgo_header.sh
         WORKING_DIRECTORY ${Ginkgo_SOURCE_DIR})
-    find_program(GIT git)
-    if(NOT "${GIT}" STREQUAL "GIT-NOTFOUND")
-        add_custom_target(format_header
-            COMMAND echo "format header on the modified code files except build, examples, third_party, accessor/, dev_tools, ginkgo.hpp"
-            COMMAND bash -c "git diff --name-only origin/develop...HEAD | \
-                grep -Ev 'build|examples|third_party|accessor/|dev_tools|ginkgo.hpp' | \
-                grep -E '(\.hip)?\.(cu|hpp|cuh|cpp)$' | \
-                xargs -r -n1 ${Ginkgo_SOURCE_DIR}/dev_tools/scripts/format_header.sh"
-            WORKING_DIRECTORY ${Ginkgo_SOURCE_DIR}
-            VERBATIM)
-    endif()
-    unset(GIT CACHE)
-    add_custom_target(format_header_all
-        COMMAND echo "format header on all code files except build, examples, third_party, accessor/, dev_tools, ginkgo.hpp"
-        COMMAND bash -c "find * -type f | \
-                grep -Ev 'build|examples|third_party|accessor/|dev_tools|ginkgo.hpp' | \
-                grep -E '(\.hip)?\.(cu|hpp|cuh|cpp)$' | \
-                xargs -r -n1 ${Ginkgo_SOURCE_DIR}/dev_tools/scripts/format_header.sh"
-        WORKING_DIRECTORY ${Ginkgo_SOURCE_DIR}
-        VERBATIM)
 endif()
 unset(BASH CACHE)
 

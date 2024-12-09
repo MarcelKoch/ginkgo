@@ -2,11 +2,9 @@
 //
 // SPDX-License-Identifier: BSD-3-Clause
 
-#include <ginkgo/core/solver/multigrid.hpp>
-
+#include "ginkgo/core/solver/multigrid.hpp"
 
 #include <complex>
-
 
 #include <ginkgo/core/base/exception.hpp>
 #include <ginkgo/core/base/exception_helpers.hpp>
@@ -26,7 +24,6 @@
 #include <ginkgo/core/solver/ir.hpp>
 #include <ginkgo/core/stop/iteration.hpp>
 #include <ginkgo/core/stop/residual_norm.hpp>
-
 
 #include "core/base/dispatch_helper.hpp"
 #include "core/components/fill_array_kernels.hpp"
@@ -203,7 +200,8 @@ namespace detail {
  *
  * @note it should only be used internally
  */
-struct MultigridState {
+class MultigridState {
+public:
     MultigridState() : nrhs{static_cast<size_type>(-1)} {}
 
     /**
@@ -489,7 +487,7 @@ void MultigridState::run_cycle(multigrid::cycle cycle, size_type level,
 
     auto r = r_list.at(level);
     auto g = g_list.at(level);
-    auto e = as<VectorType>(e_list.at(level));
+    auto e = e_list.at(level);
     // get mg_level
     auto mg_level = multigrid->get_mg_level_list().at(level);
     // get the pre_smoother
@@ -540,7 +538,7 @@ void MultigridState::run_cycle(multigrid::cycle cycle, size_type level,
     // next level
     if (level + 1 == total_level) {
         // the coarsest solver use the last level valuetype
-        e->fill(zero<value_type>());
+        as<VectorType>(e)->fill(zero<value_type>());
     }
     auto next_level_matrix =
         (level + 1 < total_level)

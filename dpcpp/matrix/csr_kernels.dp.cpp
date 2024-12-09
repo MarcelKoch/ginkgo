@@ -4,13 +4,10 @@
 
 #include "core/matrix/csr_kernels.hpp"
 
-
 #include <algorithm>
-
 
 #include <CL/sycl.hpp>
 #include <oneapi/mkl.hpp>
-
 
 #include <ginkgo/core/base/array.hpp>
 #include <ginkgo/core/base/exception_helpers.hpp>
@@ -20,7 +17,6 @@
 #include <ginkgo/core/matrix/ell.hpp>
 #include <ginkgo/core/matrix/hybrid.hpp>
 #include <ginkgo/core/matrix/sellp.hpp>
-
 
 #include "core/base/array_access.hpp"
 #include "core/base/mixed_precision_types.hpp"
@@ -1402,6 +1398,9 @@ bool try_general_sparselib_spmv(std::shared_ptr<const DpcppExecutor> exec,
         oneapi::mkl::sparse::matrix_handle_t mat_handle;
         oneapi::mkl::sparse::init_matrix_handle(&mat_handle);
         oneapi::mkl::sparse::set_csr_data(
+#if INTEL_MKL_VERSION >= 20240000
+            *exec->get_queue(),
+#endif
             mat_handle, IndexType(a->get_size()[0]),
             IndexType(a->get_size()[1]), oneapi::mkl::index_base::zero,
             const_cast<IndexType*>(a->get_const_row_ptrs()),
@@ -1421,7 +1420,11 @@ bool try_general_sparselib_spmv(std::shared_ptr<const DpcppExecutor> exec,
                 const_cast<ValueType*>(b->get_const_values()), b->get_size()[1],
                 b->get_stride(), host_beta, c->get_values(), c->get_stride());
         }
-        oneapi::mkl::sparse::release_matrix_handle(&mat_handle);
+        oneapi::mkl::sparse::release_matrix_handle(
+#if INTEL_MKL_VERSION >= 20240000
+            *exec->get_queue(),
+#endif
+            &mat_handle);
     }
     return try_sparselib;
 }
@@ -2649,9 +2652,9 @@ GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(GKO_DECLARE_CSR_EXTRACT_DIAGONAL);
 
 
 template <typename ValueType, typename IndexType>
-void check_diagonal_entries_exist(
-    std::shared_ptr<const DpcppExecutor> exec,
-    const matrix::Csr<ValueType, IndexType>* const mtx, bool& has_all_diags)
+void check_diagonal_entries_exist(std::shared_ptr<const DpcppExecutor> exec,
+                                  const matrix::Csr<ValueType, IndexType>* mtx,
+                                  bool& has_all_diags)
 {
     const auto num_diag = static_cast<IndexType>(
         std::min(mtx->get_size()[0], mtx->get_size()[1]));
@@ -2675,9 +2678,9 @@ GKO_INSTANTIATE_FOR_EACH_VALUE_AND_INDEX_TYPE(
 
 template <typename ValueType, typename IndexType>
 void add_scaled_identity(std::shared_ptr<const DpcppExecutor> exec,
-                         const matrix::Dense<ValueType>* const alpha,
-                         const matrix::Dense<ValueType>* const beta,
-                         matrix::Csr<ValueType, IndexType>* const mtx)
+                         const matrix::Dense<ValueType>* alpha,
+                         const matrix::Dense<ValueType>* beta,
+                         matrix::Csr<ValueType, IndexType>* mtx)
 {
     const auto nrows = mtx->get_size()[0];
     if (nrows == 0) {
