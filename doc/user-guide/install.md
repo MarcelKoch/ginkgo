@@ -26,7 +26,7 @@ Ginkgo adds the following additional switches to control what is being built:
     Enabling this flag increases the library size, but improves performance of
     mixed-precision kernels.
 *   `-DGINKGO_ENABLE_HALF={ON, OFF}` enable half precision support in Ginkgo, default is `ON`.
-    It is `OFF` when the compiler is MSVC or MSYS2 system. If compiling is done with the CUDA backend before CUDA 12.2, 
+    It is `OFF` when the compiler is MSVC or MSYS2 system. If compiling is done with the CUDA backend before CUDA 12.2,
     we only support half precision after compute capability 5.3. CUDA 12.2+ compilers waive the compute capbility limitation.
 *   `-DGINKGO_BUILD_TESTS={ON, OFF}` builds Ginkgo's tests
     (will download googletest), default is `ON`.
@@ -59,12 +59,8 @@ Ginkgo adds the following additional switches to control what is being built:
 *   `-DGINKGO_BUILD_HWLOC={ON, OFF}` builds Ginkgo with HWLOC. Default is `OFF`.
 *   `-DGINKGO_BUILD_DOC={ON, OFF}` creates an HTML version of Ginkgo's documentation
     from inline comments in the code. The default is `OFF`.
-*   `-DGINKGO_DOC_GENERATE_EXAMPLES={ON, OFF}` generates the documentation of examples
-     in Ginkgo. The default is `ON`.
 *   `-DGINKGO_DOC_GENERATE_PDF={ON, OFF}` generates a PDF version of Ginkgo's
     documentation from inline comments in the code. The default is `OFF`.
-*   `-DGINKGO_DOC_GENERATE_DEV={ON, OFF}` generates the developer version of
-    Ginkgo's documentation. The default is `OFF`.
 *   `-DGINKGO_WITH_CLANG_TIDY={ON, OFF}` makes Ginkgo call `clang-tidy` to find
     programming issues. The path can be manually controlled with the CMake
     variable `-DGINKGO_CLANG_TIDY_PATH=<path>`. The default is `OFF`.
@@ -249,7 +245,7 @@ user, e.g. when installing Ginkgo system-wide, it might be necessary to prefix
 the call with `sudo`.
 
 After the installation, CMake can find ginkgo with `find_package(Ginkgo)`.
-An example can be found in the [`test_install`](../../test/test_install/CMakeLists.txt).
+An example can be found in the [`test_install`](https://github.com/ginkgo-project/ginkgo/blob/develop/test/test_install/CMakeLists.txt).
 
 :::{toctree}
 :hidden:

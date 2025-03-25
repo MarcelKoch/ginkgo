@@ -9,55 +9,27 @@ configure_file(
     @ONLY
 )
 
-# Creating symlinks to the sphinx sources in the build directory
+# Copy to the sphinx sources in the build directory
+# These have to be actual copies, since sphinx (or myst) can't
+# resolve (symbolic) links to files outside the sphinx source
+# directory
 file(
-    CREATE_LINK
-        ${CMAKE_CURRENT_SOURCE_DIR}/_static
-        ${CMAKE_CURRENT_BINARY_DIR}/_static
-    SYMBOLIC
-)
-file(
-    CREATE_LINK
-        ${CMAKE_CURRENT_SOURCE_DIR}/_templates
-        ${CMAKE_CURRENT_BINARY_DIR}/_templates
-    SYMBOLIC
-)
-file(
-    CREATE_LINK
-        ${CMAKE_CURRENT_SOURCE_DIR}/developer-guide
-        ${CMAKE_CURRENT_BINARY_DIR}/developer-guide
-    SYMBOLIC
-)
-file(
-    CREATE_LINK
-        ${CMAKE_CURRENT_SOURCE_DIR}/user-guide
-        ${CMAKE_CURRENT_BINARY_DIR}/user-guide
-    SYMBOLIC
-)
-file(
-    CREATE_LINK
-        ${CMAKE_CURRENT_SOURCE_DIR}/index.md
-        ${CMAKE_CURRENT_BINARY_DIR}/index.md
-    SYMBOLIC
+    COPY index.md _static _templates developer-guide user-guide
+    DESTINATION ${CMAKE_CURRENT_BINARY_DIR}
 )
 
 # Create symlinks for top-level files referenced by documentation
-file(MAKE_DIRECTORY ${Ginkgo_BINARY_DIR}/test/test_install/)
+# Here links are fine, since those files are not part of the documentation,
+# they are just referenced
 file(
     CREATE_LINK ${Ginkgo_SOURCE_DIR}/LICENSE ${Ginkgo_BINARY_DIR}/LICENSE
-    SYMBOLIC
-)
-file(
-    CREATE_LINK
-        ${Ginkgo_SOURCE_DIR}/test/test_install/CMakeLists.txt
-        ${Ginkgo_BINARY_DIR}/test/test_install/CMakeLists.txt
     SYMBOLIC
 )
 
 if(DEFINED ENV{READTHEDOCS_OUTPUT})
     set(GINKGO_SPHINX_BUILD_DIR $ENV{READTHEDOCS_OUTPUT}/html)
 else()
-    set(GINKGO_SPHINX_BUILD_DIR ${CMAKE_CURRENT_BINARY_DIR}/_build)
+    set(GINKGO_SPHINX_BUILD_DIR ${CMAKE_CURRENT_BINARY_DIR}/html)
 endif()
 
 add_custom_target(
