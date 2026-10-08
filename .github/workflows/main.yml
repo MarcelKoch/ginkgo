@@ -29,7 +29,7 @@ jobs:
 
   ci:
     if: ${{ always() }}
-    needs: [mirror]
+    needs: [mirror, quality-of-life]
     uses: ./.github/workflows/ci.yml
     with:
       from_push: ${{ github.event_name == 'push' }}
