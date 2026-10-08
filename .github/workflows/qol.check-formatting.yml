@@ -1,9 +1,9 @@
-name: Check formatting
+name: Check Formatting
 on: workflow_call
 
 jobs:
   pre-commit:
-    name: Run pre-commit hooks
+    name: ${{ github.workflow }}
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout the latest code (shallow clone)

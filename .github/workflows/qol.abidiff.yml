@@ -1,10 +1,11 @@
-name: OnSyncPR-ABI
+name: ABI Diff
 
 on:
   workflow_call:
 
 jobs:
   abidiff:
+    name: ${{ github.workflow }}
     runs-on: ubuntu-latest
     if: >-
       (github.event.pull_request.author_association == 'COLLABORATOR'

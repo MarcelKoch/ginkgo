@@ -1,4 +1,4 @@
-name: OnSyncPR-SpellCheck
+name: Spell Check
 
 on:
   workflow_call:
@@ -9,7 +9,7 @@ concurrency:
 
 jobs:
   spell-check:
-    name: Spell Check with Typos
+    name: ${{ github.workflow }}
     runs-on: ubuntu-latest
     if: ${{ !contains(github.event.pull_request.labels.*.name, '1:ST:SKIP_ALL_CI') }}
     steps:
