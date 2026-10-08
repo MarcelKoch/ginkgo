@@ -1,8 +1,7 @@
 name: OnSyncPR-SpellCheck
 
 on:
-  pull_request:
-    types: [opened,synchronize]
+  workflow_call:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
