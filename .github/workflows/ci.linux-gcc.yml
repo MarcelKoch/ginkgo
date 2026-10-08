@@ -30,67 +30,70 @@ jobs:
       EXEC: omp
 
     steps:
-      - name: Checkout the latest code (shallow clone)
-        uses: actions/checkout@v4
-
-      - name: setup
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y ninja-build ccache libopenmpi-dev openmpi-bin
-
-      - name: info
-        run: |
-          g++ -v
-          cmake --version
-          mpirun --version
-
-      # restores the cache of this branch or, as a fallback, of any branch
-      # (e.g. develop for a new pull request)
-      - &restore-ccache
-        name: restore ccache
-        uses: actions/cache/restore@v4
-        with:
-          path: .ccache
-          key: ccache-linux-${{ env.EXEC }}-${{ github.ref_name }}-${{ github.run_id }}
-          restore-keys: |
-            ccache-linux-${{ env.EXEC }}-${{ github.ref_name }}-
-            ccache-linux-${{ env.EXEC }}-
-
-      - &debug
-        name: Debug over SSH (tmate)
-        uses: mxschmitt/action-tmate@35b54afac29c97fb54faba5b513f8fbd1882f113 #v3.24
-        if: ${{ github.event == 'workflow_dispatch' && github.event.inputs.debug_enabled == 'true' }}
-        with:
-          limit-access-to-actor: true
-
-      # MPI tests run one at a time after the other tests
-      - name: configure
-        run: |
-          mkdir build
-          mkdir install
-          INSTALL_PREFIX="${PWD}/install"
-          cd build
-          cmake .. -G Ninja -DCMAKE_CXX_FLAGS=-Wpedantic -DBUILD_SHARED_LIBS=${{ matrix.config.shared }} -DCMAKE_INSTALL_PREFIX="${INSTALL_PREFIX}" -DCMAKE_BUILD_TYPE=${{ matrix.config.build_type }} -DGINKGO_BUILD_OMP=ON -DGINKGO_BUILD_MPI=ON -DMPIEXEC_MAX_NUMPROCS=8
-          ccache --zero-stats
-          ninja -j4
-          ccache --show-stats
-          ctest -j4 --output-on-failure --label-exclude distributed
-          OMP_NUM_THREADS=1 ctest --output-on-failure --label-regex distributed
-
-      - name: install
-        run: |
-          cd build
-          ninja install
-          ninja test_install
-
-      # saved even if the build fails or times out, so the next run is faster
-      - &save-ccache
-        name: save ccache
-        if: ${{ always() }}
-        uses: actions/cache/save@v4
-        with:
-          path: .ccache
-          key: ccache-linux-${{ env.EXEC }}-${{ github.ref_name }}-${{ github.run_id }}
+      - name: Dummy
+        run: echo "${{ fromJSON(matrix.config) }}"
+#
+#      - name: Checkout the latest code (shallow clone)
+#        uses: actions/checkout@v4
+#
+#      - name: setup
+#        run: |
+#          sudo apt-get update
+#          sudo apt-get install -y ninja-build ccache libopenmpi-dev openmpi-bin
+#
+#      - name: info
+#        run: |
+#          g++ -v
+#          cmake --version
+#          mpirun --version
+#
+#      # restores the cache of this branch or, as a fallback, of any branch
+#      # (e.g. develop for a new pull request)
+#      - &restore-ccache
+#        name: restore ccache
+#        uses: actions/cache/restore@v4
+#        with:
+#          path: .ccache
+#          key: ccache-linux-${{ env.EXEC }}-${{ github.ref_name }}-${{ github.run_id }}
+#          restore-keys: |
+#            ccache-linux-${{ env.EXEC }}-${{ github.ref_name }}-
+#            ccache-linux-${{ env.EXEC }}-
+#
+#      - &debug
+#        name: Debug over SSH (tmate)
+#        uses: mxschmitt/action-tmate@35b54afac29c97fb54faba5b513f8fbd1882f113 #v3.24
+#        if: ${{ github.event == 'workflow_dispatch' && github.event.inputs.debug_enabled == 'true' }}
+#        with:
+#          limit-access-to-actor: true
+#
+#      # MPI tests run one at a time after the other tests
+#      - name: configure
+#        run: |
+#          mkdir build
+#          mkdir install
+#          INSTALL_PREFIX="${PWD}/install"
+#          cd build
+#          cmake .. -G Ninja -DCMAKE_CXX_FLAGS=-Wpedantic -DBUILD_SHARED_LIBS=${{ matrix.config.shared }} -DCMAKE_INSTALL_PREFIX="${INSTALL_PREFIX}" -DCMAKE_BUILD_TYPE=${{ matrix.config.build_type }} -DGINKGO_BUILD_OMP=ON -DGINKGO_BUILD_MPI=ON -DMPIEXEC_MAX_NUMPROCS=8
+#          ccache --zero-stats
+#          ninja -j4
+#          ccache --show-stats
+#          ctest -j4 --output-on-failure --label-exclude distributed
+#          OMP_NUM_THREADS=1 ctest --output-on-failure --label-regex distributed
+#
+#      - name: install
+#        run: |
+#          cd build
+#          ninja install
+#          ninja test_install
+#
+#      # saved even if the build fails or times out, so the next run is faster
+#      - &save-ccache
+#        name: save ccache
+#        if: ${{ always() }}
+#        uses: actions/cache/save@v4
+#        with:
+#          path: .ccache
+#          key: ccache-linux-${{ env.EXEC }}-${{ github.ref_name }}-${{ github.run_id }}
 
   cuda:
     strategy:
@@ -111,38 +114,41 @@ jobs:
       EXEC: cuda
 
     steps:
-      - name: Checkout the latest code (shallow clone)
-        uses: actions/checkout@v4
-
-      # the CUDA image is large, so remove preinstalled software first
-      - name: setup
-        run: |
-          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL
-          df -h /
-          docker pull "${IMAGE}"
-
-      - *restore-ccache
-
-      - *debug
-
-      # builds in the CUDA container; the workspace is mounted at the same path,
-      # so that ccache's base directory is the same inside and outside
-      - name: configure
-        run: |
-          docker run --rm -v "${GITHUB_WORKSPACE}:${GITHUB_WORKSPACE}" -w "${GITHUB_WORKSPACE}" -e CCACHE_DIR -e CCACHE_BASEDIR -e CCACHE_MAXSIZE "${IMAGE}" bash -c '
-            set -e
-            export DEBIAN_FRONTEND=noninteractive
-            apt-get update
-            apt-get install -y --no-install-recommends build-essential cmake ninja-build ccache git ca-certificates python3
-            git config --global --add safe.directory "$PWD"
-            mkdir build
-            cd build
-            cmake .. -G Ninja -DGINKGO_BUILD_CUDA=ON -DGINKGO_CUDA_ARCHITECTURES=${{ matrix.config.arch }} -DGINKGO_BUILD_OMP=ON -DCMAKE_BUILD_TYPE=Release
-            ccache --zero-stats
-            cmake --build . -j4
-            ccache --show-stats'
-
-      - *save-ccache
+      - name: Dummy
+        run: echo "${{ fromJSON(matrix.config) }}"
+#
+#      - name: Checkout the latest code (shallow clone)
+#        uses: actions/checkout@v4
+#
+#      # the CUDA image is large, so remove preinstalled software first
+#      - name: setup
+#        run: |
+#          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL
+#          df -h /
+#          docker pull "${IMAGE}"
+#
+#      - *restore-ccache
+#
+#      - *debug
+#
+#      # builds in the CUDA container; the workspace is mounted at the same path,
+#      # so that ccache's base directory is the same inside and outside
+#      - name: configure
+#        run: |
+#          docker run --rm -v "${GITHUB_WORKSPACE}:${GITHUB_WORKSPACE}" -w "${GITHUB_WORKSPACE}" -e CCACHE_DIR -e CCACHE_BASEDIR -e CCACHE_MAXSIZE "${IMAGE}" bash -c '
+#            set -e
+#            export DEBIAN_FRONTEND=noninteractive
+#            apt-get update
+#            apt-get install -y --no-install-recommends build-essential cmake ninja-build ccache git ca-certificates python3
+#            git config --global --add safe.directory "$PWD"
+#            mkdir build
+#            cd build
+#            cmake .. -G Ninja -DGINKGO_BUILD_CUDA=ON -DGINKGO_CUDA_ARCHITECTURES=${{ matrix.config.arch }} -DGINKGO_BUILD_OMP=ON -DCMAKE_BUILD_TYPE=Release
+#            ccache --zero-stats
+#            cmake --build . -j4
+#            ccache --show-stats'
+#
+#      - *save-ccache
 
   hip:
     strategy:
@@ -163,37 +169,40 @@ jobs:
       EXEC: hip
 
     steps:
-      - name: Checkout the latest code (shallow clone)
-        uses: actions/checkout@v4
+      - name: Dummy
+        run: echo "${{ fromJSON(matrix.config) }}"
 
-      # the ROCm image and libraries are large, so remove preinstalled software first
-      - name: setup
-        run: |
-          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL
-          df -h /
-          docker pull "${IMAGE}"
-
-      - *restore-ccache
-
-      - *debug
-
-      # builds in the ROCm container; the workspace is mounted at the same path,
-      # so that ccache's base directory is the same inside and outside.
-      # CMakeLists.txt only enables ccache for C++ and CUDA, so the HIP compiler
-      # launcher is set here.
-      - name: configure
-        run: |
-          docker run --rm -v "${GITHUB_WORKSPACE}:${GITHUB_WORKSPACE}" -w "${GITHUB_WORKSPACE}" -e CCACHE_DIR -e CCACHE_BASEDIR -e CCACHE_MAXSIZE "${IMAGE}" bash -c '
-            set -e
-            export DEBIAN_FRONTEND=noninteractive
-            apt-get update
-            apt-get install -y --no-install-recommends build-essential cmake ninja-build ccache git ca-certificates python3 hipblas-dev hipsparse-dev hiprand-dev rocrand-dev rocthrust-dev rocprim-dev hipfft-dev
-            git config --global --add safe.directory "$PWD"
-            mkdir build
-            cd build
-            cmake .. -G Ninja -DGINKGO_BUILD_HIP=ON -DCMAKE_HIP_ARCHITECTURES=${{ matrix.config.arch }} -DCMAKE_HIP_COMPILER=/opt/rocm/llvm/bin/clang++ -DCMAKE_HIP_COMPILER_LAUNCHER=ccache -DCMAKE_PREFIX_PATH=/opt/rocm -DGINKGO_BUILD_OMP=ON -DCMAKE_BUILD_TYPE=Release
-            ccache --zero-stats
-            cmake --build . -j4
-            ccache --show-stats'
-
-      - *save-ccache
+#      - name: Checkout the latest code (shallow clone)
+#        uses: actions/checkout@v4
+#
+#      # the ROCm image and libraries are large, so remove preinstalled software first
+#      - name: setup
+#        run: |
+#          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL
+#          df -h /
+#          docker pull "${IMAGE}"
+#
+#      - *restore-ccache
+#
+#      - *debug
+#
+#      # builds in the ROCm container; the workspace is mounted at the same path,
+#      # so that ccache's base directory is the same inside and outside.
+#      # CMakeLists.txt only enables ccache for C++ and CUDA, so the HIP compiler
+#      # launcher is set here.
+#      - name: configure
+#        run: |
+#          docker run --rm -v "${GITHUB_WORKSPACE}:${GITHUB_WORKSPACE}" -w "${GITHUB_WORKSPACE}" -e CCACHE_DIR -e CCACHE_BASEDIR -e CCACHE_MAXSIZE "${IMAGE}" bash -c '
+#            set -e
+#            export DEBIAN_FRONTEND=noninteractive
+#            apt-get update
+#            apt-get install -y --no-install-recommends build-essential cmake ninja-build ccache git ca-certificates python3 hipblas-dev hipsparse-dev hiprand-dev rocrand-dev rocthrust-dev rocprim-dev hipfft-dev
+#            git config --global --add safe.directory "$PWD"
+#            mkdir build
+#            cd build
+#            cmake .. -G Ninja -DGINKGO_BUILD_HIP=ON -DCMAKE_HIP_ARCHITECTURES=${{ matrix.config.arch }} -DCMAKE_HIP_COMPILER=/opt/rocm/llvm/bin/clang++ -DCMAKE_HIP_COMPILER_LAUNCHER=ccache -DCMAKE_PREFIX_PATH=/opt/rocm -DGINKGO_BUILD_OMP=ON -DCMAKE_BUILD_TYPE=Release
+#            ccache --zero-stats
+#            cmake --build . -j4
+#            ccache --show-stats'
+#
+#      - *save-ccache
