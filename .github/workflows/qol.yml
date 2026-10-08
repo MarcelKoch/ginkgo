@@ -7,7 +7,7 @@ jobs:
   abidiff:
     uses: ./.github/workflows/qol.abidiff.yml
   check-formatting:
-    uses: ./.github/workflows/qol.spell-check.yml
+    uses: ./.github/workflows/qol.check-formatting.yml
   check-wiki-changelog:
     uses: ./.github/workflows/qol.check-wiki-changelog.yml
   spell-check:
