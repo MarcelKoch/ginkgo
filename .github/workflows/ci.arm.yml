@@ -11,6 +11,7 @@ on:
     inputs:
       debug_enabled:
         description: 'Run the build with tmate debugging enabled by `debug_enabled` keyword (https://github.com/marketplace/actions/debugging-with-tmate)'
+        type: boolean
         required: false
         default: false
       full:
@@ -61,8 +62,10 @@ jobs:
             ccache-${{ matrix.config.name }}-
 
       - name: Debug over SSH (tmate)
-        uses: mxschmitt/action-tmate@v3.5
-        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.debug_enabled }}
+        uses: mxschmitt/action-tmate@35b54afac29c97fb54faba5b513f8fbd1882f113 #v3.24
+        if: ${{ github.event == 'workflow_dispatch' && github.event.inputs.debug_enabled == 'true' }}
+        with:
+          limit-access-to-actor: true
 
       - name: configure
         run: |

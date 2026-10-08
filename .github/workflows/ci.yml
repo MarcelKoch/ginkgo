@@ -12,14 +12,9 @@ on:
     inputs:
       debug_enabled:
         description: 'Run the build with tmate debugging enabled by `debug_enabled` keyword (https://github.com/marketplace/actions/debugging-with-tmate)'
+        type: boolean
         required: false
         default: false
-
-concurrency:
-  # runs for labels that don't start the full test get their own group,
-  # so that they don't cancel running builds
-  group: ${{ github.workflow }}-${{ (github.head_ref && github.ref) || github.run_id }}
-  cancel-in-progress: true
 
 jobs:
   arm:
