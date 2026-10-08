@@ -32,7 +32,7 @@ jobs:
 
     steps:
     - name: Dummy
-    - run: echo "${{ fromJSON(matrix.config) }}"
+    - run: echo "${{ matrix.config.name }}"
 #    - name: Checkout the latest code (shallow clone)
 #      uses: actions/checkout@v4
 #    - name: Setup MPI
