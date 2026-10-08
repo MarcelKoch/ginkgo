@@ -16,7 +16,7 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - {shared: "ON", build_type: "Release", name: "linux/gcc/omp/openmpi/release/shared"}
+          - {shared: "ON", build_type: "Release", name: "gcc/omp/openmpi/release/shared"}
     name: ${{ matrix.config.name }}
     runs-on: [ubuntu-24.04]
     timeout-minutes: 300
@@ -59,7 +59,7 @@ jobs:
       - &debug
         name: Debug over SSH (tmate)
         uses: mxschmitt/action-tmate@35b54afac29c97fb54faba5b513f8fbd1882f113 #v3.24
-        if: ${{ github.event.inputs.debug_enabled }}
+        if: ${{ github.event.inputs.debug_enabled == 'true' }}
         with:
           limit-access-to-actor: true
 
