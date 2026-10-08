@@ -9,6 +9,6 @@ jobs:
   check-formatting:
     uses: ./.github/workflows/qol.spell-check.yml
   check-wiki-changelog:
-    uses: ./.github/workflows/qol.wiki-changelog.yml
+    uses: ./.github/workflows/qol.check-wiki-changelog.yml
   spell-check:
     uses: ./.github/workflows/qol.spell-check.yml

@@ -23,7 +23,7 @@ jobs:
     uses: ./.github/workflows/mirror.yml
 
   quality-of-life:
-    if: ${{ always() }}
+    if: ${{ always() && (github.event_name == 'pull_request') }}
     needs: [mirror]
     uses: ./.github/workflows/qol.yml
 
