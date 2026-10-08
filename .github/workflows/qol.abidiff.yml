@@ -5,7 +5,7 @@ on:
 
 jobs:
   abidiff:
-    name: ${{ github.workflow }}
+    name: ABI Diff
     runs-on: ubuntu-latest
     if: >-
       (github.event.pull_request.author_association == 'COLLABORATOR'

@@ -3,13 +3,9 @@ name: Spell Check
 on:
   workflow_call:
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
-  cancel-in-progress: true
-
 jobs:
   spell-check:
-    name: ${{ github.workflow }}
+    name: Spell Check
     runs-on: ubuntu-latest
     if: ${{ !contains(github.event.pull_request.labels.*.name, '1:ST:SKIP_ALL_CI') }}
     steps:

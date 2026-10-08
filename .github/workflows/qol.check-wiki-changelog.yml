@@ -5,7 +5,7 @@ on:
 
 jobs:
   check-wiki-changelog:
-    name: ${{ github.workflow }}
+    name: Check Wiki Changelog
     runs-on: ubuntu-slim
     steps:
       - name: Checkout the latest code (shallow clone)
