@@ -28,21 +28,23 @@ jobs:
     name: msvc/${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     steps:
-    - name: Checkout the latest code (shallow clone)
-      uses: actions/checkout@v4
-    - name: Debug over SSH (tmate)
-      uses: mxschmitt/action-tmate@35b54afac29c97fb54faba5b513f8fbd1882f113 #v3.24
-      if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.debug_enabled }}
-      with:
-        limit-access-to-actor: true
-
-    - name: configure and test
-      run: |
-        $env:ChocolateyInstall = Convert-Path "$((Get-Command choco).Path)\..\.."
-        Import-Module "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
-        refreshenv
-        mkdir build
-        cd build
-        cmake -DGINKGO_BUILD_OMP=OFF -DGINKGO_ENABLE_HALF=OFF -DGINKGO_ENABLE_BFLOAT16=OFF ..
-        cmake --build . -j4 --config Release
-        ctest . -C Release
+    - name: Dummy
+      run: echo "${{ fromJSON(matrix.config) }}"
+#    - name: Checkout the latest code (shallow clone)
+#      uses: actions/checkout@v4
+#    - name: Debug over SSH (tmate)
+#      uses: mxschmitt/action-tmate@35b54afac29c97fb54faba5b513f8fbd1882f113 #v3.24
+#      if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.debug_enabled }}
+#      with:
+#        limit-access-to-actor: true
+#
+#    - name: configure and test
+#      run: |
+#        $env:ChocolateyInstall = Convert-Path "$((Get-Command choco).Path)\..\.."
+#        Import-Module "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
+#        refreshenv
+#        mkdir build
+#        cd build
+#        cmake -DGINKGO_BUILD_OMP=OFF -DGINKGO_ENABLE_HALF=OFF -DGINKGO_ENABLE_BFLOAT16=OFF ..
+#        cmake --build . -j4 --config Release
+#        ctest . -C Release
