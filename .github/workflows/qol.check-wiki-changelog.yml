@@ -1,0 +1,17 @@
+name: Check Wiki Changelog
+
+on:
+  workflow_call:
+
+jobs:
+  check-wiki-changelog:
+    runs-on: ubuntu-slim
+    steps:
+      - name: Checkout the latest code (shallow clone)
+        uses: actions/checkout@v4
+        with:
+          ref: develop
+      - name: Check if PR number exists in wiki/Changelog
+        env:
+          GITHUB_TOKEN: ${{ secrets.BOT_TOKEN }}
+        run: .github/check-wiki-changelog.sh
