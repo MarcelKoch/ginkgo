@@ -16,7 +16,7 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - {shared: "ON", build_type: "Release", name: "gcc/omp/openmpi/release/shared"}
+          - {shared: "ON", build_type: "Release", name: "omp/openmpi/release/shared"}
     name: ${{ matrix.config.name }}
     runs-on: [ubuntu-24.04]
     timeout-minutes: 300
@@ -59,7 +59,7 @@ jobs:
       - &debug
         name: Debug over SSH (tmate)
         uses: mxschmitt/action-tmate@35b54afac29c97fb54faba5b513f8fbd1882f113 #v3.24
-        if: ${{ github.event.inputs.debug_enabled == 'true' }}
+        if: ${{ github.event == 'workflow_dispatch' && github.event.inputs.debug_enabled == 'true' }}
         with:
           limit-access-to-actor: true
 
@@ -98,7 +98,7 @@ jobs:
       matrix:
         config:
           - {version: "13.3.1", name: "cuda-13.3/release/shared", arch: "80"}
-    name: gcc/${{ matrix.config.name }} (only compile)
+    name: ${{ matrix.config.name }} (only compile)
     runs-on: [ubuntu-24.04]
     # GitHub cancels jobs after 6 hours; stop earlier so that ccache is saved
     timeout-minutes: 330
@@ -150,7 +150,7 @@ jobs:
       matrix:
         config:
           - {version: "7.2.4", name: "rocm-7.2/release/shared", arch: "gfx90a"}
-    name: gcc/${{ matrix.config.name }} (only compile)
+    name: ${{ matrix.config.name }} (only compile)
     runs-on: [ubuntu-24.04]
     # GitHub cancels jobs after 6 hours; stop earlier so that ccache is saved
     timeout-minutes: 330
