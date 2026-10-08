@@ -26,6 +26,7 @@ jobs:
       CCACHE_MAXSIZE: 500M
       # the runner has 4 cores, but some MPI tests use up to 8 processes
       OMPI_MCA_rmaps_base_oversubscribe: 1
+      EXEC: omp
 
     steps:
       - name: Checkout the latest code (shallow clone)
@@ -44,18 +45,22 @@ jobs:
 
       # restores the cache of this branch or, as a fallback, of any branch
       # (e.g. develop for a new pull request)
-      - name: restore ccache
+      - &restore-ccache
+        name: restore ccache
         uses: actions/cache/restore@v4
         with:
           path: .ccache
-          key: ccache-linux-omp-mpi-${{ github.ref_name }}-${{ github.run_id }}
+          key: ccache-linux-${{ env.EXEC }}-${{ github.ref_name }}-${{ github.run_id }}
           restore-keys: |
-            ccache-linux-omp-mpi-${{ github.ref_name }}-
-            ccache-linux-omp-mpi-
+            ccache-linux-${{ env.EXEC }}-${{ github.ref_name }}-
+            ccache-linux-${{ env.EXEC }}-
 
-      - name: Debug over SSH (tmate)
+      - &debug
+        name: Debug over SSH (tmate)
         uses: mxschmitt/action-tmate@v3.5
         if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.debug_enabled }}
+        with:
+          limit-access-to-actor: true
 
       # MPI tests run one at a time after the other tests
       - name: configure
@@ -78,12 +83,13 @@ jobs:
           ninja test_install
 
       # saved even if the build fails or times out, so the next run is faster
-      - name: save ccache
+      - &save-ccache
+        name: save ccache
         if: ${{ always() }}
         uses: actions/cache/save@v4
         with:
           path: .ccache
-          key: ccache-linux-omp-mpi-${{ github.ref_name }}-${{ github.run_id }}
+          key: ccache-linux-${{ env.EXEC }}-${{ github.ref_name }}-${{ github.run_id }}
 
   cuda:
     strategy:
@@ -101,6 +107,7 @@ jobs:
       CCACHE_BASEDIR: ${{ github.workspace }}
       CCACHE_MAXSIZE: 2G
       IMAGE: nvidia/cuda:${{ matrix.config.version }}-devel-ubuntu24.04
+      EXEC: cuda
 
     steps:
       - name: Checkout the latest code (shallow clone)
@@ -113,22 +120,9 @@ jobs:
           df -h /
           docker pull "${IMAGE}"
 
-      # restores the cache of this branch or, as a fallback, of any branch
-      # (e.g. develop for a new pull request)
-      - name: restore ccache
-        uses: actions/cache/restore@v4
-        with:
-          path: .ccache
-          key: ccache-linux-cuda-${{ github.ref_name }}-${{ github.run_id }}
-          restore-keys: |
-            ccache-linux-cuda-${{ github.ref_name }}-
-            ccache-linux-cuda-
+      - *restore-ccache
 
-      - name: Debug over SSH (tmate)
-        uses: mxschmitt/action-tmate@v3.5
-        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.debug_enabled }}
-        with:
-          limit-access-to-actor: true
+      - *debug
 
       # builds in the CUDA container; the workspace is mounted at the same path,
       # so that ccache's base directory is the same inside and outside
@@ -147,13 +141,7 @@ jobs:
             cmake --build . -j4
             ccache --show-stats'
 
-      # saved even if the build fails or times out, so the next run is faster
-      - name: save ccache
-        if: ${{ always() }}
-        uses: actions/cache/save@v4
-        with:
-          path: .ccache
-          key: ccache-linux-cuda-${{ github.ref_name }}-${{ github.run_id }}
+      - *save-ccache
 
   hip:
     strategy:
@@ -171,6 +159,7 @@ jobs:
       CCACHE_BASEDIR: ${{ github.workspace }}
       CCACHE_MAXSIZE: 2G
       IMAGE: rocm/dev-ubuntu-24.04:${{ matrix.config.version }}
+      EXEC: hip
 
     steps:
       - name: Checkout the latest code (shallow clone)
@@ -183,22 +172,9 @@ jobs:
           df -h /
           docker pull "${IMAGE}"
 
-      # restores the cache of this branch or, as a fallback, of any branch
-      # (e.g. develop for a new pull request)
-      - name: restore ccache
-        uses: actions/cache/restore@v4
-        with:
-          path: .ccache
-          key: ccache-linux-hip-${{ github.ref_name }}-${{ github.run_id }}
-          restore-keys: |
-            ccache-linux-hip-${{ github.ref_name }}-
-            ccache-linux-hip-
+      - *restore-ccache
 
-      - name: Debug over SSH (tmate)
-        uses: mxschmitt/action-tmate@v3.5
-        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.debug_enabled }}
-        with:
-          limit-access-to-actor: true
+      - *debug
 
       # builds in the ROCm container; the workspace is mounted at the same path,
       # so that ccache's base directory is the same inside and outside.
@@ -219,10 +195,4 @@ jobs:
             cmake --build . -j4
             ccache --show-stats'
 
-      # saved even if the build fails or times out, so the next run is faster
-      - name: save ccache
-        if: ${{ always() }}
-        uses: actions/cache/save@v4
-        with:
-          path: .ccache
-          key: ccache-linux-hip-${{ github.ref_name }}-${{ github.run_id }}
+      - *save-ccache
