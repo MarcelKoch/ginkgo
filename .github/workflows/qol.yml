@@ -5,10 +5,10 @@ on:
 
 jobs:
   abidiff:
-    uses: .github/workflows/qol.abidiff.yml
+    uses: ./.github/workflows/qol.abidiff.yml
   check-formatting:
-    uses: .github/workflows/qol.spell-check.yml
+    uses: ./.github/workflows/qol.spell-check.yml
   check-wiki-changelog:
-    uses: .github/workflows/qol.wiki-changelog.yml
+    uses: ./.github/workflows/qol.wiki-changelog.yml
   spell-check:
-    uses: .github/workflows/qol.spell-check.yml
+    uses: ./.github/workflows/qol.spell-check.yml
