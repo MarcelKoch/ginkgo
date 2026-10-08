@@ -1,0 +1,10 @@
+name: Quality-of-Life
+
+on:
+  workflow_call:
+
+jobs:
+  abidiff:
+  check-formatting:
+  check-wiki-changelog:
+  spell-check:

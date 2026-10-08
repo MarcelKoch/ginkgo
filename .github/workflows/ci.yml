@@ -1,18 +1,13 @@
 name: CI
 
 on:
-  push:
-    branches:
-      - 'main'
-      - 'master'
-      - 'develop'
-      - 'release/**'
-    tags:
-      - '**'
-  pull_request:
-    types: [opened,synchronize]
-    paths-ignore:
-      - 'doc/**'
+  workflow_call:
+    inputs:
+      from_push:
+        description: 'Workflow was triggered by push event'
+        type: boolean
+        required: false
+        default: false
   workflow_dispatch:
     inputs:
       debug_enabled:
@@ -29,7 +24,7 @@ concurrency:
 jobs:
   arm:
     if: &run >-
-      ${{ !contains(github.event.pull_request.labels.*.name, '1:ST:SKIP_ALL_CI') }}
+      ${{ inputs.from_push || !contains(github.event.pull_request.labels.*.name, '1:ST:SKIP_ALL_CI') }}
     uses: ./.github/workflows/ci.arm.yml
     with: &with
       full: false

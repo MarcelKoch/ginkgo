@@ -1,0 +1,34 @@
+name: Workflow
+on:
+  push:
+    branches:
+      - 'main'
+      - 'master'
+      - 'develop'
+      - 'release/**'
+    tags:
+      - '**'
+  pull_request:
+    types: [opened, synchronize]
+    paths-ignore:
+      - 'doc/**'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ (github.head_ref && github.ref) || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  mirror:
+    uses: ./.github/workflows/mirror.yml
+
+  quality-of-life:
+    if: ${{ always() && (github.event_name == 'pull_request') }}
+    needs: [mirror]
+    uses: ./.github/workflows/qol.yml
+
+  ci:
+    if: ${{ always() }}
+    needs: [mirror]
+    uses: ./.github/workflows/ci.yml
+    with:
+      from_push: ${{ github.event_name == 'push' }}

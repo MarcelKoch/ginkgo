@@ -1,7 +1,5 @@
 name: Mirroring
-# When push has condition for branch and path, both are required to be satisfied.
-# Also, Github does not support two push event under on in the same file.
-# We use two files distinguish the developing branches and the main branches carefully.
+
 on:
   workflow_call:
     inputs:
@@ -11,8 +9,24 @@ on:
         default: false
 
 jobs:
-  to_gitlab:
-    runs-on: ubuntu-latest
+  check-skip-ci:
+    runs-on: ubuntu-slim
+    permissions:
+     pull-requests: read
+    outputs:
+     skip: ${{ steps.labels.outputs.skip }}
+    steps:
+     - name: Check for 1:ST:SKIP_ALL_CI label
+       id: labels
+       env:
+         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+       run: |
+         SKIP=$(gh pr list --repo "${{ github.repository }}" --head "${{ github.ref_name }}" --state open \
+           --json labels --jq 'any(.[].labels[].name; . == "1:ST:SKIP_ALL_CI")')
+         echo "skip=${SKIP}" >> "$GITHUB_OUTPUT"
+
+  to-gitlab:
+    runs-on: ubuntu-slim
     steps:
       - name: Checkout
         uses: actions/checkout@v4
