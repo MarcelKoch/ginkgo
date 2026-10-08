@@ -30,28 +30,28 @@ jobs:
   arm:
     if: &run >-
       ${{ !contains(github.event.pull_request.labels.*.name, '1:ST:SKIP_ALL_CI') }}
-    uses: ./.github/workflows/arm.yml
+    uses: ./.github/workflows/ci.arm.yml
     with: &with
       full: false
 
   osx:
     if: *run
-    uses: ./.github/workflows/osx.yml
+    uses: ./.github/workflows/ci.osx.yml
     with: *with
 
   windows-msvc:
     if: *run
-    uses: ./.github/workflows/windows-msvc.yml
+    uses: ./.github/workflows/ci.windows-msvc.yml
     with: *with
 
   linux-gcc:
     if: *run
-    uses: ./.github/workflows/linux-gcc.yml
+    uses: ./.github/workflows/ci.linux-gcc.yml
 
   linux-gcc-cuda:
     if: *run
-    uses: ./.github/workflows/linux-gcc-cuda.yml
+    uses: ./.github/workflows/ci.linux-gcc-cuda.yml
 
   linux-gcc-hip:
     if: *run
-    uses: ./.github/workflows/linux-gcc-hip.yml
+    uses: ./.github/workflows/ci.linux-gcc-hip.yml
