@@ -39,7 +39,7 @@ jobs:
           fi
           echo $(cat config.json)
           echo $(jq -s add config.json)
-          echo "config=$(jq -s add config.json)" >> GITHUB_OUTPUT
+          echo "config=$(jq -s add config.json)" >> $GITHUB_OUTPUT
           echo "$GITHUB_OUTPUT"
 
   dummy:
