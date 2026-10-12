@@ -25,7 +25,7 @@ jobs:
   define-matrix:
     runs-on: ubuntu-slim
     outputs:
-      config: ${{ step.config.outputs.config }}
+      config: ${{ steps.config.outputs.config }}
 
     steps:
       - name: Define Config
