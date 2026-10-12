@@ -29,9 +29,9 @@ jobs:
     uses: ./.github/workflows/ci.osx.yml
     with: *with
 
-  windows-msvc:
+  windows:
     if: *run
-    uses: ./.github/workflows/ci.windows-msvc.yml
+    uses: ./.github/workflows/ci.windows.yml
     with: *with
 
   linux-gcc:
