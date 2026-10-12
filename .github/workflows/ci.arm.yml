@@ -37,10 +37,11 @@ jobs:
           echo "config=$(jq -c -s add config.json)" >> $GITHUB_OUTPUT
 
   arm-omp:
+    needs: define-matrix
     strategy:
       fail-fast: false
       matrix:
-        config: ${{ fromJSON(steps.define-matrix.outputs.config) }}
+        config: ${{ fromJSON(needs.define-matrix.outputs.config) }}
     name: ${{ matrix.config.name }}
     runs-on: [ubuntu-24.04-arm]
     timeout-minutes: 240
