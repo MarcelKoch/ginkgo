@@ -6,6 +6,7 @@ on:
       full:
         description: 'Run all configurations instead of the reduced pull request set'
         type: boolean
+        required: false
         default: true
   workflow_dispatch:
     inputs:
@@ -17,6 +18,7 @@ on:
       full:
         description: 'Run all configurations instead of the reduced pull request set'
         type: boolean
+        required: false
         default: true
 
 jobs:
@@ -26,7 +28,10 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - {shared: "OFF", build_type: "Release", name: "omp/release/static", mixed: "ON", half: "ON", bfloat16: "OFF"}
+          - {run: "true", shared: "OFF", build_type: "Release", name: "omp/release/static", mixed: "ON", half: "ON", bfloat16: "OFF"}
+          - {run: ${{ inputs.full }}, shared: "ON", build_type: "Debug", name: "omp/debug/shared", mixed: "OFF", half: "ON", bfloat16: "OFF"}
+          - {run: ${{ inputs.full }}, shared: "ON", build_type: "Release", name: "omp/release/shared", mixed: "ON", half: "OFF", bfloat16: "ON"}
+          - {run: ${{ inputs.full }}, shared: "ON", build_type: "Release", name: "omp/release/shared-16bit", mixed: "ON", half: "ON", bfloat16: "ON"}
     name: ${{ matrix.config.name }}
     runs-on: [macos-latest]
     timeout-minutes: 240
@@ -96,17 +101,17 @@ jobs:
 #          key: ccache-osx-${{ matrix.config.name }}-${{ github.ref_name }}-${{ github.run_id }}
 
   # the remaining configurations, they reuse env and steps of osx-clang-omp
-  osx-clang-omp-full:
-    if: inputs.full
-    strategy:
-      fail-fast: false
-      matrix:
-        config:
-          - {shared: "ON", build_type: "Debug", name: "omp/debug/shared", mixed: "OFF", half: "ON", bfloat16: "OFF"}
-          - {shared: "ON", build_type: "Release", name: "omp/release/shared", mixed: "ON", half: "OFF", bfloat16: "ON"}
-          - {shared: "ON", build_type: "Release", name: "omp/release/shared-16bit", mixed: "ON", half: "ON", bfloat16: "ON"}
-    name: ${{ matrix.config.name }}
-    runs-on: [macos-latest]
-    timeout-minutes: 240
-    env: *env
-    steps: *steps
+#  osx-clang-omp-full:
+#    if: inputs.full
+#    strategy:
+#      fail-fast: false
+#      matrix:
+#        config:
+#          - {shared: "ON", build_type: "Debug", name: "omp/debug/shared", mixed: "OFF", half: "ON", bfloat16: "OFF"}
+#          - {shared: "ON", build_type: "Release", name: "omp/release/shared", mixed: "ON", half: "OFF", bfloat16: "ON"}
+#          - {shared: "ON", build_type: "Release", name: "omp/release/shared-16bit", mixed: "ON", half: "ON", bfloat16: "ON"}
+#    name: ${{ matrix.config.name }}
+#    runs-on: [macos-latest]
+#    timeout-minutes: 240
+#    env: *env
+#    steps: *steps
