@@ -29,9 +29,9 @@ jobs:
       matrix:
         config:
           - {run: "true", shared: "OFF", build_type: "Release", name: "omp/release/static", mixed: "ON", half: "ON", bfloat16: "OFF"}
-          - {run: ${{ inputs.full }}, shared: "ON", build_type: "Debug", name: "omp/debug/shared", mixed: "OFF", half: "ON", bfloat16: "OFF"}
-          - {run: ${{ inputs.full }}, shared: "ON", build_type: "Release", name: "omp/release/shared", mixed: "ON", half: "OFF", bfloat16: "ON"}
-          - {run: ${{ inputs.full }}, shared: "ON", build_type: "Release", name: "omp/release/shared-16bit", mixed: "ON", half: "ON", bfloat16: "ON"}
+          - {run: "${{ inputs.full }}", shared: "ON", build_type: "Debug", name: "omp/debug/shared", mixed: "OFF", half: "ON", bfloat16: "OFF"}
+          - {run: "${{ inputs.full }}", shared: "ON", build_type: "Release", name: "omp/release/shared", mixed: "ON", half: "OFF", bfloat16: "ON"}
+          - {run: "${{ inputs.full }}", shared: "ON", build_type: "Release", name: "omp/release/shared-16bit", mixed: "ON", half: "ON", bfloat16: "ON"}
     name: ${{ matrix.config.name }}
     runs-on: [macos-latest]
     timeout-minutes: 240
@@ -43,7 +43,7 @@ jobs:
 
     steps: &steps
       - name: Dummy
-        run: echo "${{ matrix.config.name }}"
+        run: echo "${{ matrix.config.name }} ${{ inputs.full }}"
 #
 #      - name: Checkout the latest code (shallow clone)
 #        uses: actions/checkout@v4
