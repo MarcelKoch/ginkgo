@@ -39,8 +39,7 @@ jobs:
           fi
           echo $(cat config.json)
           echo $(jq -s add config.json)
-          echo "config=$(jq -s add config.json)" >> $GITHUB_OUTPUT
-          echo "$GITHUB_OUTPUT"
+          echo "config=$(jq -c -s add config.json)" >> $GITHUB_OUTPUT
 
   dummy:
     needs: define-matrix
