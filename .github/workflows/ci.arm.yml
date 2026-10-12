@@ -20,13 +20,27 @@ on:
         default: true
 
 jobs:
+  define-matrix:
+    runs-on: ubuntu-slim
+    outputs:
+      config: ${{ steps.config.outputs.config }}
+    steps:
+      - name: Define Config
+        id: config
+        run: |
+          echo '[{"shared": "ON", "build_type": "Release", "name": "arm/omp/release/shared-16bit", "mixed": "ON", "half": "ON", "bfloat16": "ON"}]' >> config.json
+          if [[ "${{ inputs.full }}" == "true" ]]; then
+            echo '[{"shared": "ON", "build_type": "Debug", "name": "arm/omp/debug/shared", "mixed": "OFF", "half": "ON", "bfloat16": "OFF"}]' >> config.json
+            echo '[{"shared": "OFF", "build_type": "Release", "name": "arm/omp/release/static", "mixed": "ON", "half": "ON", "bfloat16": "OFF"}]' >> config.json
+            echo '[{"shared": "ON", "build_type": "Release", "name": "arm/omp/release/shared", "mixed": "ON", "half": "OFF", "bfloat16": "ON"}]' >> config.json
+          fi
+          echo "config=$(jq -c -s add config.json)" >> $GITHUB_OUTPUT
+
   arm-omp:
-    if: ${{ !inputs.full }}
     strategy:
       fail-fast: false
       matrix:
-        config:
-          - {shared: "ON", build_type: "Release", name: "arm/omp/release/shared-16bit", mixed: "ON", half: "ON", bfloat16: "ON"}
+        config: ${{ fromJSON(steps.define-matrix.outputs.config) }}
     name: ${{ matrix.config.name }}
     runs-on: [ubuntu-24.04-arm]
     timeout-minutes: 240
@@ -95,19 +109,3 @@ jobs:
 #        with:
 #          path: .ccache
 #          key: ccache-${{ matrix.config.name }}-${{ github.ref_name }}-${{ github.run_id }}
-
-  # the remaining configurations, they reuse env and steps of arm-omp
-  arm-omp-full:
-    if: inputs.full
-    strategy:
-      fail-fast: false
-      matrix:
-        config:
-          - {shared: "ON", build_type: "Debug", name: "arm/omp/debug/shared", mixed: "OFF", half: "ON", bfloat16: "OFF"}
-          - {shared: "OFF", build_type: "Release", name: "arm/omp/release/static", mixed: "ON", half: "ON", bfloat16: "OFF"}
-          - {shared: "ON", build_type: "Release", name: "arm/omp/release/shared", mixed: "ON", half: "OFF", bfloat16: "ON"}
-    name: ${{ matrix.config.name }}
-    runs-on: [ubuntu-24.04-arm]
-    timeout-minutes: 240
-    env: *env
-    steps: *steps
