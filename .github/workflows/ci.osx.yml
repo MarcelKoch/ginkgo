@@ -37,7 +37,7 @@ jobs:
             echo '[{"shared": "ON", "build_type": "Release", "name": "omp/release/shared", "mixed": "ON", "half": "OFF", "bfloat16": "OFF"}]' >> config.json
             echo '[{"shared": "ON", "build_type": "Release", "name": "omp/release/shared-16bit", "mixed": "ON", "half": "ON", "bfloat16": "OFF"}]' >> config.json
           fi
-          echo "config=$(jq -s add config.json)" > GITHUB_OUTPUT
+          echo "config=$(jq -s add config.json)" >> GITHUB_OUTPUT
           echo "$GITHUB_OUTPUT"
 
   osx-clang-omp:
