@@ -42,6 +42,13 @@ jobs:
           echo "config=$(jq -s add config.json)" >> GITHUB_OUTPUT
           echo "$GITHUB_OUTPUT"
 
+  dummy:
+    needs: define-matrix
+    runs-on: ubuntu-slim
+    steps:
+      - name: Dummy
+        run: echo "${{ needs.define-matrix.outputs.config }}"
+
   osx-clang-omp:
     needs: define-matrix
     strategy:
