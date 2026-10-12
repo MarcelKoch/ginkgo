@@ -22,16 +22,29 @@ on:
         default: true
 
 jobs:
+  define-matrix:
+    runs-on: ubuntu-slim
+    outputs:
+      config: ${{ step.config.outputs.config }}
+
+    steps:
+      - name: Define Config
+        id: config
+        run: |
+          echo '[{"shared": "OFF", "build_type": "Release", "name": "omp/release/static", "mixed": "ON", "half": "ON", "bfloat16": "OFF"}]' >> config.json
+          if [[ "${{ inputs.full }}" == "true" ]]; then
+            echo '[{"shared": "ON", "build_type": "Debug", "name": "omp/debug/shared", "mixed": "OFF", "half": "ON", "bfloat16": "OFF"}]' >> config.json
+            echo '[{"shared": "ON", "build_type": "Release", "name": "omp/release/shared", "mixed": "ON", "half": "OFF", "bfloat16": "OFF"}]' >> config.json
+            echo '[{"shared": "ON", "build_type": "Release", "name": "omp/release/shared-16bit", "mixed": "ON", "half": "ON", "bfloat16": "OFF"}]' >> config.json
+          fi
+          export config=$(jq -s add config.json)
+
   osx-clang-omp:
-    if: ${{ !inputs.full }}
+    needs: define-matrix
     strategy:
       fail-fast: false
       matrix:
-        config:
-          - {run: "true", shared: "OFF", build_type: "Release", name: "omp/release/static", mixed: "ON", half: "ON", bfloat16: "OFF"}
-          - {run: "${{ inputs.full }}", shared: "ON", build_type: "Debug", name: "omp/debug/shared", mixed: "OFF", half: "ON", bfloat16: "OFF"}
-          - {run: "${{ inputs.full }}", shared: "ON", build_type: "Release", name: "omp/release/shared", mixed: "ON", half: "OFF", bfloat16: "ON"}
-          - {run: "${{ inputs.full }}", shared: "ON", build_type: "Release", name: "omp/release/shared-16bit", mixed: "ON", half: "ON", bfloat16: "ON"}
+        config: ${{ fromJSON(needs.define-matrix.outputs.config) }}
     name: ${{ matrix.config.name }}
     runs-on: [macos-latest]
     timeout-minutes: 240
@@ -43,7 +56,7 @@ jobs:
 
     steps: &steps
       - name: Dummy
-        run: echo "${{ matrix.config.name }} ${{ inputs.full }}"
+        run: echo "${{ matrix.config.name }}"
 #
 #      - name: Checkout the latest code (shallow clone)
 #        uses: actions/checkout@v4
@@ -99,19 +112,3 @@ jobs:
 #        with:
 #          path: .ccache
 #          key: ccache-osx-${{ matrix.config.name }}-${{ github.ref_name }}-${{ github.run_id }}
-
-  # the remaining configurations, they reuse env and steps of osx-clang-omp
-#  osx-clang-omp-full:
-#    if: inputs.full
-#    strategy:
-#      fail-fast: false
-#      matrix:
-#        config:
-#          - {shared: "ON", build_type: "Debug", name: "omp/debug/shared", mixed: "OFF", half: "ON", bfloat16: "OFF"}
-#          - {shared: "ON", build_type: "Release", name: "omp/release/shared", mixed: "ON", half: "OFF", bfloat16: "ON"}
-#          - {shared: "ON", build_type: "Release", name: "omp/release/shared-16bit", mixed: "ON", half: "ON", bfloat16: "ON"}
-#    name: ${{ matrix.config.name }}
-#    runs-on: [macos-latest]
-#    timeout-minutes: 240
-#    env: *env
-#    steps: *steps
