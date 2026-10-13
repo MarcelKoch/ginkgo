@@ -25,7 +25,7 @@ jobs:
       fail-fast: false
       matrix:
         os: ${{ fromJSON(case(inputs.full, '["windows-2022", "windows-latest"]', '["windows-latest"]')) }}
-    name: msvc/${{ matrix.os }}
+    name: msvc / ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     steps:
     - name: Dummy
@@ -56,7 +56,7 @@ jobs:
       matrix:
         config:
           - {version: "latest", name: "cuda-latest/release/shared", "mixed": "ON"}
-    name: msvc/${{ matrix.config.name }} (only compile)
+    name: msvc / ${{ matrix.config.name }} (only compile)
     runs-on: [windows-2022]
 
     steps:
@@ -97,7 +97,7 @@ jobs:
       matrix:
         config:
           - {version: "latest", name: "mpi-latest/release/shared", "mixed": "OFF"}
-    name: msvc/${{ matrix.config.name }} (only compile)
+    name: msvc / ${{ matrix.config.name }} (only compile)
     runs-on: [windows-2022]
 
     steps:
