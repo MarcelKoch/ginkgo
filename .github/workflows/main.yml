@@ -26,6 +26,8 @@ jobs:
   quality-of-life-group:
     name: Quality of Life Group
     runs-on: ubuntu-slim
+    if: ${{ always() }}
+    needs: [mirror]
     steps:
       - run: 'true'
 
@@ -38,6 +40,8 @@ jobs:
   ci-group:
     name: CI Group
     runs-on: ubuntu-slim
+    if: ${{ always() }}
+    needs: [mirror]
     steps:
       - run: 'true'
 
