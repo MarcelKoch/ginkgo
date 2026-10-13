@@ -21,15 +21,11 @@ on:
 
 jobs:
   cpu:
-    strategy:
-      fail-fast: false
-      matrix:
-        os: ${{ fromJSON(case(inputs.full, '["windows-2022", "windows-latest"]', '["windows-latest"]')) }}
-    name: msvc / ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
+    name: msvc / windows-latest
+    runs-on: windows-latest
     steps:
     - name: Dummy
-      run: echo "${{ matrix.config.name }}"
+      run: echo windows-latest
 #    - name: Checkout the latest code (shallow clone)
 #      uses: actions/checkout@v4
 #    - name: Debug over SSH (tmate)
@@ -51,17 +47,16 @@ jobs:
 
   cuda:
     if: ${{ inputs.full }}
-    strategy:
-      fail-fast: false
-      matrix:
-        config:
-          - {version: "latest", name: "cuda-latest/release/shared", "mixed": "ON"}
-    name: msvc / ${{ matrix.config.name }} (only compile)
+    env:
+      version: latest
+      name: cuda-latest/release/shared
+      mixed: ON
+    name: msvc / ${{ env.name }} (only compile)
     runs-on: [windows-2022]
 
     steps:
       - name: Dummy
-        run: echo "${{ matrix.config.name }}"
+        run: echo "${{ env.name }}"
 #    - name: Checkout the latest code (shallow clone)
 #      uses: actions/checkout@v4
 #    - name: setup (versioned)
@@ -92,17 +87,16 @@ jobs:
 
   mpi:
     if: ${{ inputs.full }}
-    strategy:
-      fail-fast: false
-      matrix:
-        config:
-          - {version: "latest", name: "mpi-latest/release/shared", "mixed": "OFF"}
-    name: msvc / ${{ matrix.config.name }} (only compile)
+    env:
+      version: latest
+      name: mpi-latest/release/shared
+      mixed: OFF
+    name: msvc / ${{ env.name }} (only compile)
     runs-on: [windows-2022]
 
     steps:
       - name: Dummy
-        run: echo "${{ matrix.config.name }}"
+        run: echo ${{ env.name }}
 #    - name: Checkout the latest code (shallow clone)
 #      uses: actions/checkout@v4
 #    - name: Setup MPI
