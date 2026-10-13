@@ -21,7 +21,6 @@ on:
 
 jobs:
   cpu:
-    name: msvc / windows-latest
     runs-on: windows-latest
     steps:
     - name: Dummy
@@ -51,7 +50,6 @@ jobs:
       version: latest
       name: cuda-latest/release/shared
       mixed: ON
-    name: msvc / ${{ env.name }} (only compile)
     runs-on: [windows-2022]
 
     steps:
@@ -91,7 +89,6 @@ jobs:
       version: latest
       name: mpi-latest/release/shared
       mixed: OFF
-    name: msvc / ${{ env.name }} (only compile)
     runs-on: [windows-2022]
 
     steps:
