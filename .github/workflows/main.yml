@@ -23,16 +23,22 @@ jobs:
     name: Mirror
     uses: ./.github/workflows/mirror.yml
 
+  quality-of-life-group:
+    name: Quality of Life Group
+
   quality-of-life:
     name: Quality of Life
     if: ${{ always() && (github.event_name == 'pull_request') }}
-    needs: [mirror]
+    needs: [mirror, quality-of-life-group]
     uses: ./.github/workflows/qol.yml
+
+  ci-group:
+    name: CI Group
 
   ci:
     name: CI
     if: ${{ always() }}
-    needs: [mirror]
+    needs: [mirror, ci-group]
     uses: ./.github/workflows/ci.yml
     with:
       from_push: ${{ github.event_name == 'push' }}
