@@ -20,14 +20,17 @@ concurrency:
 
 jobs:
   mirror:
+    name: Mirror
     uses: ./.github/workflows/mirror.yml
 
   quality-of-life:
+    name: Quality of Life
     if: ${{ always() && (github.event_name == 'pull_request') }}
     needs: [mirror]
     uses: ./.github/workflows/qol.yml
 
   ci:
+    name: CI
     if: ${{ always() }}
     needs: [mirror]
     uses: ./.github/workflows/ci.yml
