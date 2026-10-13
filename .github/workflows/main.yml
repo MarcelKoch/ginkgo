@@ -25,6 +25,7 @@ jobs:
 
   quality-of-life-group:
     name: Quality of Life Group
+    runs-on: ubuntu-slim
 
   quality-of-life:
     name: Quality of Life
@@ -34,6 +35,7 @@ jobs:
 
   ci-group:
     name: CI Group
+    runs-on: ubuntu-slim
 
   ci:
     name: CI
